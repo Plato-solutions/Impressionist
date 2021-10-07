@@ -1,0 +1,44 @@
+{
+  "type": "module",
+  "name": "impressionist",
+  "version": "0.4.0-alpha",
+  "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
+  "main": "./src/process.js",
+  "scripts": {
+    "test": "mocha --timeout 60000 --recursive ./test/collector/**",
+    "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
+    "test-Collection": "mocha --timeout 60000 --recursive ./test/collector/collection/**",
+    "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessor/**",
+    "test-factory": "mocha --timeout 60000 ./test/collector/factory/**",
+    "test-option": "mocha --timeout 60000 --recursive ./test/collector/option/**",
+    "test-option-strategies": "mocha --timeout 60000 --recursive ./test/collector/option/strategy/**",
+    "test-Query": "mocha --timeout 60000 ./test/collector/query/query.js",
+    "test-querySelectors": "mocha --timeout 60000 ./test/collector/query/selectors/**",
+    "test-queryInterpreter": "mocha --timeout 60000 --recursive ./test/collector/query/interpreter/**",
+    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Plato-solutions/Impressionist.git"
+  },
+  "keywords": [
+    "scrape",
+    "scraper",
+    "browser"
+  ],
+  "author": "Rhonal Velasco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Plato-solutions/Impressionist/issues"
+  },
+  "homepage": "https://github.com/Plato-solutions/Impressionist#readme",
+  "dependencies": {
+    "@sentry/node": "^6.13.3",
+    "puppeteer": "^10.4.0",
+    "puppeteer-page-proxy": "^1.2.8"
+  },
+  "devDependencies": {
+    "jsdoc-to-markdown": "^7.0.1",
+    "mocha": "^9.1.2"
+  }
+}

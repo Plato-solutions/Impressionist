@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Impressionist HTML Tests</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+    <h1>Plato Plugin</h1>
+    <div id="logo">Logo Image<img src="http://platoanalytics.com/logo.jpg" alt="logo"></div>
+    <div>
+        <h2>Carousel</h2>
+        <div id="carousel">
+            <img src="http://platoanalytics.com/img1.jpg" alt="img1">
+            <img src="http://platoanalytics.com/img2.jpg" alt="img2">
+            <img src="http://platoanalytics.com/img3.jpg" alt="img3">
+            <img src="http://platoanalytics.com/img4.jpg" alt="img4">
+        </div>
+    </div>    
+    <div>
+        <h2>Node List</h2>
+        <div id="reviews">
+            <ul>
+                <li>
+                    <div>
+                        <span>Title: </span>
+                        <span id="review-title">It is okay</span>
+                    </div>
+                    <div>
+                        <span>Author: </span>
+                        <span id="review-author">John Doe</span>
+                    </div>
+                    <div>
+                        <span>Rating: </span>
+                        <span id="review-rating">4</span>
+                    </div>
+                    <div>
+                        <span>Date: </span>
+                        <span id="review-date">01-12-2021</span>
+                    </div>
+                    <p id="review-body">
+                        Nice product. I would recommend the version X.
+                    </p>
+                </li>
+                <li>
+                    <div>
+                        <span>Title: </span>
+                        <span id="review-title">Amazing!</span>
+                    </div>
+                    <div>
+                        <span>Author: </span>
+                        <span id="review-author">Richard Roe</span>
+                    </div>
+                    <div>
+                        <span>Rating: </span>
+                        <span id="review-rating">5</span>
+                    </div>
+                    <div>
+                        <span>Date: </span>
+                        <span id="review-date">10-12-2021</span>
+                    </div>
+                    <p id="review-body">
+                        Really good product.
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div>
+        <h2>Option Series</h2>
+        <select name="option-1" id="option-1">
+            <option value="10">val-10</option>
+            <option value="20">val-20</option>
+            <option value="30">val-30</option>
+        </select>
+        <select name="option-1" id="option-2">
+            <option value="40">val-40</option>
+            <option value="50">val-50</option>
+        </select>
+        <select name="option-1" id="option-3">
+            <option value="60">val-60</option>
+            <option value="70">val-70</option>
+            <option value="80">val-80</option>
+        </select>
+        <div>
+            <span>Result: </span>
+            <span id="price">110</span>
+        </div>
+    </div>
+    <div>
+        <h2>No Option Series</h2>
+        <select name="option-1" id="option-no-options-1">
+        </select>
+    </div>
+    <div>
+        <h2>DIV - Option Series</h2>
+        <div id="div-1" style="display: block;" value="10">
+            <div style="background-color: #c8e6c9; float: left; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="10">div-val-10</div>
+            <div style="background-color: #c8e6c9; float: left; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="20">div-val-20</div>
+            <div style="background-color: #c8e6c9; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="30">div-val-30</div>
+        </div>
+        <div id="div-2" style="display: block;" value="40">
+            <div style="background-color: #b3e5fc; float: left; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="40">div-val-40</div>
+            <div style="background-color: #b3e5fc; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="50">div-val-50</div>
+        </div>
+        <div id="div-3" style="display: block;" value="60">
+            <div style="background-color: #fff9c4; float: left; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="60">div-val-60</div>
+            <div style="background-color: #fff9c4; float: left; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="70">div-val-70</div>
+            <div style="background-color: #fff9c4; width: 50px; padding: 5px; margin: 5px; cursor: pointer;" value="80">div-val-80</div>
+        </div>
+        <div>
+            <span>Result: </span>
+            <span id="price-div">110</span>
+        </div>
+    </div>
+    <div>
+        <h2>No Div option Series</h2>
+        <div id="div-no-optios-1" style="display: block;" value="10">
+        </div>
+    </div>
+    <div>
+        <h2>Toogle option</h2>
+        <div id="toogle">
+            <input type="checkbox" style="float: left;">
+            <p>Free Installation</p>
+        </div>
+    </div>
+    <script>
+
+        function registerEvent(options, listener, ...events) {
+
+            options.map(option => option.addEventListener(listener, customEvents));
+
+            function customEvents() {
+                const originalElement = this;
+                events.map(customEvent => {
+                    customEvent(originalElement);
+                });
+            }
+        }
+
+        function makePriceEvent(selector, elements) {
+            return function () {
+                const priceElement = document.querySelector(selector);
+                const values = elements.map(option => option.getAttribute('value'));
+                const totalPrice = values.reduce((accumulator, currentValue) => Number.parseInt(accumulator) + Number.parseInt(currentValue), 0);
+                priceElement.innerText = totalPrice;
+            };
+        }
+
+        function makePriceSelectEvent(selector, elements) {
+            return function () {
+                const priceElement = document.querySelector(selector);
+                const values = elements.map(option => option.value);
+                const totalPrice = values.reduce((accumulator, currentValue) => Number.parseInt(accumulator) + Number.parseInt(currentValue), 0);
+                priceElement.innerText = totalPrice;
+            };
+        }
+
+        function getSelectItems() {
+            const select1Value = document.querySelector('#option-1');
+            const select2Value = document.querySelector('#option-2');
+            const select3Value = document.querySelector('#option-3');
+
+            return [select1Value, select2Value, select3Value];
+        }
+        
+        registerEvent(getSelectItems(), 'change', makePriceSelectEvent('#price', getSelectItems()));
+        
+        
+        function changeDivValue(parentDiv) {
+            return function (child) {
+                childValue = child.getAttribute('value');
+                parentDiv.setAttribute('value', childValue);
+            }
+        }
+        
+        registerEvent(Array.from(document.querySelectorAll('#div-1 > div')), 'click', changeDivValue(document.querySelector('#div-1')));
+        registerEvent(Array.from(document.querySelectorAll('#div-2 > div')), 'click', changeDivValue(document.querySelector('#div-2')));
+        registerEvent(Array.from(document.querySelectorAll('#div-3 > div')), 'click', changeDivValue(document.querySelector('#div-3')));
+        
+        function getDivItems() {
+            const div1 = document.querySelector('#div-1');
+            const div2 = document.querySelector('#div-2');
+            const div3 = document.querySelector('#div-3');
+        
+            return [div1, div2, div3];
+        }
+
+        registerEvent(getDivItems(), 'click', makePriceEvent('#price-div', getDivItems()));
+
+    </script>
+</body>
+</html>
