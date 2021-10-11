@@ -3,7 +3,7 @@ import * as Impressionist from '../../../src/index.js';
 import NanoServer from '../../testing-server/server.js';
 import puppeteer from 'puppeteer';
 
-describe('Collector Class', () => {
+describe('ElementCollectorFactory Class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -32,11 +32,44 @@ describe('Collector Class', () => {
             const context = new Context();
             const result = await data.call(context);
             
-            return result.length;
+            let values = [];
+
+            for await(let el of result[0]) {
+                values.push(el);
+            }
+
+            return values.length;
 
         });
 
         assert.strictEqual(result, 2);
+    });
+
+    it('Return an empty array because non-existing DOM elements', async () => {
+        const result = await page.evaluate(async () => {
+
+            const data = ( function () {
+
+                const css = SelectorDirectory.get('css');
+    
+                return new ElementCollectorFactory('{#reviews > ul > la}*');
+        
+            } )();
+
+            const context = new Context();
+            const result = await data.call(context);
+            
+            let values = [];
+
+            for await(let el of result[0]) {
+                values.push(el);
+            }
+
+            return values.length;
+
+        });
+
+        assert.strictEqual(result, 0);
     });
 
     after(async () => {
