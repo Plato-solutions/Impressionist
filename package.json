@@ -5,7 +5,8 @@
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
-    "test": "mocha --timeout 60000 --recursive ./test/collector/**",
+    "coverage": "c8 --100 npm test",
+    "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
     "test-Collection": "mocha --timeout 60000 --recursive ./test/collector/collection/**",
     "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessor/**",
@@ -38,6 +39,7 @@
     "puppeteer-page-proxy": "^1.2.8"
   },
   "devDependencies": {
+    "c8": "^7.10.0",
     "jsdoc-to-markdown": "^7.0.1",
     "mocha": "^9.1.2"
   }
