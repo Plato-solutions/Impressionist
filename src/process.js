@@ -271,6 +271,7 @@ class Process {
         await page.goto(url, navigation);
 
         Process.#enableDebugMode(page);
+        await Process.#exposeLogger(page);
 
         await Process.#enableImpressionist(page);
         await Process.#registerSelectors(page);
@@ -308,6 +309,12 @@ class Process {
 
             });
         }
+    }
+
+    static async #exposeLogger(page) {
+        await page.exposeFunction('logger', (record) => {
+            Process.#loggerTool.log(record);
+        });
     }
 
     /**
