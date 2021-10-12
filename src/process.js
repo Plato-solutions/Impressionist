@@ -18,10 +18,16 @@ class Process {
 
     /**
      * @private
-     * Default monitoring tool, which in this case is Sentry.
+     * Monitoring tool. By default is Sentry class.
      */
-     static #monitoringTool = Sentry;
+    static #monitoringTool = Sentry;
     
+    /**
+     * @private
+     * Logger. By default is Pino class.
+     */
+    static #loggerTool = Pino;
+
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
      * by executing a series of steps, such as initializing a Browser instance and applying
