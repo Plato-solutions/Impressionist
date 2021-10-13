@@ -102,20 +102,6 @@ class Process {
     }
 
     /**
-     * Define the monitoring tool to be used. The use of this method is optional since Sentry is applied by default.
-     * However, in case it is required to disable Sentry and not use any monitoring tool,
-     * then this method must be called without any input parameters.
-     * 
-     * @param { Sentry | object } [monitoringTool] - Object or instance of the Monitoring tool.
-     * @param { function } [monitoringTool.setConfigurations = ()=>{}] - Method that configures the tool.
-     * @param { function } [monitoringTool.sendException = async ()=>{ return true }] - 
-     * Method that receives the generated error and processes it.
-     */
-    static setMonitoringTool(monitoringTool = { setConfigurations: ()=>{}, sendException: async ()=>{ return true } }) {
-        Process.#monitoringTool = monitoringTool;
-    }
-
-    /**
      * Open a connection to a browser instance.
      * @param { string } url - Target URL for scraping process.
      * @param { object } [ browserOptions = {} ] - Please read the documentation
@@ -402,6 +388,28 @@ class Process {
         const page = await target.page();
 
         return await customFunction(browser, page, ...args);
+    }
+
+    /**
+     * Define the monitoring tool to be used. The use of this method is optional since Sentry is applied by default.
+     * However, in case it is required to disable Sentry and not use any monitoring tool,
+     * then this method must be called without any input parameters.
+     * 
+     * @param { Sentry | object } [monitoringTool] - Object or instance of the Monitoring tool.
+     * @param { function } [monitoringTool.setConfigurations = ()=>{}] - Method that configures the tool.
+     * @param { function } [monitoringTool.sendException = async ()=>{ return true }] - 
+     * Method that receives the generated error and processes it.
+     */
+    static setMonitoringTool(monitoringTool = { setConfigurations: ()=>{}, sendException: async ()=>{ return true } }) {
+        Process.#monitoringTool = monitoringTool;
+    }
+
+    /**
+     * Define the logger tool to be used. The use of this method is optional since Pino is applied by default.
+     * @param { Pino | object } logger 
+     */
+    static setLogger(logger) {
+        Process.#loggerTool = logger;
     }
 }
 
