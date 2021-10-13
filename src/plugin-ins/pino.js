@@ -3,6 +3,21 @@ import Environment from '../environment';
 
 class Pino {
 
+    static log(report) {
+    
+    }
+
+    static #error(report) {
+
+    }
+
+    static #info(report) {
+
+    }
+
+    static #debug(report) {
+
+    }
 }
 
 export default Pino;
