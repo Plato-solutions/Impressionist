@@ -3,7 +3,7 @@ import * as Impressionist from '../../../src/index.js';
 import NanoServer from '../../testing-server/server.js';
 import puppeteer from 'puppeteer';
 
-describe('Collector Class', () => {
+describe('OptionCollectorFactory Class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -105,34 +105,38 @@ describe('Collector Class', () => {
 
       });
 
-      console.log(result);
-
-      /* assert.deepStrictEqual(result, [
-          [
-            { value: '40', support: 'val-40' },
-            { value: '10', edition: 'val-10' }
-          ],
-          [
-            { value: '50', support: 'val-50' },
-            { value: '10', edition: 'val-10' }
-          ],
-          [
-            { value: '40', support: 'val-40' },
-            { value: '20', edition: 'val-20' }
-          ],
-          [
-            { value: '50', support: 'val-50' },
-            { value: '20', edition: 'val-20' }
-          ],
-          [
-            { value: '40', support: 'val-40' },
-            { value: '30', edition: 'val-30' }
-          ],
-          [
-            { value: '50', support: 'val-50' },
-            { value: '30', edition: 'val-30' }
-          ]
-      ]); */
+      assert.deepStrictEqual(result, [
+        [
+          { value: null, additional: null },
+          { value: '40', support: 'val-40' },
+          { value: '10', edition: 'val-10' }
+        ],
+        [
+          { value: null, additional: null },
+          { value: '50', support: 'val-50' },
+          { value: '10', edition: 'val-10' }
+        ],
+        [
+          { value: null, additional: null },
+          { value: '40', support: 'val-40' },
+          { value: '20', edition: 'val-20' }
+        ],
+        [
+          { value: null, additional: null },
+          { value: '50', support: 'val-50' },
+          { value: '20', edition: 'val-20' }
+        ],
+        [
+          { value: null, additional: null },
+          { value: '40', support: 'val-40' },
+          { value: '30', edition: 'val-30' }
+        ],
+        [
+          { value: null, additional: null },
+          { value: '50', support: 'val-50' },
+          { value: '30', edition: 'val-30' }
+        ]
+      ]);
   });
 
     after(async () => {
