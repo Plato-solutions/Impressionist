@@ -30,7 +30,9 @@ spec:
                 sh 'npm run docs'    
                 git branch: 'main', credentialsId: '39120abd-1899-4404-a04b-b50842b08537', url: 'https://github.com/Plato-solutions/impressionist-docs.git'
                 // sh 'npm install'
-                sh 'sleep 100000000'
+                //sh 'sleep 100000000'
+                sh 'cp /home/jenkins/agent/workspace/impresionist/docs/jsdoc-output/api.md /home/jenkins/agent/workspace/impressionist-docs/'
+                sh 'git status'
                 //sh 'npm run docs'
 
             }   
