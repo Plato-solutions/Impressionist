@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Selectors', () => {
+describe.only('Selectors - Property', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -18,14 +18,14 @@ describe('Selectors', () => {
         await Impressionist.Process.setPageConfigurations(page, url);
     });
 
-    describe('Css class - Errors', () => {
+    describe('Errors', () => {
 
         it('Passing an undefined context', async () => {
             
             async function missingThrowError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new Css('h1');
+                    const selector = new Property('innerText');
 
                     return await selector.call(); // Undefined context;
                 });
@@ -34,7 +34,7 @@ describe('Selectors', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Css - The context is not an instance of Context class./
+                message: /Property - The context is not an instance of Context class./
             });
 
         });
@@ -44,7 +44,7 @@ describe('Selectors', () => {
             async function missingThrowError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new Css('h1');
+                    const selector = new Property('innerText');
 
                     return await selector.call({ context: 'fake' });
                 });
@@ -53,7 +53,7 @@ describe('Selectors', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Css - The context is not an instance of Context class./
+                message: /Property - The context is not an instance of Context class./
             });
 
         });
@@ -63,7 +63,7 @@ describe('Selectors', () => {
             async function missingThrowError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new Css(123);
+                    const selector = new Property(123);
 
                     return await selector.call(new Context());
                 });
@@ -72,7 +72,7 @@ describe('Selectors', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Css - Constructor definition should be a string. Instead it received a number./
+                message: /Property - Constructor definition should be a string. Instead it received a number./
             });
 
         });
