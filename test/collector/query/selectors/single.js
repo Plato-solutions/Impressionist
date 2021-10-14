@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Single - Property', () => {
+describe('Selector - Single', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';

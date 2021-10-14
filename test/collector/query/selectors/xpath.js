@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Selectors - Xpath', () => {
+describe('Selector - Xpath', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';

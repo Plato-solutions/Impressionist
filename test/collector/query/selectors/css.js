@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe.only('Selectors', () => {
+describe('Selector - Css', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -18,7 +18,7 @@ describe.only('Selectors', () => {
         await Impressionist.Process.setPageConfigurations(page, url);
     });
 
-    describe('Css class - Errors', () => {
+    describe('Errors', () => {
 
         it('Passing an undefined context', async () => {
             
