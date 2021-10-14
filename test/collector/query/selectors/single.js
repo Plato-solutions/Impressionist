@@ -34,7 +34,7 @@ describe('Single - Property', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Property - The context is not an instance of Context class./
+                message: /Single - The context is not an instance of Context class./
             });
 
         });
@@ -53,7 +53,7 @@ describe('Single - Property', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Property - The context is not an instance of Context class./
+                message: /Single - The context is not an instance of Context class./
             });
 
         });
