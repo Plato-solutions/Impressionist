@@ -3,7 +3,7 @@ import * as Impressionist from '../../../src/index.js';
 import NanoServer from '../../testing-server/server.js';
 import puppeteer from 'puppeteer';
 
-describe.only('Collection Class', () => {
+describe('Collection Class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
