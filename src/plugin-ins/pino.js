@@ -3,10 +3,6 @@ import Environment from '../environment';
 
 class Pino {
 
-    static log(report) {
-    
-    }
-
     static #error(report) {
 
     }
