@@ -58,7 +58,7 @@ describe('Selector - Merge', () => {
 
         });
 
-        it('Passing no object or empty definition', async () => {
+        it('Passing no array definition', async () => {
 
             async function missingThrowError() {    
 
