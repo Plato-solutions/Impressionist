@@ -16,7 +16,8 @@
     "test-Query": "mocha --timeout 60000 ./test/collector/query/query.js",
     "test-querySelectors": "mocha --timeout 60000 ./test/collector/query/selectors/**",
     "test-queryInterpreter": "mocha --timeout 60000 --recursive ./test/collector/query/interpreter/**",
-    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js"
+    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js",
+    "test-error-css": "mocha --timeout 60000 ./test/collector/query/selectors/css.js"
   },
   "repository": {
     "type": "git",
