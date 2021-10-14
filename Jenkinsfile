@@ -28,7 +28,7 @@ spec:
                 sh 'ls -lah ./docs'
                 sh 'ls -lah ./docs/jsdoc-output/'
                 sh 'npm run docs'    
-                sh 'cd .. && git branch: 'main', credentialsId: '39120abd-1899-4404-a04b-b50842b08537', url: 'https://github.com/Plato-solutions/impressionist-docs.git"'
+                sh 'git branch: 'main', credentialsId: '39120abd-1899-4404-a04b-b50842b08537', url: 'https://github.com/Plato-solutions/impressionist-docs.git"'
                 // sh 'npm install'
                 
                 //sh 'npm run docs'
