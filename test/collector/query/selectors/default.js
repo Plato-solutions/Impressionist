@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Selector - All', () => {
+describe('Selector - Default', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -25,7 +25,7 @@ describe('Selector - All', () => {
             async function missingThrowError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new All();
+                    const selector = new Default();
 
                     return await selector.call(); // Undefined context;
                 });
@@ -34,7 +34,7 @@ describe('Selector - All', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /All - The context is not an instance of Context class./
+                message: /Default - The context is not an instance of Context class./
             });
 
         });
@@ -44,7 +44,7 @@ describe('Selector - All', () => {
             async function missingThrowError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new All();
+                    const selector = new Default();
 
                     return await selector.call({ context: 'fake' });
                 });
@@ -53,26 +53,7 @@ describe('Selector - All', () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /All - The context is not an instance of Context class./
-            });
-
-        });
-
-        it('Passing no object or empty definition', async () => {
-
-            async function missingThrowError() {    
-
-                return await page.evaluate(async () => {
-                    const selector = new All(123);
-
-                    return await selector.call(new Context());
-                });
-
-            } 
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /All - Constructor definition should be an object or empty. Instead it received a number./
+                message: /Default - The context is not an instance of Context class./
             });
 
         });
