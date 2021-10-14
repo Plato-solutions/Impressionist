@@ -298,8 +298,8 @@ class Process {
     }
 
     static async #exposeLogger(page) {
-        await page.exposeFunction('logger', (record) => {
-            Process.#loggerTool.log(record);
+        await page.exposeFunction('logger', (report) => {
+            Process.#loggerTool.log(report);
         });
     }
 
