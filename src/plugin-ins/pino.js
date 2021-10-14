@@ -8,17 +8,15 @@ class Pino {
         level: 'debug',
     });
 
-    static error(report) {
-
+    static log(report) {
+        const { origin, level, element, message } = report;
+        
+        Pino.#logger[level]({
+            origin,
+            element
+        }, message);
     }
 
-    static info(report) {
-
-    }
-
-    static debug(report) {
-
-    }
 }
 
 export default Pino;
