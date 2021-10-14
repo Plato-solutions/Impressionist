@@ -1,5 +1,5 @@
 import pino from 'pino';
-import Environment from '../environment';
+import Environment from '../environment.js';
 
 class Pino {
 

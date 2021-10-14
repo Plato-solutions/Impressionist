@@ -1,10 +1,10 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
 import Sentry from './plugin-ins/sentry.js';
+import Pino from './plugin-ins/pino.js';
 import Environment from './environment.js';
 import * as Collectors from '../lib/collector/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
-import { Collection } from '../lib/collector/index.js';
 
 /**
  * Provides {@link https://pptr.dev/ Puppeteer} initialization by creating
