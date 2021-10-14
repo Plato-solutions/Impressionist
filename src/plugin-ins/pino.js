@@ -9,11 +9,11 @@ class Pino {
     });
 
     static log(report) {
-        const { origin, level, element, message } = report;
+        const { origin, level, elements, message } = report;
         
         Pino.#logger[level]({
             origin,
-            element
+            elements
         }, message);
     }
 
