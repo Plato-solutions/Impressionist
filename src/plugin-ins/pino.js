@@ -3,15 +3,20 @@ import Environment from '../environment.js';
 
 class Pino {
 
-    static #error(report) {
+    static #logger = pino({
+        name: 'Impressionist',
+        level: 'debug',
+    });
+
+    static error(report) {
 
     }
 
-    static #info(report) {
+    static info(report) {
 
     }
 
-    static #debug(report) {
+    static debug(report) {
 
     }
 }
