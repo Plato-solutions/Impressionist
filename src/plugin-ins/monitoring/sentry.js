@@ -6,6 +6,8 @@ import Environment from '../../environment.js';
  */
 class Sentry {
 
+    static #logger = Sentry.#setConfigurations(sentry);
+
     /**
      * Perform the necessary steps to configure Sentry.
      * 
@@ -14,10 +16,10 @@ class Sentry {
      * Sentry.setConfigurations();
      * ```
      */
-    static setConfigurations() {
+    static #setConfigurations(sentry) {
         if(Environment.is(Environment.PRODUCTION)) {
-            Sentry.#initialize();
-            Sentry.#setTags();
+            Sentry.#initialize(sentry);
+            Sentry.#setTags(sentry);
         }
     }
 
@@ -27,7 +29,7 @@ class Sentry {
      * 
      * @private
      */
-    static #initialize() {
+    static #initialize(sentry) {
         sentry.init({
             dsn: Environment.get('SENTRY_DSN'),
             release: Environment.get('npm_package_version'),
@@ -41,7 +43,7 @@ class Sentry {
      * 
      * @private
      */
-    static #setTags() {
+    static #setTags(sentry) {
         
         if(Environment.has('SENTRY_TAGS')) {
             for(const [name, value] of Object.entries(Environment.get('SENTRY_TAGS'))) {
@@ -64,6 +66,7 @@ class Sentry {
         sentry.captureException(error);
         await sentry.close(2000);
     }
+
 }
 
 export default Sentry;
