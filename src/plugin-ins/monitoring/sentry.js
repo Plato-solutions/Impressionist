@@ -21,6 +21,8 @@ class Sentry {
             Sentry.#initialize(sentry);
             Sentry.#setTags(sentry);
         }
+
+        return sentry;
     }
 
     /**
@@ -53,6 +55,11 @@ class Sentry {
 
         sentry.setTag('impressionist_version', Environment.IMPRESSIONIST_VERSION);
         sentry.setTag('node_version', process.versions.node);
+    }
+
+    static log(report) {
+        const { origin, level, message } = report;
+        Sentry.#logger.captureMessage(`${origin} - ${message}`, level);
     }
 
     /**
