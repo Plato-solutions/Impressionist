@@ -36,6 +36,13 @@ class MonitorManager {
     static unsubscribe(logger) {
         MonitorManager.#monitors.delete(logger);
     }
+
+    /**
+     * Delete all logers. It can be used to discard the default loggers.
+     */
+    static clear() {
+        MonitorManager.#monitors.clear();
+    }
 }
 
 export default MonitorManager;
