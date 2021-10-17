@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
-import Sentry from './plugin-ins/sentry.js';
+import Sentry from './plugin-ins/monitoring/sentry.js';
 import Pino from './plugin-ins/pino.js';
 import Environment from './environment.js';
 import * as Collectors from '../lib/collector/index.js';

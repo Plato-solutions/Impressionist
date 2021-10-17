@@ -1,5 +1,5 @@
 import * as sentry from '@sentry/node';
-import Environment from '../environment.js';
+import Environment from '../../environment.js';
 
 /**
  * Provides an interface for {@link https://docs.sentry.io/platforms/node/ Sentry integration} with Puppeteerist.
