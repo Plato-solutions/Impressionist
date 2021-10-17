@@ -297,6 +297,10 @@ class Process {
         }
     }
 
+    /**
+     * Exposes the logger function to be used in the browser.
+     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     */
     static async #exposeLogger(page) {
         await page.exposeFunction('logger', (report) => {
             Process.#loggerTool.log(report);
