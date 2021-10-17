@@ -1,7 +1,5 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
-import Sentry from './plugin-ins/monitoring/sentry.js';
-import Pino from './plugin-ins/monitoring/pino.js';
 import Environment from './environment.js';
 import * as Collectors from '../lib/collector/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
@@ -290,7 +288,7 @@ class Process {
      */
     static async #exposeLogger(page) {
         await page.exposeFunction('logger', (report) => {
-            Process.#loggerTool.log(report);
+            MonitorManager.log(report);
         });
     }
 
@@ -381,27 +379,6 @@ class Process {
         return await customFunction(browser, page, ...args);
     }
 
-    /**
-     * Define the monitoring tool to be used. The use of this method is optional since Sentry is applied by default.
-     * However, in case it is required to disable Sentry and not use any monitoring tool,
-     * then this method must be called without any input parameters.
-     * 
-     * @param { Sentry | object } [monitoringTool] - Object or instance of the Monitoring tool.
-     * @param { function } [monitoringTool.setConfigurations = ()=>{}] - Method that configures the tool.
-     * @param { function } [monitoringTool.sendException = async ()=>{ return true }] - 
-     * Method that receives the generated error and processes it.
-     */
-    static setMonitoringTool(monitoringTool = { setConfigurations: ()=>{}, sendException: async ()=>{ return true } }) {
-        Process.#monitoringTool = monitoringTool;
-    }
-
-    /**
-     * Define the logger tool to be used. The use of this method is optional since Pino is applied by default.
-     * @param { Pino | object } logger 
-     */
-    static setLogger(logger) {
-        Process.#loggerTool = logger;
-    }
 }
 
 export default Process;
