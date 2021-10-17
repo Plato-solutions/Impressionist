@@ -6,6 +6,9 @@ import Environment from '../../environment.js';
  */
 class Sentry {
 
+    /**
+     * The configured Sentry instance.
+     */
     static #logger = Sentry.#setConfigurations(sentry);
 
     /**
@@ -57,6 +60,10 @@ class Sentry {
         sentry.setTag('node_version', process.versions.node);
     }
 
+    /**
+     * Log a report.
+     * @param { object } report - Information that will be used to compose the report.
+     */
     static log(report) {
         const { origin, level, message } = report;
         Sentry.#logger?.captureMessage(`${origin} - ${message}`, level);
