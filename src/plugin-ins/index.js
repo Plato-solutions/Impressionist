@@ -1,1 +1,1 @@
-export { default as Sentry } from './sentry.js';
+export * from './monitoring/index.js';

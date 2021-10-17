@@ -41,20 +41,13 @@ describe('OptionStrategy - MissingStrategy class', () => {
 
     describe('getOptions method', () => {
 
-        it('Throw error', async () => {
+        it('Return null properties', async () => {
             
-            async function missingThrowError() {    
-
-                return await page.evaluate(async () => {
-                    return await MissingStrategy.getOptions('id', 'element');
-                });
-
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
+            const result = await page.evaluate(async () => {
+                return await MissingStrategy.getOptions('id', null);
             });
+
+            assert.deepStrictEqual(result, [{ value: null, id: null }]);
 
         });
         
@@ -62,20 +55,13 @@ describe('OptionStrategy - MissingStrategy class', () => {
 
     describe('setOption method', () => {
 
-        it('Throw error', async () => {
+        it('Return true', async () => {
 
-            async function missingThrowError() {    
-
-                return await page.evaluate(async () => {
-                    return await MissingStrategy.setOption('id', 'element');
-                });
-
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
+            const result = await page.evaluate(async () => {
+                return await MissingStrategy.setOption(null);
             });
+            
+            assert.strictEqual(result, true);
 
         });
         

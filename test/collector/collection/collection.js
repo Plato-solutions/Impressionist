@@ -18,6 +18,33 @@ describe('Collection Class', () => {
         await Impressionist.Process.setPageConfigurations(page, url);
     });
 
+    describe('Error', () => {
+        it('Adding a faulty post processor', async () => {
+            
+            async function throwError() {
+                await page.evaluate( async () => {
+                    const data = ( function () {
+            
+                        return new Collection({
+                            name: 'h1'
+                        }).postProcessor( () => {
+                            throw new Error('Faulty function');
+                        });
+                        
+                    } )();
+                    
+                    const context = new Context();
+                    return await data.call(context);
+                });
+            }
+    
+            await assert.rejects(throwError, {
+                name: 'Error',
+                message: /Collection - Execution of PostProcessor failed with the following message:/
+            });
+        });
+    });
+
     describe('Execution', () => {
 
         it('Execute - Receives a Query', async () => {

@@ -16,7 +16,8 @@
     "test-Query": "mocha --timeout 60000 ./test/collector/query/query.js",
     "test-querySelectors": "mocha --timeout 60000 ./test/collector/query/selectors/**",
     "test-queryInterpreter": "mocha --timeout 60000 --recursive ./test/collector/query/interpreter/**",
-    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js"
+    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js",
+    "test-error-selectors": "mocha --timeout 60000 ./test/collector/query/selectors/**"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
   "homepage": "https://github.com/Plato-solutions/Impressionist#readme",
   "dependencies": {
     "@sentry/node": "^6.13.3",
+    "pino": "^7.0.0-rc.9",
     "puppeteer": "^10.4.0",
     "puppeteer-page-proxy": "^1.2.8"
   },

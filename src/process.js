@@ -1,10 +1,9 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
-import Sentry from './plugin-ins/sentry.js';
 import Environment from './environment.js';
 import * as Collectors from '../lib/collector/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
-import { Collection } from '../lib/collector/index.js';
+import { MonitorManager } from './plugin-ins/index.js';
 
 /**
  * Provides {@link https://pptr.dev/ Puppeteer} initialization by creating
@@ -16,12 +15,6 @@ import { Collection } from '../lib/collector/index.js';
  */
 class Process {
 
-    /**
-     * @private
-     * Default monitoring tool, which in this case is Sentry.
-     */
-     static #monitoringTool = Sentry;
-    
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
      * by executing a series of steps, such as initializing a Browser instance and applying
@@ -70,8 +63,6 @@ class Process {
         } = {}
     ) {
 
-        Process.#monitoringTool.setConfigurations();
-
         const  { browser, page } = await Process.openConnection(url, browserOptions);
 
         let result;
@@ -93,20 +84,6 @@ class Process {
             await browser.close();
             return result;
         }
-    }
-
-    /**
-     * Define the monitoring tool to be used. The use of this method is optional since Sentry is applied by default.
-     * However, in case it is required to disable Sentry and not use any monitoring tool,
-     * then this method must be called without any input parameters.
-     * 
-     * @param { Sentry | object } [monitoringTool] - Object or instance of the Monitoring tool.
-     * @param { function } [monitoringTool.setConfigurations = ()=>{}] - Method that configures the tool.
-     * @param { function } [monitoringTool.sendException = async ()=>{ return true }] - 
-     * Method that receives the generated error and processes it.
-     */
-    static setMonitoringTool(monitoringTool = { setConfigurations: ()=>{}, sendException: async ()=>{ return true } }) {
-        Process.#monitoringTool = monitoringTool;
     }
 
     /**
@@ -265,6 +242,7 @@ class Process {
         await page.goto(url, navigation);
 
         Process.#enableDebugMode(page);
+        await Process.#exposeLogger(page);
 
         await Process.#enableImpressionist(page);
         await Process.#registerSelectors(page);
@@ -302,6 +280,16 @@ class Process {
 
             });
         }
+    }
+
+    /**
+     * Exposes the logger function to be used in the browser.
+     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     */
+    static async #exposeLogger(page) {
+        await page.exposeFunction('logger', (report) => {
+            MonitorManager.log(report);
+        });
     }
 
     /**
@@ -390,6 +378,7 @@ class Process {
 
         return await customFunction(browser, page, ...args);
     }
+
 }
 
 export default Process;
