@@ -1,10 +1,11 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
 import Sentry from './plugin-ins/monitoring/sentry.js';
-import Pino from './plugin-ins/pino.js';
+import Pino from './plugin-ins/monitoring/pino.js';
 import Environment from './environment.js';
 import * as Collectors from '../lib/collector/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
+import { MonitorManager } from './plugin-ins/index.js';
 
 /**
  * Provides {@link https://pptr.dev/ Puppeteer} initialization by creating
@@ -15,18 +16,6 @@ import * as Selectors from '../lib/collector/query/selector/index.js';
  * @summary Initialize Puppeteer.
  */
 class Process {
-
-    /**
-     * @private
-     * Monitoring tool. By default is Sentry class.
-     */
-    static #monitoringTool = Sentry;
-    
-    /**
-     * @private
-     * Logger. By default is Pino class.
-     */
-    static #loggerTool = Pino;
 
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
@@ -76,7 +65,8 @@ class Process {
         } = {}
     ) {
 
-        Process.#monitoringTool.setConfigurations();
+        MonitorManager.subscribe(Sentry);
+        MonitorManager.subscribe(Pino);
 
         const  { browser, page } = await Process.openConnection(url, browserOptions);
 
