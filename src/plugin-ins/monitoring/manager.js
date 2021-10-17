@@ -13,7 +13,9 @@ class MonitorManager {
      * @param { object } report - Information to be logged in.
      */
     static log(report) {
-
+        for(const logger of MonitorManager.#monitors.values()) {
+            logger.log(report);
+        }
     }
 
     /**
@@ -29,7 +31,7 @@ class MonitorManager {
      * @param { object } logger - Monitoring or logging tool.
      */
     static unsubscribe(logger) {
-
+        MonitorManager.#monitors.delete(logger);
     }
 }
 
