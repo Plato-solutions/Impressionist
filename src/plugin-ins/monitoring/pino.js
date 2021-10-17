@@ -15,7 +15,7 @@ class Pino {
 
     /**
      * Log a report.
-     * @param {*} report - Information that will be used to compose the report.
+     * @param { object } report - Information that will be used to compose the report.
      */
     static log(report) {
         const { origin, level, elements, message } = report;
