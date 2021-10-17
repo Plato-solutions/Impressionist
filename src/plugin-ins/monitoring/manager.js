@@ -6,7 +6,7 @@ class MonitorManager {
     /**
      * Monitoring and logging tools.
      */
-    static #monitors = [];
+    static #monitors = new Set();
 
     /**
      * Register a report.
@@ -21,7 +21,7 @@ class MonitorManager {
      * @param { object } logger - Monitoring or logging tool.
      */
     static subscribe(logger) {
-        
+        MonitorManager.#monitors.add(logger);
     }
 
     /**
