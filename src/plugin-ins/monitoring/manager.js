@@ -1,3 +1,6 @@
+import Pino from "./pino.js";
+import Sentry from "./sentry.js";
+
 /**
  * Log on each of the subscribed monitoring tools.
  */
@@ -6,7 +9,7 @@ class MonitorManager {
     /**
      * Monitoring and logging tools.
      */
-    static #monitors = new Set();
+    static #monitors = new Set([ Pino, Sentry ]);
 
     /**
      * Register a report.

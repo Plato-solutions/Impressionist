@@ -65,9 +65,6 @@ class Process {
         } = {}
     ) {
 
-        MonitorManager.subscribe(Sentry);
-        MonitorManager.subscribe(Pino);
-
         const  { browser, page } = await Process.openConnection(url, browserOptions);
 
         let result;
