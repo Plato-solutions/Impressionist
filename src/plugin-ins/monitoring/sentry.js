@@ -59,7 +59,7 @@ class Sentry {
 
     static log(report) {
         const { origin, level, message } = report;
-        Sentry.#logger.captureMessage(`${origin} - ${message}`, level);
+        Sentry.#logger?.captureMessage(`${origin} - ${message}`, level);
     }
 
     /**
