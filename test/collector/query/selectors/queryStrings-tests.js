@@ -467,7 +467,7 @@ describe('Query Strings', () => {
         
             });
         
-            assert.deepStrictEqual(result, { name: ['Plato, Plugin'] });
+            assert.deepStrictEqual(result, { name: ['Plato', 'Plugin'] });
         });
     });
 
