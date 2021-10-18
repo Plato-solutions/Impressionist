@@ -357,6 +357,8 @@ class Process {
         await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
         await page.addScriptTag({ content: 'const xpath = SelectorDirectory.get("xpath")'});
         await page.addScriptTag({ content: 'const merge = SelectorDirectory.get("merge")'});
+        await page.addScriptTag({ content: 'const property = SelectorDirectory.get("property")'});
+        await page.addScriptTag({ content: 'const pre = SelectorDirectory.get("pre")'});
     }
 
     /**
