@@ -437,6 +437,23 @@ describe('Query Strings', () => {
         });
     });
 
+    describe('Using Pre', () => {
+        it('Change the h1 text before extract it', async () => {
+            const result = await page.evaluate(async () => { 
+    
+                const data = new Collection({
+                    name: pre((context) => { document.querySelector('h1').innerText = 'Plato Plugin Modified'; return context }).css('h1').property('innerText').single()
+                });
+                    
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        
+            assert.deepStrictEqual(result, { name: 'Plato Plugin Modified' });
+        });
+    });
+
     after(async () => {
         await page.close();
         await browser.close();

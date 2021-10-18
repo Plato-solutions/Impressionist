@@ -74,7 +74,7 @@ class Process {
         } catch (e) {
 
             if(Environment.is(Environment.PRODUCTION)) {
-                await Process.#monitoringTool.sendException(e);
+                //await Process.#monitoringTool.sendException(e); //FIXME: Remove and replace with MonitorManager.
             } else {
                 console.error(e);
             }
@@ -357,6 +357,8 @@ class Process {
         await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
         await page.addScriptTag({ content: 'const xpath = SelectorDirectory.get("xpath")'});
         await page.addScriptTag({ content: 'const merge = SelectorDirectory.get("merge")'});
+        await page.addScriptTag({ content: 'const property = SelectorDirectory.get("property")'});
+        await page.addScriptTag({ content: 'const pre = SelectorDirectory.get("pre")'});
     }
 
     /**
