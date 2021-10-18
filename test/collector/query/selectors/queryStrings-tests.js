@@ -454,6 +454,23 @@ describe('Query Strings', () => {
         });
     });
 
+    describe('Using Post', () => {
+        it('Change the h1 text after extract it', async () => {
+            const result = await page.evaluate(async () => { 
+    
+                const data = new Collection({
+                    name: css('h1').property('innerText').single().post((text) => text.split(' '))
+                });
+                    
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        
+            assert.deepStrictEqual(result, { name: ['Plato, Plugin'] });
+        });
+    });
+
     after(async () => {
         await page.close();
         await browser.close();
