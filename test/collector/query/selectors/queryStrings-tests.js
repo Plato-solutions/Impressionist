@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Query Strings', () => {
+describe.only('Query Strings', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -101,7 +101,7 @@ describe('Query Strings', () => {
         assert.deepStrictEqual(result, { media_gallery: ["http://platoanalytics.com/logo.jpg", "http://platoanalytics.com/img1.jpg", "http://platoanalytics.com/img2.jpg", "http://platoanalytics.com/img3.jpg", "http://platoanalytics.com/img4.jpg"] });
     });
 
-    it("merge([ css('#logo > img'), css('#carousel > img') ]).property('src').all()", async () => {
+    it("merge([ css('#logo > img').all(), css('#carousel > img').all() ]).property('src').all()", async () => {
         
         const result = await page.evaluate(async () => { 
     
@@ -111,7 +111,7 @@ describe('Query Strings', () => {
                 const css = SelectorDirectory.get('css');
     
                 return new Collection({
-                    media_gallery: merge([ css('#logo > img'), css('#carousel > img') ]).property('src').all()
+                    media_gallery: merge([ css('#logo > img').all(), css('#carousel > img').all() ]).property('src').all()
                 });
                 
             } )();
@@ -260,7 +260,7 @@ describe('Query Strings', () => {
             assert.deepStrictEqual(result, { media_gallery: [] });
         });
     
-        it("merge([ css('#logo > imga'), css('#carousel > imga') ]).property('src').all().default()", async () => {
+        it("merge([ css('#logo > imga').all().default([]), css('#carousel > imga').all().default([]) ]).property('src').all().default([])", async () => {
             
             const result = await page.evaluate(async () => { 
         
@@ -270,7 +270,7 @@ describe('Query Strings', () => {
                     const css = SelectorDirectory.get('css');
         
                     return new Collection({
-                        media_gallery: merge([ css('#logo > imga').default([]), css('#carousel > imga').default([]) ]).property('src').all().default([])
+                        media_gallery: merge([ css('#logo > imga').all().default([]), css('#carousel > imga').all().default([]) ]).property('src').all().default([])
                     });
                     
                 } )();
@@ -437,40 +437,6 @@ describe('Query Strings', () => {
         });
     });
 
-    describe('Using Pre', () => {
-        it('Change the h1 text before extract it', async () => {
-            const result = await page.evaluate(async () => { 
-    
-                const data = new Collection({
-                    name: pre((context) => { document.querySelector('h1').innerText = 'Plato Plugin Modified'; return context }).css('h1').property('innerText').single()
-                });
-                    
-                const context = new Context();
-                return await data.call(context);
-        
-            });
-        
-            assert.deepStrictEqual(result, { name: 'Plato Plugin Modified' });
-        });
-    });
-
-    describe('Using Post', () => {
-        it('Change the h1 text after extract it', async () => {
-            const result = await page.evaluate(async () => { 
-    
-                const data = new Collection({
-                    name: css('h1').property('innerText').single().post((text) => text.split(' '))
-                });
-                    
-                const context = new Context();
-                return await data.call(context);
-        
-            });
-        
-            assert.deepStrictEqual(result, { name: ['Plato', 'Plugin', 'Modified'] });
-        });
-    });
-
     describe('Single as default', () => {
         it('Getting the innerText of a single element', async () => {
             const result = await page.evaluate(async () => { 
@@ -560,6 +526,42 @@ describe('Query Strings', () => {
         });
 
     });
+
+    describe('Using Pre', () => {
+        it('Change the h1 text before extract it', async () => {
+            const result = await page.evaluate(async () => { 
+    
+                const data = new Collection({
+                    name: pre((context) => { document.querySelector('h1').innerText = 'Plato Plugin Modified'; return context }).css('h1').property('innerText').single()
+                });
+                    
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        
+            assert.deepStrictEqual(result, { name: 'Plato Plugin Modified' });
+        });
+    });
+
+    describe('Using Post', () => {
+        it('Change the h1 text after extract it', async () => {
+            const result = await page.evaluate(async () => { 
+    
+                const data = new Collection({
+                    name: css('h1').property('innerText').single().post((text) => text.split(' '))
+                });
+                    
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        
+            assert.deepStrictEqual(result, { name: ['Plato', 'Plugin', 'Modified'] });
+        });
+    });
+
+    
 
     after(async () => {
         await page.close();
