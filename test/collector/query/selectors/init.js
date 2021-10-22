@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe.only('Selector - Init', () => {
+describe('Selector - Init', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -18,7 +18,7 @@ describe.only('Selector - Init', () => {
         await Impressionist.Process.setPageConfigurations(page, url);
     });
 
-    describe('Errors', () => {
+    describe('Execution Errors', () => {
 
         it('Passing an undefined context', async () => {
             
@@ -58,12 +58,16 @@ describe.only('Selector - Init', () => {
 
         });
 
+    });
+
+    describe('Initialization', () => {
+
         it('Passing no function definition', async () => {
 
             async function throwError() {    
 
                 return await page.evaluate(async () => {
-                    const selector = new Init(123);
+                    const selector = init(123);
 
                     return await selector.call(new Context());
                 });
@@ -76,24 +80,7 @@ describe.only('Selector - Init', () => {
             });
 
         });
-
-    });
-
-    describe('Initialization', () => {
         
-        it('Passing an undefined context', async () => {   
-
-            const result = await page.evaluate(async () => {
-                const selector = new Init(() => { console.log('Printing from the innerFunction') });
-
-                const context = new Context();
-                //return await selector.call(context);
-                return true;
-            }); 
-
-            console.log(result);
-        });
-
         it('Change h1 innerText before execution of the Query', async () => {
             const result = await page.evaluate(async () => { 
     
