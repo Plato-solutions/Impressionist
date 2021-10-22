@@ -31,11 +31,11 @@ describe('Selector Interpreters - Merge Strategy', () => {
             assert.strictEqual(result, true);
         });
 
-        it('document > h1 + {document > #logo}', async () => {
+        it('::document > h1 + {::document > #logo}', async () => {
                         
             const result = await page.evaluate(async () => { 
         
-                return InterpreterMergeStrategy.match('document > h1 + {document > #logo}');
+                return InterpreterMergeStrategy.match('::document > h1 + {::document > #logo}');
     
             });
         
@@ -144,11 +144,11 @@ describe('Selector Interpreters - Merge Strategy', () => {
 
         });
 
-        it("{document > h1} + {document > #logo}", async () => {
+        it("{::document > h1} + {::document > #logo}", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterMergeStrategy.interpret('{document > h1} + {document > #logo}');
+                const query = InterpreterMergeStrategy.interpret('{::document > h1} + {::document > #logo}');
                 
                 const context = new Context();
 
@@ -161,11 +161,11 @@ describe('Selector Interpreters - Merge Strategy', () => {
 
         });
 
-        it("document > h1 + document > #logo", async () => {
+        it("::document > h1 + ::document > #logo", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterMergeStrategy.interpret('document > h1 + document > #logo');
+                const query = InterpreterMergeStrategy.interpret('::document > h1 + ::document > #logo');
                 
                 const context = new Context();
 

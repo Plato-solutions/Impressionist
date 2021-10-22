@@ -3,7 +3,7 @@ import NanoServer from '../../../../../testing-server/server.js';
 import Impressionist from '../../../../../../src/process.js'
 import assert from 'assert';
 
-describe.only('Selector Interpreters - Property Strategy', () => {
+describe('Selector Interpreters - Property Strategy', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -42,22 +42,22 @@ describe.only('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, true);
         });
 
-        it('document > h1{outerHTML}', async () => {
+        it('::document > h1{outerHTML}', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterPropertyStrategy.match('document > h1{outerHTML}');
+                return InterpreterPropertyStrategy.match('::document > h1{outerHTML}');
     
             });
         
             assert.strictEqual(result, true);
         });
 
-        it('document > h1{outerHTML}*', async () => {
+        it('::document > h1{outerHTML}*', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterPropertyStrategy.match('document > h1{outerHTML}*');
+                return InterpreterPropertyStrategy.match('::document > h1{outerHTML}*');
     
             });
         
@@ -177,11 +177,11 @@ describe.only('Selector Interpreters - Property Strategy', () => {
             
         });
 
-        it("document > h1{outerHTML}", async () => {
+        it("::document > h1{outerHTML}", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterPropertyStrategy.interpret('document > h1{outerHTML}');
+                const query = InterpreterPropertyStrategy.interpret('::document > h1{outerHTML}');
                 
                 const context = new Context();
 
@@ -193,11 +193,11 @@ describe.only('Selector Interpreters - Property Strategy', () => {
             
         });
 
-        it("document > h1{outerHTML}*", async () => {
+        it("::document > h1{outerHTML}*", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterPropertyStrategy.interpret('document > h1{outerHTML}*');
+                const query = InterpreterPropertyStrategy.interpret('::document > h1{outerHTML}*');
                 
                 const context = new Context();
 
