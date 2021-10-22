@@ -80,6 +80,20 @@ describe.only('Selector - Init', () => {
     });
 
     describe('Initialization', () => {
+        
+        it('Passing an undefined context', async () => {   
+
+            const result = await page.evaluate(async () => {
+                const selector = new Init(() => { console.log('Printing from the innerFunction') });
+
+                const context = new Context();
+                //return await selector.call(context);
+                return true;
+            }); 
+
+            console.log(result);
+        });
+
         it('Change h1 innerText before execution of the Query', async () => {
             const result = await page.evaluate(async () => { 
     
@@ -89,7 +103,6 @@ describe.only('Selector - Init', () => {
                     
                 const context = new Context();
                 return await data.call(context);
-        
             });
         
             assert.deepStrictEqual(result, { name: 'Plato Plugin Modified' });
