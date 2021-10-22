@@ -64,6 +64,28 @@ describe('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, true);
         });
 
+        it('::element{outerHTML}', async () => {
+                
+            const result = await page.evaluate(async () => { 
+        
+                return InterpreterPropertyStrategy.match('::element{outerHTML}');
+    
+            });
+        
+            assert.strictEqual(result, true);
+        });
+
+        it('::element{outerHTML}*', async () => {
+                
+            const result = await page.evaluate(async () => { 
+        
+                return InterpreterPropertyStrategy.match('::element{outerHTML}*');
+    
+            });
+        
+            assert.strictEqual(result, true);
+        });
+
         it('h1', async () => {
                         
             const result = await page.evaluate(async () => { 
@@ -179,6 +201,42 @@ describe('Selector Interpreters - Property Strategy', () => {
                 
                 const context = new Context();
 
+                return await query.call(context);
+                
+            });
+        
+            assert.deepStrictEqual(result, ['<h1>Plato Plugin</h1>']);
+            
+        });
+
+        it("::element{outerHTML}", async () => {
+                
+            const result = await page.evaluate(async () => { 
+                
+                const nameElement = document.querySelector('h1');
+                const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}');
+                
+                const context = new Context();
+                context.update(nameElement);
+
+                return await query.call(context);
+                
+            });
+        
+            assert.strictEqual(result, '<h1>Plato Plugin</h1>');
+            
+        });
+
+        it("::element{outerHTML}*", async () => {
+                
+            const result = await page.evaluate(async () => { 
+
+                const nameElement = document.querySelector('h1');
+                const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}*');
+                
+                const context = new Context();
+                context.update(nameElement);
+                
                 return await query.call(context);
                 
             });
