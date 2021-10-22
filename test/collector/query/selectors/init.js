@@ -79,6 +79,22 @@ describe('Selector - Init', () => {
 
     });
 
+    describe('Initialization', () => {
+        it('Change h1 innerText before execution of the Query', async () => {
+            const result = await page.evaluate(async () => { 
+    
+                const data = new Collection({
+                    name: css('h1').property('innerText').single().init(() => { document.querySelector('h1').innerText = 'Plato Plugin Modified' }) // init at the end of the query chain assure the last execution.
+                });
+                    
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        
+            assert.deepStrictEqual(result, { name: 'Plato Plugin Modified' });
+        });
+    });
 
     after(async () => {
         await page.close();
