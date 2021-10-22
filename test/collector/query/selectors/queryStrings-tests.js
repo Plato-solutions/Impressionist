@@ -472,7 +472,7 @@ describe('Query Strings', () => {
     });
 
     describe('Single as default', () => {
-        it('Getting the innerText of a single element', () => {
+        it('Getting the innerText of a single element', async () => {
             const result = await page.evaluate(async () => { 
     
                 const data = new Collection({
@@ -487,7 +487,7 @@ describe('Query Strings', () => {
             assert.deepStrictEqual(result, { name: 'Plato Plugin' });
         });
 
-        it('Getting the innerText of a non-existing element use with default', () => {
+        it('Getting the innerText of a non-existing element use with default', async () => {
             const result = await page.evaluate(async () => { 
     
                 const data = new Collection({
@@ -502,7 +502,7 @@ describe('Query Strings', () => {
             assert.deepStrictEqual(result, { name: 'Plugin' });
         });
 
-        it('Getting the innerText of a non-existing element use with alternative', () => {
+        it('Getting the innerText of a non-existing element use with alternative', async () => {
             const result = await page.evaluate(async () => { 
     
                 const data = new Collection({
@@ -517,7 +517,7 @@ describe('Query Strings', () => {
             assert.deepStrictEqual(result, { name: 'Plato Plugin' });
         });
 
-        it('Getting the innerText of a non-existing element use with require', () => {
+        it('Getting the innerText of a non-existing element use with require', async () => {
             
             async function throwError() {
                 return await page.evaluate(async () => { 
@@ -538,7 +538,7 @@ describe('Query Strings', () => {
             });
         });
 
-        it('Getting the innerText of multiple elements and return error', () => {
+        it('Getting the innerText of multiple elements and return error', async () => {
             
             async function throwError() {
                 return await page.evaluate(async () => { 
