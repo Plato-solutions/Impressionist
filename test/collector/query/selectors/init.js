@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Selector - Init', () => {
+describe.only('Selector - Init', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -60,7 +60,7 @@ describe('Selector - Init', () => {
 
     });
 
-    describe('Initialization', () => {
+    describe.only('Initialization', () => {
 
         it('Passing no function definition', async () => {
 
@@ -77,6 +77,25 @@ describe('Selector - Init', () => {
             await assert.rejects(throwError, {
                 name: 'Error',
                 message: /Init - Constructor definition should be a function. Instead it received a number./
+            });
+
+        });
+
+        it.only('Passing a faulty function as definition', async () => {
+
+            async function throwError() {    
+
+                return await page.evaluate(async () => {
+                    const selector = init(() => { throw new Error('DOM element does not exists.') });
+
+                    return await selector.call(new Context());
+                });
+
+            } 
+            
+            await assert.rejects(throwError, {
+                name: 'Error',
+                message: /InitialFunction - DOM element does not exists./
             });
 
         });
