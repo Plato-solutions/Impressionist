@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe.only('Query Strings', () => {
+describe('Query Strings', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
