@@ -41,22 +41,22 @@ describe('Selector Interpreters - Element Strategy', () => {
             assert.strictEqual(result, true);
         });
 
-        it('{document > h1}', async () => {
+        it('{::document > h1}', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterElementStrategy.match('{document > h1}');
+                return InterpreterElementStrategy.match('{::document > h1}');
     
             });
         
             assert.strictEqual(result, true);
         });
 
-        it('{document > h1}*', async () => {
+        it('{::document > h1}*', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterElementStrategy.match('{document > h1}*');
+                return InterpreterElementStrategy.match('{::document > h1}*');
     
             });
         
@@ -154,11 +154,11 @@ describe('Selector Interpreters - Element Strategy', () => {
             assert.strictEqual(result, 'H1');
         });
 
-        it("{document > h1}", async () => {
+        it("{::document > h1}", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterElementStrategy.interpret('{h1}');
+                const query = InterpreterElementStrategy.interpret('{::document > h1}');
     
                 const context = new Context();
 
@@ -170,11 +170,11 @@ describe('Selector Interpreters - Element Strategy', () => {
             assert.strictEqual(result, 'H1');
         });
 
-        it("{document > h1}*", async () => {
+        it("{::document > h1}*", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterElementStrategy.interpret('{h1}*');
+                const query = InterpreterElementStrategy.interpret('{::document > h1}*');
     
                 const context = new Context();
 
