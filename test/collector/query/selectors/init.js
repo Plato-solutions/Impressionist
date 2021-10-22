@@ -3,7 +3,7 @@ import puppeteer  from 'puppeteer';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe.only('Selector - Init', () => {
+describe('Selector - Init', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -60,7 +60,7 @@ describe.only('Selector - Init', () => {
 
     });
 
-    describe.only('Initialization', () => {
+    describe('Initialization', () => {
 
         it('Passing no function definition', async () => {
 
@@ -81,7 +81,7 @@ describe.only('Selector - Init', () => {
 
         });
 
-        it.only('Passing a faulty function as definition', async () => {
+        it('Passing a faulty function as definition', async () => {
 
             async function throwError() {    
 
