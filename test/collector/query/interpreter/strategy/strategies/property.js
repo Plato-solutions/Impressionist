@@ -3,7 +3,7 @@ import NanoServer from '../../../../../testing-server/server.js';
 import Impressionist from '../../../../../../src/process.js'
 import assert from 'assert';
 
-describe('Selector Interpreters - Property Strategy', () => {
+describe.only('Selector Interpreters - Property Strategy', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -216,8 +216,8 @@ describe('Selector Interpreters - Property Strategy', () => {
                 const nameElement = document.querySelector('h1');
                 const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}');
                 
-                const context = new Context();
-                context.update(nameElement);
+                let context = new Context();
+                context = context.update(nameElement);
 
                 return await query.call(context);
                 
@@ -234,9 +234,9 @@ describe('Selector Interpreters - Property Strategy', () => {
                 const nameElement = document.querySelector('h1');
                 const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}*');
                 
-                const context = new Context();
-                context.update(nameElement);
-                
+                let context = new Context();
+                context = context.update(nameElement);
+
                 return await query.call(context);
                 
             });
