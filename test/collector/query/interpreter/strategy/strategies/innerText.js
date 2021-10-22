@@ -42,22 +42,22 @@ describe('Selector Interpreters - InnerText Strategy', () => {
             assert.strictEqual(result, true);
         });
 
-        it('document > h1', async () => {
+        it('::document > h1', async () => {
                         
             const result = await page.evaluate(async () => { 
         
-                return InterpreterInnerTextStrategy.match('document > h1');
+                return InterpreterInnerTextStrategy.match('::document > h1');
     
             });
         
             assert.strictEqual(result, true);
         });
 
-        it('document > h1*', async () => {
+        it('::document > h1*', async () => {
                         
             const result = await page.evaluate(async () => { 
         
-                return InterpreterInnerTextStrategy.match('document > h1*');
+                return InterpreterInnerTextStrategy.match('::document > h1*');
     
             });
         
@@ -153,11 +153,11 @@ describe('Selector Interpreters - InnerText Strategy', () => {
 
         });
 
-        it("document > h1", async () => {
+        it("::document > h1", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterInnerTextStrategy.interpret('document > h1');
+                const query = InterpreterInnerTextStrategy.interpret('::document > h1');
                 
                 const context = new Context();
 
@@ -168,11 +168,11 @@ describe('Selector Interpreters - InnerText Strategy', () => {
 
         });
 
-        it("document > h1*", async () => {
+        it("::document > h1*", async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                const query = InterpreterInnerTextStrategy.interpret('document > h1*');
+                const query = InterpreterInnerTextStrategy.interpret('::document > h1*');
                 
                 const context = new Context();
 
