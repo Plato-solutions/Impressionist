@@ -362,7 +362,7 @@ class Process {
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
     static async #addProxyFunctions(page) {
-        await page.addScriptTag({ content: 'const collect = (...args) => new Collector(new Collection(...args))'});
+        await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
         await page.addScriptTag({ content: 'const elements = (...args) => new ElementCollectorFactory(...args)'});
         await page.addScriptTag({ content: 'const options = (...args) => new OptionCollectorFactory(...args)'});
         await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
