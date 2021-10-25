@@ -34,7 +34,7 @@ describe('CollectorFactory - Collection', () => {
                     ),
                     {
                         name: css('h1').property('innerText').single(),
-                        media_gallery: merge([ css('#logo > img'), css('#carousel > img') ]).property('src').all(),
+                        media_gallery: merge([ css('#logo > img').all(), css('#carousel > img').all() ]).property('src').all(),
                     }
                 );
         
