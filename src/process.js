@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
 import Environment from './environment.js';
-import * as Collectors from '../lib/collector/index.js';
+import * as BrowserClasses from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
 
@@ -242,7 +242,7 @@ class Process {
         await page.goto(url, navigation);
 
         Process.#enableDebugMode(page);
-        await Process.#exposeLogger(page);
+        await Process.#exposeFunctionalities(page);
 
         await Process.#enableImpressionist(page);
         await Process.#registerSelectors(page);
@@ -282,6 +282,11 @@ class Process {
         }
     }
 
+    static async #exposeFunctionalities(page) {
+        await Process.#exposeLogger(page);
+        await Process.#exposeClick(page);
+    }
+
     /**
      * Exposes the logger function to be used in the browser.
      * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
@@ -289,6 +294,12 @@ class Process {
     static async #exposeLogger(page) {
         await page.exposeFunction('logger', (report) => {
             MonitorManager.log(report);
+        });
+    }
+
+    static async #exposeClick(page) {
+        await page.exposeFunction('puppeteerClick', async (selector) => {
+            await page.click(selector);
         });
     }
 
@@ -300,10 +311,10 @@ class Process {
      */
     static async #enableImpressionist(page) {
 
-        await page.addScriptTag({ content: Collectors['Selector'].toString() });
+        await page.addScriptTag({ content: BrowserClasses['Selector'].toString() });
         
-        Object.entries(Collectors).map(async customClass => { 
-                await page.addScriptTag({ content: Collectors[customClass[0]].toString() });
+        Object.entries(BrowserClasses).map(async customClass => { 
+                await page.addScriptTag({ content: BrowserClasses[customClass[0]].toString() });
             }
         );
     }
@@ -363,6 +374,7 @@ class Process {
         await page.addScriptTag({ content: 'const all = SelectorDirectory.get("all")'});
         await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
         await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
+        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("selectorinterpreter")'});
     }
 
     /**
