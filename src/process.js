@@ -242,7 +242,7 @@ class Process {
         await page.goto(url, navigation);
 
         Process.#enableDebugMode(page);
-        await Process.#exposeLogger(page);
+        await Process.#exposeFunctionalities(page);
 
         await Process.#enableImpressionist(page);
         await Process.#registerSelectors(page);
@@ -282,6 +282,11 @@ class Process {
         }
     }
 
+    static async #exposeFunctionalities(page) {
+        await Process.#exposeLogger(page);
+        await Process.#exposeClick(page);
+    }
+
     /**
      * Exposes the logger function to be used in the browser.
      * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
@@ -289,6 +294,12 @@ class Process {
     static async #exposeLogger(page) {
         await page.exposeFunction('logger', (report) => {
             MonitorManager.log(report);
+        });
+    }
+
+    static async #exposeClick(page) {
+        await page.exposeFunction('puppeteerClick', async (selector) => {
+            await page.click(selector);
         });
     }
 
