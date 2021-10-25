@@ -42,6 +42,17 @@ describe('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, true);
         });
 
+        it('h1{outerHTML{length}}*', async () => {
+                
+            const result = await page.evaluate(async () => { 
+        
+                return InterpreterPropertyStrategy.match('h1{outerHTML}*');
+    
+            });
+        
+            assert.strictEqual(result, true);
+        });
+
         it('::document > h1{outerHTML}', async () => {
                 
             const result = await page.evaluate(async () => { 
@@ -64,6 +75,17 @@ describe('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, true);
         });
 
+        it('::document > h1{outerHTML{length}}*', async () => {
+                
+            const result = await page.evaluate(async () => { 
+        
+                return InterpreterPropertyStrategy.match('::document > h1{outerHTML}*');
+    
+            });
+        
+            assert.strictEqual(result, true);
+        });
+
         it('::item{outerHTML}', async () => {
                 
             const result = await page.evaluate(async () => { 
@@ -76,6 +98,17 @@ describe('Selector Interpreters - Property Strategy', () => {
         });
 
         it('::item{outerHTML}*', async () => {
+                
+            const result = await page.evaluate(async () => { 
+        
+                return InterpreterPropertyStrategy.match('::item{outerHTML}*');
+    
+            });
+        
+            assert.strictEqual(result, true);
+        });
+
+        it('::item{outerHTML{length}}*', async () => {
                 
             const result = await page.evaluate(async () => { 
         
@@ -243,6 +276,109 @@ describe('Selector Interpreters - Property Strategy', () => {
         
             assert.deepStrictEqual(result, ['<h1>Plato Plugin</h1>']);
             
+        });
+
+        describe('Nested properties', async () => {
+
+            it("h1{outerHTML{length}}", async () => {
+                
+                const result = await page.evaluate(async () => { 
+            
+                    const query = InterpreterPropertyStrategy.interpret('h1{outerHTML{length}}');
+                    
+                    const context = new Context();
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.strictEqual(result, '21');
+                
+            });
+    
+            it("h1{outerHTML{length}}*", async () => {
+                    
+                const result = await page.evaluate(async () => { 
+            
+                    const query = InterpreterPropertyStrategy.interpret('h1{outerHTML{length}}*');
+                    
+                    const context = new Context();
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.deepStrictEqual(result, ['21']);
+                
+            });
+    
+            it("::document > h1{outerHTML{length}}", async () => {
+                    
+                const result = await page.evaluate(async () => { 
+            
+                    const query = InterpreterPropertyStrategy.interpret('::document > h1{outerHTML{length}}');
+                    
+                    const context = new Context();
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.strictEqual(result, '21');
+                
+            });
+    
+            it("::document > h1{outerHTML{length}}*", async () => {
+                    
+                const result = await page.evaluate(async () => { 
+            
+                    const query = InterpreterPropertyStrategy.interpret('::document > h1{outerHTML{length}}*');
+                    
+                    const context = new Context();
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.deepStrictEqual(result, ['21']);
+                
+            });
+    
+            it("::item{outerHTML{length}}", async () => {
+                    
+                const result = await page.evaluate(async () => { 
+                    
+                    const nameElement = document.querySelector('h1');
+                    const query = InterpreterPropertyStrategy.interpret('::item{outerHTML{length}}');
+                    
+                    let context = new Context();
+                    context = context.update(nameElement);
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.strictEqual(result, '21');
+                
+            });
+    
+            it("::item{outerHTML{length}}*", async () => {
+                    
+                const result = await page.evaluate(async () => { 
+    
+                    const nameElement = document.querySelector('h1');
+                    const query = InterpreterPropertyStrategy.interpret('::item{outerHTML{length}}*');
+                    
+                    let context = new Context();
+                    context = context.update(nameElement);
+    
+                    return await query.call(context);
+                    
+                });
+            
+                assert.deepStrictEqual(result, ['21']);
+                
+            });
         });
 
     });
