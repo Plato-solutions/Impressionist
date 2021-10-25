@@ -21,7 +21,7 @@ describe('Main Scrape Test', () => {
 
             return await page.evaluate( async () => {
 
-                const data = collect({
+                const data = collector({
                     name: 'h1',
                     media_gallery: '#logo > img{src} + #carousel > img{src}*',
                     reviews: elements('{#reviews > ul > li}*').iterate({

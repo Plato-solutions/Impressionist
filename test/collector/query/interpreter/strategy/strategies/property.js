@@ -64,22 +64,22 @@ describe('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, true);
         });
 
-        it('::element{outerHTML}', async () => {
+        it('::item{outerHTML}', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterPropertyStrategy.match('::element{outerHTML}');
+                return InterpreterPropertyStrategy.match('::item{outerHTML}');
     
             });
         
             assert.strictEqual(result, true);
         });
 
-        it('::element{outerHTML}*', async () => {
+        it('::item{outerHTML}*', async () => {
                 
             const result = await page.evaluate(async () => { 
         
-                return InterpreterPropertyStrategy.match('::element{outerHTML}*');
+                return InterpreterPropertyStrategy.match('::item{outerHTML}*');
     
             });
         
@@ -209,12 +209,12 @@ describe('Selector Interpreters - Property Strategy', () => {
             
         });
 
-        it("::element{outerHTML}", async () => {
+        it("::item{outerHTML}", async () => {
                 
             const result = await page.evaluate(async () => { 
                 
                 const nameElement = document.querySelector('h1');
-                const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}');
+                const query = InterpreterPropertyStrategy.interpret('::item{outerHTML}');
                 
                 let context = new Context();
                 context = context.update(nameElement);
@@ -227,12 +227,12 @@ describe('Selector Interpreters - Property Strategy', () => {
             
         });
 
-        it("::element{outerHTML}*", async () => {
+        it("::item{outerHTML}*", async () => {
                 
             const result = await page.evaluate(async () => { 
 
                 const nameElement = document.querySelector('h1');
-                const query = InterpreterPropertyStrategy.interpret('::element{outerHTML}*');
+                const query = InterpreterPropertyStrategy.interpret('::item{outerHTML}*');
                 
                 let context = new Context();
                 context = context.update(nameElement);
