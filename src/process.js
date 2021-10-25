@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
 import Environment from './environment.js';
-import * as Collectors from '../lib/collector/index.js';
+import * as BrowserClasses from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
 
@@ -311,10 +311,10 @@ class Process {
      */
     static async #enableImpressionist(page) {
 
-        await page.addScriptTag({ content: Collectors['Selector'].toString() });
+        await page.addScriptTag({ content: BrowserClasses['Selector'].toString() });
         
-        Object.entries(Collectors).map(async customClass => { 
-                await page.addScriptTag({ content: Collectors[customClass[0]].toString() });
+        Object.entries(BrowserClasses).map(async customClass => { 
+                await page.addScriptTag({ content: BrowserClasses[customClass[0]].toString() });
             }
         );
     }
