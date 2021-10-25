@@ -363,6 +363,7 @@ class Process {
         await page.addScriptTag({ content: 'const all = SelectorDirectory.get("all")'});
         await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
         await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
+        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("selectorinterpreter")'});
     }
 
     /**
