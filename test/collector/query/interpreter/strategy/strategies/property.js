@@ -3,7 +3,7 @@ import NanoServer from '../../../../../testing-server/server.js';
 import Impressionist from '../../../../../../src/process.js'
 import assert from 'assert';
 
-describe.only('Selector Interpreters - Property Strategy', () => {
+describe('Selector Interpreters - Property Strategy', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
