@@ -3,7 +3,7 @@ import NanoServer from '../../../../../testing-server/server.js';
 import Impressionist from '../../../../../../src/process.js'
 import assert from 'assert';
 
-describe('Selector Interpreters - Property Strategy', () => {
+describe.only('Selector Interpreters - Property Strategy', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -292,7 +292,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.strictEqual(result, '21');
+                assert.strictEqual(result, 21);
                 
             });
     
@@ -308,7 +308,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.deepStrictEqual(result, ['21']);
+                assert.deepStrictEqual(result, [21]);
                 
             });
     
@@ -324,7 +324,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.strictEqual(result, '21');
+                assert.strictEqual(result, 21);
                 
             });
     
@@ -340,7 +340,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.deepStrictEqual(result, ['21']);
+                assert.deepStrictEqual(result, [21]);
                 
             });
     
@@ -358,7 +358,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.strictEqual(result, '21');
+                assert.strictEqual(result, 21);
                 
             });
     
@@ -376,7 +376,7 @@ describe('Selector Interpreters - Property Strategy', () => {
                     
                 });
             
-                assert.deepStrictEqual(result, ['21']);
+                assert.deepStrictEqual(result, [21]);
                 
             });
         });
