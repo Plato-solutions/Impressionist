@@ -23,7 +23,7 @@ describe('Main Scrape Test', () => {
 
                 const data = collector({
                     name: 'h1',
-                    media_gallery: '#logo > img{src} + #carousel > img{src}*',
+                    media_gallery: '#logo > img{src} ++ #carousel > img{src}*',
                     reviews: elements('{#reviews > ul > li}*').iterate({
                         title: '#review-title',
                         author: '#review-author',

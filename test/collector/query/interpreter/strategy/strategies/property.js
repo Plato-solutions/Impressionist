@@ -163,11 +163,11 @@ describe('Selector Interpreters - Property Strategy', () => {
             assert.strictEqual(result, false);
         });
 
-        it('h1 + {#logo}', async () => {
+        it('h1 ++ {#logo}', async () => {
                         
             const result = await page.evaluate(async () => { 
         
-                return InterpreterPropertyStrategy.match('h1 + {#logo}');
+                return InterpreterPropertyStrategy.match('h1 ++ {#logo}');
     
             });
         
