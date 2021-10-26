@@ -107,11 +107,11 @@ describe('Selector Interpreters - Element Strategy', () => {
             assert.strictEqual(result, false);
         });
 
-        it('h1 + {#logo}', async () => {
+        it('h1 ++ {#logo}', async () => {
                         
             const result = await page.evaluate(async () => { 
         
-                return InterpreterElementStrategy.match('h1 + {#logo}');
+                return InterpreterElementStrategy.match('h1 ++ {#logo}');
     
             });
         

@@ -86,7 +86,7 @@ describe('SelectorInterpreter', () => {
         assert.deepStrictEqual(result, { name: '<h1>Plato Plugin</h1>' });
     });
 
-    it("select('h1 + #logo')", async () => {
+    it("select('h1 ++ #logo')", async () => {
             
         const result = await page.evaluate(async () => { 
     
@@ -95,7 +95,7 @@ describe('SelectorInterpreter', () => {
                 const select = SelectorDirectory.get('selectorinterpreter');
     
                 return new Collection({
-                    group: select('h1 + #logo')
+                    group: select('h1 ++ #logo')
                 });
                 
             } )();
