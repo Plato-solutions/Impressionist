@@ -108,17 +108,6 @@ describe('Selector Interpreters - InnerText Strategy', () => {
             assert.strictEqual(result, false);
         });
 
-        it('h1 ++ {#logo}', async () => {
-                        
-            const result = await page.evaluate(async () => { 
-        
-                return InterpreterInnerTextStrategy.match('h1 ++ {#logo}');
-    
-            });
-        
-            assert.strictEqual(result, false);
-        });
-
     });
 
     describe('interpret method', () => {
