@@ -348,7 +348,6 @@ class Process {
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
-            InterpreterStrategyManager.add(InterpreterMergeStrategy);
             OptionStrategyManager.add(SelectStrategy);
             OptionStrategyManager.add(GroupStrategy);
             OptionStrategyManager.add(ToogleStrategy);
