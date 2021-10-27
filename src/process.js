@@ -298,7 +298,7 @@ class Process {
     }
 
     static async #exposeClick(page) {
-        await page.exposeFunction('puppeteerClick', async (selector, delay = 5) => {
+        await page.exposeFunction('puppeteerClick', async (selector, delay = 0) => {
             await page.click(selector);
             await page.waitForTimeout(delay);
         });
