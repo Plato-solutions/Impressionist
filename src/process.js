@@ -375,6 +375,7 @@ class Process {
         await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
         await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
         await page.addScriptTag({ content: 'const select = SelectorDirectory.get("selectorinterpreter")'});
+        await page.addScriptTag({ content: 'const load = { all: function loadAll(selector){ return function loadLazyLoad(){ return async LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return Pagination.execute(selector) } } }'});
     }
 
     /**
