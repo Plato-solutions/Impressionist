@@ -283,8 +283,15 @@ class Process {
     }
 
     static async #exposeFunctionalities(page) {
+        await Process.#exposePage(page);
         await Process.#exposeLogger(page);
         await Process.#exposeClick(page);
+    }
+
+    static async #exposePage(page) {
+        await page.exposeFunction('puppeteerPage', async (fn, ...args) => {
+            return await page[fn](...args);
+        });
     }
 
     /**
@@ -362,6 +369,7 @@ class Process {
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
     static async #addProxyFunctions(page) {
+        await page.addScriptTag({ content: 'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'});
         await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
         await page.addScriptTag({ content: 'const elements = (...args) => new ElementCollectorFactory(...args)'});
         await page.addScriptTag({ content: 'const options = (...args) => new OptionCollectorFactory(...args)'});
@@ -376,7 +384,7 @@ class Process {
         await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
         await page.addScriptTag({ content: 'const select = SelectorDirectory.get("selectorinterpreter")'});
         await page.addScriptTag({ content: 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }'});
-        await page.addScriptTag({ content: 'function clickAndWait(...args) { return async function ClickAndWait() { await puppeteerClick(...args) } }' });
+        await page.addScriptTag({ content: 'function clickAndWait(selector, forSelector, timeout) { return async function ClickAndWait() { if(typeof forSelector === "number") { timeout = forSelector; forSelector = "" } await Promise.any([puppeteerClick(selector, timeout), page.waitForSelector(forSelector)]) } }' });
     }
 
     /**
