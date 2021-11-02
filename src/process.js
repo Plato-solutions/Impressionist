@@ -289,7 +289,7 @@ class Process {
     }
 
     static async #exposePage(page) {
-        await page.exposeFunction('page', async (fn, ...args) => {
+        await page.exposeFunction('puppeteerPage', async (fn, ...args) => {
             return await page[fn](...args);
         });
     }
@@ -369,6 +369,7 @@ class Process {
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
     static async #addProxyFunctions(page) {
+        await page.addScriptTag({ content: 'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'});
         await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
         await page.addScriptTag({ content: 'const elements = (...args) => new ElementCollectorFactory(...args)'});
         await page.addScriptTag({ content: 'const options = (...args) => new OptionCollectorFactory(...args)'});
