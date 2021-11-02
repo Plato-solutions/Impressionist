@@ -371,7 +371,7 @@ class Process {
     static async #addProxyFunctions(page) {
         await page.addScriptTag({ content: 'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'});
         await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
-        await page.addScriptTag({ content: 'const elements = (...args) => new ElementCollectorFactory(...args)'});
+        await page.addScriptTag({ content: 'const elements = SelectorDirectory.get("elements")'});
         await page.addScriptTag({ content: 'const options = (...args) => new OptionCollectorFactory(...args)'});
         await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
         await page.addScriptTag({ content: 'const xpath = SelectorDirectory.get("xpath")'});
