@@ -23,5 +23,27 @@ spec:
             checkout scm
         }
         }
+        stage('Codecov Testing'){
+            steps{
+                sh 'echo "here steps to add"'
+            }
+        }
+        stage('SonarQube'){
+            steps{
+                sh 'echo "here steps to add from SonaScanner"'
+            }
+        }
+        stage('Sonar Quality Gates') {
+            steps{
+                timeout(time: 1, unit: 'HOURS'){
+                    script{
+                        def qualityGate = waitForQualityGate()
+                        if(qualityGate.status != 'OK') {
+                            error "Project build failed due to quality gate failure: ${qualityGate.status}"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
