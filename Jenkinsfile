@@ -23,12 +23,16 @@ spec:
             checkout scm
         }
         }
-        stage('Codecov Testing'){
+        stage('Codecov Functional Testing'){
             steps{
                 sh 'echo "here steps to add"'
             }
         }
-
+        stage('Codecov Code Quality'){
+            steps{
+                sh 'echo "here steps to add"'
+            }
+        }
        /* stage('Codecov Quality Gates') {
             steps{
                 timeout(time: 1, unit: 'HOURS'){
