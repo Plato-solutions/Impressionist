@@ -28,12 +28,8 @@ spec:
                 sh 'echo "here steps to add"'
             }
         }
-        stage('SonarQube'){
-            steps{
-                sh 'echo "here steps to add from SonaScanner"'
-            }
-        }
-        stage('Sonar Quality Gates') {
+
+        stage('Codecov Quality Gates') {
             steps{
                 timeout(time: 1, unit: 'HOURS'){
                     script{
@@ -44,6 +40,9 @@ spec:
                     }
                 }
             }
+        }
+        stage(''){
+            
         }
     }
 }
