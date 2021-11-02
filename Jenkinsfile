@@ -29,7 +29,7 @@ spec:
             }
         }
 
-        stage('Codecov Quality Gates') {
+       /* stage('Codecov Quality Gates') {
             steps{
                 timeout(time: 1, unit: 'HOURS'){
                     script{
@@ -40,8 +40,16 @@ spec:
                     }
                 }
             }
-        }
-        stage(''){
+        }*/
+        stage('Generate documentation'){
+            steps{
+                sh 'npm i'
+                sh 'mkdir -p ./docs/jsdoc-output/'
+                sh 'chown -R node:node docs'
+                sh 'ls -lah'
+                sh 'ls -lah ./docs'
+                sh 'ls -lah ./docs/jsdoc-output/'
+            }
             
         }
     }
