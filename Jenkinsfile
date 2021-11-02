@@ -49,6 +49,12 @@ spec:
                 sh 'ls -lah'
                 sh 'ls -lah ./docs'
                 sh 'ls -lah ./docs/jsdoc-output/'
+                 sh 'chown -R node:node docs'
+                sh 'ls -lah ./docs'
+                sh 'ls -lah ./docs/jsdoc-output/'
+                sh 'npm run docs'
+                sh 'ls -lah ./docs'
+                sh 'git status && git config --global user.email "jenkis@platoanalytics.com" && git config --global user.name "impressionist-docs" && git add api.md && git commit -m "test" &&  git push --set-upstream origin devops-test'
             }
             
         }
