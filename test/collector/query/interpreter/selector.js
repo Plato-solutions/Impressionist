@@ -24,8 +24,6 @@ describe('SelectorInterpreter', () => {
     
             const data = ( function () {
     
-                const select = SelectorDirectory.get('selectorinterpreter');
-    
                 return new Collection({
                     name: select('{h1}')
                 });
@@ -47,9 +45,6 @@ describe('SelectorInterpreter', () => {
         const result = await page.evaluate(async () => { 
     
             const data = ( function () {
-    
-                const select = SelectorDirectory.get('selectorinterpreter');
-    
                 return new Collection({
                     name: select('h1')
                 });
@@ -69,9 +64,6 @@ describe('SelectorInterpreter', () => {
         const result = await page.evaluate(async () => { 
     
             const data = ( function () {
-    
-                const select = SelectorDirectory.get('selectorinterpreter');
-    
                 return new Collection({
                     name: select('h1{outerHTML}')
                 });
