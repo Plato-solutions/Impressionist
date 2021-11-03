@@ -352,7 +352,7 @@ class Process {
      */
     static async #registerStrategies(page) {
         await page.evaluate(() => {
-            SelectorDirectory.register(SelectorInterpreter);
+            //SelectorDirectory.register(SelectorInterpreter);
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
@@ -382,7 +382,7 @@ class Process {
         await page.addScriptTag({ content: 'const all = SelectorDirectory.get("all")'});
         await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
         await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
-        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("selectorinterpreter")'});
+        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("select")'});
         await page.addScriptTag({ content: 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }'});
         await page.addScriptTag({ content: 'function clickAndWait(selector, forSelector, timeout) { return async function ClickAndWait() { if(typeof forSelector === "number") { timeout = forSelector; forSelector = "" } await Promise.any([puppeteerClick(selector, timeout), page.waitForSelector(forSelector)]) } }' });
     }
