@@ -30,7 +30,7 @@ spec:
         }
         stage('Codecov Code Quality'){
             steps{
-                sh 'echo "here steps to add "'
+                sh 'echo "here steps to add"'
             }
         }
        /* stage('Codecov Quality Gates') {
@@ -53,10 +53,17 @@ spec:
                 sh 'ls -lah ./docs/jsdoc-output/'
                 sh 'npm run docs'
                 sh 'ls -l ./docs/jsdoc-output/'
-                git branch: 'devops-test', credentialsId: '39120abd-1899-4404-a04b-b50842b08537', url: 'git@github.com:Plato-solutions/Impressionist.git'
-                sh 'git checkout devops-test && git config --global user.email "jenkis@platoanalytics.com" && git config --global user.name "impressionist-docs" && git add . && git commit -m "test" &&  git push --set-upstream origin devops-test'
             }
-            
         }
+        stage("push to repo"){
+            steps{
+                git url: "git@github.com:AndrijanaStefanovska24/Impressionist.git",
+                credentialsId: 'jenkins-test-key',
+                branch: 'devops-test'
+                sh 'git remote set-url origin git@github.com:AndrijanaStefanovska24/Impressionist.git'
+                sh 'git config --global user.email "jenkis@platoanalytics.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test" &&  git push --set-upstream origin devops-test'
+            }
+        }
+        
     }
 }
