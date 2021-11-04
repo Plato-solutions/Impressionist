@@ -89,9 +89,7 @@ class Process {
 
         } catch (e) {
 
-            if(Environment.is(Environment.PRODUCTION)) {
-                //await Process.#monitoringTool.sendException(e); //FIXME: Remove and replace with MonitorManager.
-            } else {
+            if(!Environment.is(Environment.PRODUCTION)) {
                 console.error(e);
             }
 
