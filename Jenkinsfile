@@ -56,7 +56,6 @@ spec:
                 git branch: 'devops-test', credentialsId: '39120abd-1899-4404-a04b-b50842b08537', url: 'git@github.com:Plato-solutions/Impressionist.git'
                 sh 'git checkout devops-test && git config --global user.email "jenkis@platoanalytics.com" && git config --global user.name "impressionist-docs" && git add . && git commit -m "test" &&  git push --set-upstream origin devops-test'
             }
-            
         }
     }
 }
