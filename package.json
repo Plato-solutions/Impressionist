@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "impressionist",
+  "name": "@plato2/impressionist",
   "version": "0.4.0-alpha",
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
