@@ -5,6 +5,7 @@
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
+    "docs": "jsdoc2md --partial --files src/**/*.js lib/**/*.js > docs/api/api.md",
     "coverage": "c8 --100 npm test",
     "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
@@ -29,7 +30,7 @@
     "browser"
   ],
   "author": "Rhonal Velasco",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/Plato-solutions/Impressionist/issues"
   },
