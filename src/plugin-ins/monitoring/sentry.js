@@ -82,7 +82,12 @@ class Sentry {
      */
     static log(report) {
         const { origin, level, message } = report;
-        Sentry.#logger?.captureMessage(`${origin} - ${message}`, level);
+
+        if(level === 'error') {
+            Sentry.sendException(`${origin} - ${message}`);
+        } else {
+            Sentry.#logger.captureMessage(`${origin} - ${message}`, level);
+        }
     }
 
     /**
@@ -92,9 +97,8 @@ class Sentry {
      * 
      * @returns { Promise<void> } Promise object that represents end of the Sentry actions.
      */
-    static async sendException(error) {
-        sentry.captureException(error);
-        await sentry.close(2000);
+    static sendException(error) {
+        Sentry.#logger.captureException(error);
     }
 
 }

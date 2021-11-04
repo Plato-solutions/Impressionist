@@ -16,6 +16,7 @@
 
 import Pino from "./pino.js";
 import Sentry from "./sentry.js";
+import Environment from "../../environment.js";
 
 /**
  * Log on each of the subscribed monitoring tools.
@@ -25,7 +26,7 @@ class MonitorManager {
     /**
      * Monitoring and logging tools.
      */
-    static #monitors = new Set([ Pino, Sentry ]);
+    static #monitors = Environment.is(Environment.PRODUCTION) ? new Set([ Sentry ]) : new Set([ Pino ]);
 
     /**
      * Register a report.
