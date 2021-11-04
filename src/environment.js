@@ -81,7 +81,7 @@ class Environment {
      * @returns { string | Array | object | null }
      * 
      * @example
-     * ````
+     * ```
      * for(const [name, value] of Object.entries(Environment.get('SENTRY_TAGS'))) {
      *      sentry.setTag(name, value);
      * }
