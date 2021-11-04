@@ -30,7 +30,7 @@ spec:
         }
         stage('Codecov Code Quality'){
             steps{
-                sh 'echo "here steps to add"'
+                sh 'echo "here steps to add "'
             }
         }
        /* stage('Codecov Quality Gates') {
