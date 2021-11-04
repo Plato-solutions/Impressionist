@@ -1,3 +1,20 @@
+/*
+ Copyright 2021 Plato Solutions, Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+
 import assert from "assert";
 import * as Impressionist from '../../../../src/index.js';
 import NanoServer from '../../../testing-server/server.js';
@@ -22,12 +39,18 @@ describe('Collection Class Processors', () => {
 
         it('Receives a collection with a DOM element an returns an array with element', async () => {
 
-            const result = await page.evaluate(() => {
+            const result = await page.evaluate( async () => {
                 const elements = { reviews: Array.from(document.querySelectorAll('h1')) };
 
                 const data = CollectionElementProcessor.call(elements);
                 
-                return data.length;
+                let result = [];
+
+                for await(let element of data) {
+                    result.push(element);
+                }
+
+                return result.length;
             });
 
             assert.strictEqual(result, 1);
@@ -35,12 +58,18 @@ describe('Collection Class Processors', () => {
 
         it('Receives a collection with DOM elements an returns an array with elements', async () => {
 
-            const result = await page.evaluate(() => {
+            const result = await page.evaluate( async () => {
                 const elements = { reviews: Array.from(document.querySelectorAll('#reviews > ul > li')) };
 
                 const data = CollectionElementProcessor.call(elements);
                 
-                return data.length;
+                let result = [];
+
+                for await(let element of data) {
+                    result.push(element);
+                }
+
+                return result.length;
             });
 
             assert.strictEqual(result, 2);
@@ -48,15 +77,21 @@ describe('Collection Class Processors', () => {
 
         it('Receives a collection without DOM elements and returns the same values', async () => {
 
-            const result = await page.evaluate(() => {
+            const result = await page.evaluate( async () => {
                 const elements = { name: 'Plato Plugin' };
 
                 const data = CollectionElementProcessor.call(elements);
 
-                return data;
+                let result = [];
+
+                for await(let element of data) {
+                    result.push(element);
+                }
+
+                return result[0];
             });
 
-            assert.deepStrictEqual(result, []);
+            assert.strictEqual(result, 'Plato Plugin');
         });
     });
 
