@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 import Pino from "./pino.js";
 import Sentry from "./sentry.js";
 

@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 import pino from 'pino';
 
 /**
@@ -25,7 +24,7 @@ class Pino {
     /**
      * The configured instance of Pino.
      */
-    static #logger = pino({
+    static #logger = pino({ // TODO: Disable in Production. (Only for development).
         name: 'Impressionist',
         level: 'debug',
     });

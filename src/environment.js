@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 /**
  * It manages the use of environment variables by providing useful methods for checking and obtaining the variables.
  */

@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 import * as sentry from '@sentry/node';
 import Environment from '../../environment.js';
 

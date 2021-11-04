@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-
 import puppeteer from 'puppeteer';
 import useProxy from 'puppeteer-page-proxy';
 import Environment from './environment.js';

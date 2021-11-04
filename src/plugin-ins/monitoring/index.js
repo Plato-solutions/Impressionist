@@ -14,5 +14,4 @@
  limitations under the License.
  */
 
-
 export { default as MonitorManager } from './manager.js';
