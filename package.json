@@ -5,7 +5,10 @@
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
-    "docs": "jsdoc2md --partial --files src/**/*.js lib/**/*.js > docs/api/api.md",
+    "docs": "npm run docs-src && npm run docs-plugins && npm run docs-lib-collector",
+    "docs-src": "jsdoc2md src/* > docs/api/api.md",
+    "docs-plugins": "jsdoc2md src/**/**/* >> docs/api/api.md",
+    "docs-lib-collector": "jsdoc2md lib/** >> docs/api/api.md && jsdoc2md lib/**/** >> docs/api/api.md && jsdoc2md lib/**/**/** >> docs/api/api.md && jsdoc2md lib/**/**/**/** >> docs/api/api.md",
     "coverage": "c8 --100 npm test",
     "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
@@ -43,7 +46,7 @@
   },
   "devDependencies": {
     "c8": "^7.10.0",
-    "jsdoc-to-markdown": "^7.0.1",
+    "jsdoc-to-markdown": "^7.1.0",
     "mocha": "^9.1.2"
   }
 }
