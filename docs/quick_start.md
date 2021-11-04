@@ -53,7 +53,7 @@ For example:
 | ---------------- | ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------- |
 | 'h1*'            | Return the innerText property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.innerText) | ['Plato Plugin', ... ]          |
 | '{h1}*'          | Return all H1 elements.                                 | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')) | [H1, ... ]                      |
-| 'h1{outerHTML}*' | Return the outerHTML property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.outerHTML) | ['<h1>Plato Plugin</h1>', ... ] |
+| 'h1{outerHTML}*' | Return the outerHTML property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.outerHTML) | ['\<h1>Plato Plugin\</h1>', ... ] |
 
 
 
