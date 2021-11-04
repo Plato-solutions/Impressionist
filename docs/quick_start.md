@@ -33,7 +33,7 @@ For example, in the next example we specify the return of a property different t
 
 | Select String   | Description                                               | Query Selector Synonym                                       | Output Example          |
 | --------------- | --------------------------------------------------------- | ------------------------------------------------------------ | ----------------------- |
-| 'h1{outerHTML}' | Return the **outerHTML** property of a unique H1 element. | [baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelector('h1').outerHTML | '<h1>Plato Plugin</h1>' |
+| 'h1{outerHTML}' | Return the **outerHTML** property of a unique H1 element. | [baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelector('h1').outerHTML | '\<h1>Plato Plugin\</h1>' |
 
 Also, we can specify to return the very same DOM element:
 
@@ -53,7 +53,7 @@ For example:
 | ---------------- | ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------- |
 | 'h1*'            | Return the innerText property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.innerText) | ['Plato Plugin', ... ]          |
 | '{h1}*'          | Return all H1 elements.                                 | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')) | [H1, ... ]                      |
-| 'h1{outerHTML}*' | Return the outerHTML property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.outerHTML) | ['<h1>Plato Plugin</h1>', ... ] |
+| 'h1{outerHTML}*' | Return the outerHTML property from all the H1 elements. | Array.from([baseElement](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector).querySelectorAll('h1')).map(el => el.outerHTML) | ['\<h1>Plato Plugin\</h1>', ... ] |
 
 
 
@@ -135,7 +135,7 @@ console.log(result);
 
 ### Get the "name"
 
-We are going to extract the plugin name, which in this case is represented by a single '<h1>' tag in the HTML layout. If we apply what we learned about Select Strings then we only need to specify its CSS Selector, which in this case would be 'h1'. Then our collector will look like this:
+We are going to extract the plugin name, which in this case is represented by a single '\<h1>' tag in the HTML layout. If we apply what we learned about Select Strings then we only need to specify its CSS Selector, which in this case would be 'h1'. Then our collector will look like this:
 
 ```javascript
 import Impressionist from 'impressionist';
