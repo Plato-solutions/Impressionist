@@ -13,7 +13,7 @@ Impressionist is a JavaScript library that allows you to scrape data in less tim
 
 ### Installation
 
-- `npm i impressionist`
+- `npm i @plato2/impressionist`
 
 ## Documentation
 
