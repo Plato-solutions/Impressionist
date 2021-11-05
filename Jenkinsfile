@@ -18,6 +18,11 @@ spec:
         }
     }
     stages {
+            stage('Clean Workspace'){
+            steps {
+                cleanWs(deleteDirs: true)
+            }
+        }
         stage('Checkout SCM'){
         steps {
             checkout scm
