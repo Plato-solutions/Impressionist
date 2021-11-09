@@ -1,11 +1,11 @@
 pipeline {
     agent any
     stages {
-         /*  stage('Clean Workspace'){
+           stage('Clean Workspace'){
             steps {
                 cleanWs(deleteDirs: true)
             }
-        }*/
+        }
         stage('Checkout SCM'){
         steps {
             checkout scm
@@ -36,13 +36,16 @@ pipeline {
         stage('Generate documentation'){
             steps{
                 sh 'git checkout devops-test'
-                sh 'npm i'
+                nodejs(nodeJSInstallationName: 'NodeJs') {
+                    sh 'npm config ls'
+                    sh 'npm i'
                 sh 'mkdir -p ./docs/jsdoc-output/'
-                sh 'chown -R node:node docs'
+                sh 'chown -R jenkins:jenkins docs'
                 sh 'ls -lah ./docs/jsdoc-output/'
                 sh 'npm run docs'
                 sh 'ls -l ./docs/jsdoc-output/'
-                sh 'git status && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push'
+                }
+                sh 'git status && git pull && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push git@github.com:Plato-solutions/Impressionist.git'
             }
         }
         
