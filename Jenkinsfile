@@ -1,22 +1,5 @@
 pipeline {
-    agent {
-        kubernetes {
-       
-            yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: shell
-    image:  node:latest
-    command:
-    - sleep
-    args:
-    - infinity
-'''
-            defaultContainer 'shell'
-        }
-    }
+    agent any
     stages {
             stage('Clean Workspace'){
             steps {
@@ -52,12 +35,14 @@ spec:
         }*/
         stage('Generate documentation'){
             steps{
+                sh 'git checkout devops-test'
                 sh 'npm i'
                 sh 'mkdir -p ./docs/jsdoc-output/'
                 sh 'chown -R node:node docs'
                 sh 'ls -lah ./docs/jsdoc-output/'
                 sh 'npm run docs'
                 sh 'ls -l ./docs/jsdoc-output/'
+                sh 'git status && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push'
             }
         }
         stage("push to repo"){
