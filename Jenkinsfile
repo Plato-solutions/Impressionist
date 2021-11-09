@@ -1,22 +1,5 @@
 pipeline {
- agent {
-        kubernetes {
-       
-            yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: shell
-    image:  node:latest
-    command:
-    - sleep
-    args:
-    - infinity
-'''
-            defaultContainer 'shell'
-        }
-    }
+ agent any
     stages {
             stage('Clean Workspace'){
             steps {
