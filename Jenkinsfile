@@ -1,11 +1,11 @@
 pipeline {
- agent any
+    agent any
     stages {
-            stage('Clean Workspace'){
+         /*  stage('Clean Workspace'){
             steps {
                 cleanWs(deleteDirs: true)
             }
-        }
+        }*/
         stage('Checkout SCM'){
         steps {
             checkout scm
