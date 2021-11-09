@@ -45,15 +45,6 @@ pipeline {
                 sh 'git status && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push'
             }
         }
-        stage("push to repo"){
-            steps{
-                git url: "git@github.com:AndrijanaStefanovska24/Impressionist.git",
-                credentialsId: 'jenkins-test-key',
-                branch: 'devops-test'
-                sh 'git remote set-url origin git@github.com:AndrijanaStefanovska24/Impressionist.git'
-                sh 'git config --global user.email "jenkis@platoanalytics.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test" &&  git push --set-upstream origin devops-test'
-            }
-        }
         
     }
 }
