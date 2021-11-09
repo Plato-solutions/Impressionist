@@ -28,6 +28,7 @@ pipeline {
                         def qualityGate = waitForQualityGate()
                         if(qualityGate.status != 'OK') {
                             error "Project build failed due to quality gate failure: ${qualityGate.status}"
+                            
                         }
                     }
                 }
