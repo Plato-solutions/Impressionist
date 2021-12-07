@@ -16,16 +16,34 @@
 
 import puppeteer from 'puppeteer';
 
+/**
+ * Controls access to puppeteer methods and features.
+ */
 class Puppeteer {
 
+    /**
+     * Enables a connection to control the browser.
+     * @param { object } [ options = {} ] - Please read the documentation
+     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
+     * @returns { Promise<object> } Promise which resolves to browser instance.
+     */
     static async launch(options) {
         return await puppeteer.launch(options);
     }
 
+    /**
+     * Create a new {@link https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-class-page Page object}.
+     * @param { object } browser - Browser instance.
+     * @returns { Promise<object> } Promise which resolves to a new Page object. The Page is created in a default browser context.
+     */
     static async newPage(browser) {
         return await browser.newPage();
     }
 
+    /**
+     * Close any instance of Page or Browser.
+     * @param  {...any} controllers - Page or Browser instances.
+     */
     static async close(...controllers) {
         await Promise.all(
             controllers.map(async (controller) => {
@@ -34,6 +52,11 @@ class Puppeteer {
         );
     }
 
+    /**
+     * Navigate to a specific URL.
+     * @param { object } page - Page instance.
+     * @param { string } url - URL.
+     */
     static async goto(page, url) {
         try {
             await page.goto(url);
@@ -42,6 +65,13 @@ class Puppeteer {
         }
     }
 
+    /**
+     * Execute a function in the browser context.
+     * @param { object } page - Page instance.
+     * @param { Function } pageFunction - A function to be executed in the browser context.
+     * @param  {...any} args - Function arguments.
+     * @returns { Promise<any> } Promise which resolves to a result of the function executed in the browser context.
+     */
     static async evaluate(page, pageFunction, ...args) {
         try {
             return await page.evaluate(pageFunction, ...args);
@@ -50,10 +80,21 @@ class Puppeteer {
         }
     }
 
+    /**
+     * Expose a NodeJS function to be called from the browser context.
+     * @param { object } page - Page Instance.
+     * @param { string } name - Function name to be called from the browser context.
+     * @param { Function } puppeteerFunction - Function that is going to be executed in the NodeJS context.
+     */
     static async exposeFunction(page, name, puppeteerFunction) {
         await page.exposeFunction(name, puppeteerFunction);
     }
 
+    /**
+     * Add a new script tag in the HTML layout.
+     * @param { object } page - Page instance.
+     * @param { object } options - Options for load content in the script tag. Please check the {@link https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-pageaddscripttagoptions documentation}.
+     */
     static async addScriptTag(page, options) {
         await page.addScriptTag(options);
     }
