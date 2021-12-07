@@ -27,13 +27,20 @@ describe('Puppeteer Class', () => {
         await testingServer.start();
     });
 
-    it('Execute method - Open a web page in browser', async () => {
+    it('Launch without options', async () => {
+        const browser = await Puppeteer.launch();
+        const result = browser.isConnected()
+        await browser.close();
+        assert.strictEqual(result, true);
+    });
 
-        const extractedURL = await Puppeteer.execute(url, async (browser, page) => {
-            return await page.url();
+    it('Launch with options', async () => {
+        const browser = await Puppeteer.launch({
+            args: ['--no-sandbox']
         });
-
-        assert.strictEqual(extractedURL, 'http://localhost:8081/');
+        const result = browser.isConnected()
+        await browser.close();
+        assert.strictEqual(result, true);
     });
 
     afterEach(async () => {

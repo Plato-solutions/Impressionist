@@ -14,22 +14,13 @@
  limitations under the License.
  */
 
- import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
 
- class Puppeteer {
+class Puppeteer {
 
-    static async execute(url, customFunction) {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto(url);
-
-        const result = await customFunction(browser, page);
-
-        await page.close();
-        await browser.close();
-
-        return result;
+    static async launch(options) {
+        return await puppeteer.launch(options);
     }
- }
+}
 
- export default Puppeteer;
+export default Puppeteer;
