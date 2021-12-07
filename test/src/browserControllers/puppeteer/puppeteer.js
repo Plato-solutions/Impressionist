@@ -31,6 +31,7 @@ describe('Puppeteer Class', () => {
         const browser = await Puppeteer.launch();
         const result = browser.isConnected()
         await browser.close();
+
         assert.strictEqual(result, true);
     });
 
@@ -40,6 +41,7 @@ describe('Puppeteer Class', () => {
         });
         const result = browser.isConnected()
         await browser.close();
+
         assert.strictEqual(result, true);
     });
 
@@ -47,9 +49,37 @@ describe('Puppeteer Class', () => {
         const browser = await Puppeteer.launch();
         const page = await Puppeteer.newPage(browser);
         const result = page.url();
+        await browser.close();
 
         assert.strictEqual(result, 'about:blank');
     });
+
+    it('Close a browser', async () => {
+        const browser = await Puppeteer.launch();
+        await Puppeteer.close(browser);
+        const result = browser.isConnected()
+
+        assert.strictEqual(result, false);
+    });
+
+    it('Close a page', async () => {
+        const browser = await Puppeteer.launch();
+        const page = await Puppeteer.newPage(browser);
+        await Puppeteer.close(page);
+        const result = browser.isConnected()
+        await browser.close();
+
+        assert.strictEqual(result, true);
+    });
+
+    it('Close a browser and pages', async () => {
+        const browser = await Puppeteer.launch();
+        const page = await Puppeteer.newPage(browser);
+        await Puppeteer.close(page, browser);
+        const result = browser.isConnected()
+
+        assert.strictEqual(result, false);
+    })
 
     afterEach(async () => {
         await testingServer.stop();

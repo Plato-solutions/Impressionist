@@ -21,6 +21,18 @@ class Puppeteer {
     static async launch(options) {
         return await puppeteer.launch(options);
     }
+
+    static async newPage(browser) {
+        return await browser.newPage();
+    }
+
+    static async close(...controllers) {
+        await Promise.all(
+            controllers.map(async (controller) => {
+                await controller.close();
+            })
+        );
+    }
 }
 
 export default Puppeteer;
