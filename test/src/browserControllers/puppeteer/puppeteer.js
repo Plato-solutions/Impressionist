@@ -20,13 +20,6 @@
 
 describe('Puppeteer Class', () => {
 
-    const testingServer = new NanoServer();
-    const url = 'http://localhost:8081';
-
-    beforeEach(async () => {
-        await testingServer.start();
-    });
-
     it('Launch without options', async () => {
         const browser = await Puppeteer.launch();
         const result = browser.isConnected()
@@ -57,7 +50,7 @@ describe('Puppeteer Class', () => {
     it('Close a browser', async () => {
         const browser = await Puppeteer.launch();
         await Puppeteer.close(browser);
-        const result = browser.isConnected()
+        const result = browser.isConnected();
 
         assert.strictEqual(result, false);
     });
@@ -66,7 +59,7 @@ describe('Puppeteer Class', () => {
         const browser = await Puppeteer.launch();
         const page = await Puppeteer.newPage(browser);
         await Puppeteer.close(page);
-        const result = browser.isConnected()
+        const result = browser.isConnected();
         await browser.close();
 
         assert.strictEqual(result, true);
@@ -76,12 +69,54 @@ describe('Puppeteer Class', () => {
         const browser = await Puppeteer.launch();
         const page = await Puppeteer.newPage(browser);
         await Puppeteer.close(page, browser);
-        const result = browser.isConnected()
+        const result = browser.isConnected();
 
         assert.strictEqual(result, false);
-    })
-
-    afterEach(async () => {
-        await testingServer.stop();
     });
+
+    describe('Using testing server', () => {
+        
+        const testingServer = new NanoServer();
+        const url = 'http://localhost:8081/';
+
+        before(async () => {
+            await testingServer.start();
+        });
+
+        it(`Navigate to ${url}`, async () => {
+            const browser = await Puppeteer.launch();
+            const page = await Puppeteer.newPage(browser);
+            await Puppeteer.goto(page, url);
+            const result = page.url();            
+            await Puppeteer.close(page, browser);
+
+            assert.strictEqual(result, url);
+        });
+
+        it('Navigate to an invalid URL', async () => {
+
+            async function failWithMessage() {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                try {
+                    await Puppeteer.goto(page, 'novalid');
+                    const result = page.url();         
+                    return result;
+                } catch(e) {
+                    await Puppeteer.close(page, browser);
+                    throw(e);
+                }
+            }
+
+            assert.rejects(failWithMessage, {
+                name: 'Error',
+                message: /Puppeteer goto method failed with the following message: /
+            });
+        });
+
+        after(async () => {
+            await testingServer.stop();
+        });
+    });
+
 });

@@ -33,6 +33,14 @@ class Puppeteer {
             })
         );
     }
+
+    static async goto(page, url) {
+        try {
+            await page.goto(url);
+        } catch(e) {
+            throw new Error('Puppeteer goto method failed with the following message: ', e.message);
+        }
+    }
 }
 
 export default Puppeteer;
