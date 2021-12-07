@@ -182,6 +182,133 @@ describe('Puppeteer Class', () => {
             });
         });
 
+        describe('Expose NodeJS functions', () => {
+
+            it('Expose a NodeJS function', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                
+                await Puppeteer.exposeFunction(page, 'sum', function sum(num1, num2) {
+                    return num1 + num2;
+                });
+
+                const result = await Puppeteer.evaluate(page, async () => {
+                    return await sum(2, 3);
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 5);
+            });
+
+            it('Expose an async NodeJS function', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                
+                await Puppeteer.exposeFunction(page, 'sum', async function sum(num1, num2) {
+                    return num1 + num2;
+                });
+
+                const result = await Puppeteer.evaluate(page, async () => {
+                    return await sum(2, 3);
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 5);
+            });
+
+            it('Expose an faulty NodeJS function', async () => {
+                
+                async function failWithMessage() {
+                    const browser = await Puppeteer.launch();
+                    const page = await Puppeteer.newPage(browser);
+                    
+                    await Puppeteer.exposeFunction(page, 'sum', async function sum(num1, num2) {
+                        throw new Error('Custom function failed');
+                    });
+    
+                    try {
+                        return await Puppeteer.evaluate(page, async () => {
+                            return await sum(2, 3);
+                        });
+                    } catch (e) {
+                        await Puppeteer.close(page, browser);
+                        throw(e);
+                    }
+                }
+
+                assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                });
+            });
+
+        });
+
+        describe('AddScriptTags', () => {
+
+            it('addScriptTag for a serialized function', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+
+                await Puppeteer.addScriptTag(page, {
+                    content: "function greet() { return 'hello world'; }"
+                });
+                
+                const result = await Puppeteer.evaluate(page, async () => {
+                    return greet();
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 'hello world');
+            });
+
+            it('addScriptTag for a serialized async function', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+
+                await Puppeteer.addScriptTag(page, {
+                    content: "async function greet() { return 'hello world'; }"
+                });
+                
+                const result = await Puppeteer.evaluate(page, async () => {
+                    return await greet();
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 'hello world');
+            });
+
+            it('addScriptTag for a serialized faulty function', async () => {
+                
+                async function failWithMessage() {
+                    const browser = await Puppeteer.launch();
+                    const page = await Puppeteer.newPage(browser);
+    
+                    await Puppeteer.addScriptTag(page, {
+                        content: "function greet() { throw new Error('Custom function failed.'); }"
+                    });
+                    
+                    try {
+                        return await Puppeteer.evaluate(page, async () => {
+                            return greet();
+                        });
+                    } catch(e) {
+                        await Puppeteer.close(page, browser);
+                        throw(e);
+                    }
+                }
+
+                assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                });
+            });
+        });
+
         after(async () => {
             await testingServer.stop();
         });

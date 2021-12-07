@@ -49,6 +49,14 @@ class Puppeteer {
             throw new Error('Execution of pageFunction in browser context failed with the following message: ', e.message);
         }
     }
+
+    static async exposeFunction(page, name, puppeteerFunction) {
+        await page.exposeFunction(name, puppeteerFunction);
+    }
+
+    static async addScriptTag(page, options) {
+        await page.addScriptTag(options);
+    }
 }
 
 export default Puppeteer;
