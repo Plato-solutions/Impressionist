@@ -43,6 +43,14 @@ describe('Puppeteer Class', () => {
         assert.strictEqual(result, true);
     });
 
+    it('Create an empty page', async () => {
+        const browser = await Puppeteer.launch();
+        const page = await Puppeteer.newPage(browser);
+        const result = page.url();
+
+        assert.strictEqual(result, 'about:blank');
+    });
+
     afterEach(async () => {
         await testingServer.stop();
     });
