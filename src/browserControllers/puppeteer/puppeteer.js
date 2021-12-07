@@ -13,3 +13,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+ import puppeteer from 'puppeteer';
+
+ class Puppeteer {
+
+    static async execute(url, customFunction) {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url);
+
+        const result = await customFunction(browser, page);
+
+        await page.close();
+        await browser.close();
+
+        return result;
+    }
+ }
+
+ export default Puppeteer;

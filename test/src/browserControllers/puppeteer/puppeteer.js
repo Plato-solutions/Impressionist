@@ -16,7 +16,7 @@
 
  import assert from "assert";
  import NanoServer from '../../../testing-server/server.js';
- import Puppeteer from '../../../../src/browserController/puppeteer/puppeteer.js';
+ import Puppeteer from '../../../../src/browserControllers/puppeteer/puppeteer.js';
 
 describe('Puppeteer Class', () => {
 
@@ -33,7 +33,7 @@ describe('Puppeteer Class', () => {
             return await page.url();
         });
 
-        assert.strictEqual(extractedURL, 'http://localhost:8081');
+        assert.strictEqual(extractedURL, 'http://localhost:8081/');
     });
 
     afterEach(async () => {
