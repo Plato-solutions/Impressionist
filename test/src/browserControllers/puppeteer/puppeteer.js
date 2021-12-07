@@ -83,34 +83,102 @@ describe('Puppeteer Class', () => {
             await testingServer.start();
         });
 
-        it(`Navigate to ${url}`, async () => {
-            const browser = await Puppeteer.launch();
-            const page = await Puppeteer.newPage(browser);
-            await Puppeteer.goto(page, url);
-            const result = page.url();            
-            await Puppeteer.close(page, browser);
+        describe('Navigation', () => {
 
-            assert.strictEqual(result, url);
-        });
-
-        it('Navigate to an invalid URL', async () => {
-
-            async function failWithMessage() {
+            it(`Navigate to ${url}`, async () => {
                 const browser = await Puppeteer.launch();
                 const page = await Puppeteer.newPage(browser);
-                try {
-                    await Puppeteer.goto(page, 'novalid');
-                    const result = page.url();         
-                    return result;
-                } catch(e) {
-                    await Puppeteer.close(page, browser);
-                    throw(e);
+                await Puppeteer.goto(page, url);
+                const result = page.url();            
+                await Puppeteer.close(page, browser);
+    
+                assert.strictEqual(result, url);
+            });
+    
+            it('Navigate to an invalid URL', async () => {
+    
+                async function failWithMessage() {
+                    const browser = await Puppeteer.launch();
+                    const page = await Puppeteer.newPage(browser);
+                    try {
+                        await Puppeteer.goto(page, 'novalid');
+                        const result = page.url();         
+                        return result;
+                    } catch(e) {
+                        await Puppeteer.close(page, browser);
+                        throw(e);
+                    }
                 }
-            }
+    
+                assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Puppeteer goto method failed with the following message: /
+                });
+            });
 
-            assert.rejects(failWithMessage, {
-                name: 'Error',
-                message: /Puppeteer goto method failed with the following message: /
+        });
+
+        describe('Evaluate', () => {
+
+            it('Evaluate a function in browser context', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                
+                const result = await Puppeteer.evaluate(page, () => {
+                    return 2+2;
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 4);
+            });
+
+            it('Evaluate a function in browser context passing arguments', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                
+                const result = await Puppeteer.evaluate(page, (url) => {
+                    return url;
+                }, url);
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, url);
+            });
+            
+            it('Evaluate an async function in browser context', async () => {
+                const browser = await Puppeteer.launch();
+                const page = await Puppeteer.newPage(browser);
+                
+                const result = await Puppeteer.evaluate(page, async () => {
+                    return 2+2;
+                });
+
+                await Puppeteer.close(page, browser);
+
+                assert.strictEqual(result, 4);
+            });
+
+            it('Evaluate a faulty function in browser context', async () => {
+                
+                async function failWithMessage() {
+                    const browser = await Puppeteer.launch();
+                    const page = await Puppeteer.newPage(browser);
+                    
+                    try {
+                        await Puppeteer.evaluate(page, () => {
+                            throw new Error('Custom function failed.');
+                        });
+                    } catch (e) {
+                        await Puppeteer.close(page, browser);
+                        throw(e);
+                    }
+                }
+
+                assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                });
             });
         });
 

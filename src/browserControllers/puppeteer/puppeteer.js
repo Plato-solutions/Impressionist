@@ -41,6 +41,14 @@ class Puppeteer {
             throw new Error('Puppeteer goto method failed with the following message: ', e.message);
         }
     }
+
+    static async evaluate(page, pageFunction, ...args) {
+        try {
+            return await page.evaluate(pageFunction, ...args);
+        } catch (e) {
+            throw new Error('Execution of pageFunction in browser context failed with the following message: ', e.message);
+        }
+    }
 }
 
 export default Puppeteer;
