@@ -33,6 +33,14 @@ class PuppeteerController {
     static async close() {
         await Puppeteer.close(PuppeteerController.mainPage, PuppeteerController.browser);
     }
+
+    static async evaluate(pageFunction, ...args) {
+        try {
+            return await Puppeteer.evaluate(PuppeteerController.mainPage, pageFunction, ...args);
+        } catch(e) {
+            throw new Error('Function execution failed with the following message: ' + e.message);
+        }
+    }
 }
 
 export default PuppeteerController;

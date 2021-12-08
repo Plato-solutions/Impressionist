@@ -38,12 +38,56 @@ describe.only('PuppeteerController Class', () => {
 
     });
 
-    describe('Close Puppeteer conections', () => {
+    describe('Close Puppeteer connections', () => {
         
         it('Close browser and page', async () => {
             await PuppeteerController.initialize();
             const result = PuppeteerController.close();
             await assert.doesNotReject(result);
+        });
+
+    });
+
+    describe('Evaluate', () => {
+
+        it('Execute a function in browser context', async () => {
+            await PuppeteerController.initialize();
+            const result = await PuppeteerController.evaluate(() => {
+                return 2+2;
+            });
+            await PuppeteerController.close();
+
+            assert.strictEqual(result, 4);
+        });
+
+        it('Execute an async function in browser context', async () => {
+            await PuppeteerController.initialize();
+            const result = await PuppeteerController.evaluate(async () => {
+                return 2+2;
+            });
+            await PuppeteerController.close();
+
+            assert.strictEqual(result, 4);
+        });
+
+        it('Execute a faulty function in browser context', async () => {
+            
+            async function failWithMessage() {
+                try {
+                    await PuppeteerController.initialize();
+                    const result = await PuppeteerController.evaluate(() => {
+                        throw new Error('Custom function failed.');
+                    });
+                } catch (e) {
+                    await PuppeteerController.close();
+                    throw(e);
+                }
+            }
+
+            assert.rejects(failWithMessage, {
+                name: 'Error',
+                message: /Function execution failed with the following message: /
+            });
         });
 
     });
