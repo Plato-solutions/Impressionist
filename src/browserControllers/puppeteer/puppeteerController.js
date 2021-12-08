@@ -50,6 +50,13 @@ class PuppeteerController {
             throw new Error('Function execution failed with the following message: ' + e.message);
         }
     }
+
+    static async inject(functionality) {
+        const serializedFunctionality = functionality.toString();
+        await Puppeteer.addScriptTag(PuppeteerController.mainPage, {
+            content: serializedFunctionality
+        });
+    }
 }
 
 export default PuppeteerController;

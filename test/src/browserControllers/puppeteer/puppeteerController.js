@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import assert from "assert";
+import assert, { fail } from "assert";
 import NanoServer from '../../../testing-server/server.js';
 import PuppeteerController from '../../../../src/browserControllers/puppeteer/puppeteerController.js';
 import { isRegExp } from "util/types";
@@ -77,7 +77,7 @@ describe.only('PuppeteerController Class', () => {
                 });
             }
 
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Function execution failed with the following message: /
             });
@@ -127,9 +127,80 @@ describe.only('PuppeteerController Class', () => {
                 });
             }
 
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Function execution failed with the following message: /
+            });
+        });
+
+        afterEach(async () => {
+            await PuppeteerController.close();
+        });
+    });
+
+    describe('Inject', () => {
+        beforeEach(async () => {
+            await PuppeteerController.initialize();
+        });
+
+        describe('Inject function', () => {
+            it('Inject a function in browser context', async () => {
+                await PuppeteerController.inject(function sum(num1, num2) {
+                    return num1+num2;
+                });
+    
+                const result = await PuppeteerController.evaluate(() => {
+                    return sum(2, 2);
+                });
+    
+                assert.strictEqual(result, 4);
+            });
+    
+            it('Inject an async function in browser context', async () => {
+                await PuppeteerController.inject(async function sum(num1, num2) {
+                    return num1+num2;
+                });
+    
+                const result = await PuppeteerController.evaluate(async () => {
+                    return await sum(2, 2);
+                });
+    
+                assert.strictEqual(result, 4);
+            });
+    
+            it('Inject a faulty function in browser context', async () => {
+                await PuppeteerController.inject(async function sum(num1, num2) {
+                    throw new Error('Injected function failed.');
+                });
+    
+                async function failWithMessage() {
+                    return await PuppeteerController.evaluate(async () => {
+                        return await sum(2, 2);
+                    });
+                }
+    
+                await assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Function execution failed with the following message: /
+                });
+            });
+        });
+
+        describe('Inject class', () => {
+
+            it('Inject a class', async () => {
+                class Test {
+                    static sum(num1, num2) {
+                        return num1 + num2;
+                    }
+                }
+
+                await PuppeteerController.inject(Test);
+                const result = await PuppeteerController.evaluate(() => {
+                    return Test.sum(2, 2);
+                });
+
+                assert.strictEqual(result, 4);
             });
         });
 
