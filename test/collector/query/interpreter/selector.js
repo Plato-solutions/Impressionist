@@ -19,7 +19,7 @@ import NanoServer from '../../../testing-server/server.js';
 import Impressionist from '../../../../src/process.js'
 import assert from 'assert';
 
-describe('SelectorInterpreter', () => {
+describe.only('SelectorInterpreter', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -92,6 +92,30 @@ describe('SelectorInterpreter', () => {
         });
     
         assert.deepStrictEqual(result, { name: '<h1>Plato Plugin</h1>' });
+    });
+
+    it("select('h{1')", async () => {
+        
+        async function failWithMessage() {
+            return await page.evaluate(async () => { 
+        
+                const data = ( function () {
+                    return new Collection({
+                        name: select('h{1')
+                    });
+                    
+                } )();
+                
+                const context = new Context();
+                return await data.call(context);
+        
+            });
+        }
+    
+        assert.rejects(failWithMessage, {
+            name: 'Error',
+            message: /Unable to interpret the Select String: /
+        });
     });
 
     after(async () => {
