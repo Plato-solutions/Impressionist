@@ -41,6 +41,15 @@ class PuppeteerController {
             throw new Error('Function execution failed with the following message: ' + e.message);
         }
     }
+
+    static async execute(url, puppeteerFunction) {
+        try {
+            await Puppeteer.goto(PuppeteerController.mainPage, url);
+            return await puppeteerFunction(PuppeteerController.browser, PuppeteerController.mainPage);
+        } catch (e) {
+            throw new Error('Function execution failed with the following message: ' + e.message);
+        }
+    }
 }
 
 export default PuppeteerController;

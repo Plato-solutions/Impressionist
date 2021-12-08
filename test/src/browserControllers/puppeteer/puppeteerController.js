@@ -50,38 +50,31 @@ describe.only('PuppeteerController Class', () => {
 
     describe('Evaluate', () => {
 
-        it('Execute a function in browser context', async () => {
+        beforeEach(async () => {
             await PuppeteerController.initialize();
+        });
+
+        it('Execute a function in browser context', async () => {
             const result = await PuppeteerController.evaluate(() => {
                 return 2+2;
             });
-            await PuppeteerController.close();
 
             assert.strictEqual(result, 4);
         });
 
         it('Execute an async function in browser context', async () => {
-            await PuppeteerController.initialize();
             const result = await PuppeteerController.evaluate(async () => {
                 return 2+2;
             });
-            await PuppeteerController.close();
-
             assert.strictEqual(result, 4);
         });
 
         it('Execute a faulty function in browser context', async () => {
             
             async function failWithMessage() {
-                try {
-                    await PuppeteerController.initialize();
-                    const result = await PuppeteerController.evaluate(() => {
-                        throw new Error('Custom function failed.');
-                    });
-                } catch (e) {
-                    await PuppeteerController.close();
-                    throw(e);
-                }
+                return await PuppeteerController.evaluate(() => {
+                    throw new Error('Custom function failed.');
+                });
             }
 
             assert.rejects(failWithMessage, {
@@ -90,6 +83,59 @@ describe.only('PuppeteerController Class', () => {
             });
         });
 
+        afterEach(async () => {
+            await PuppeteerController.close();
+        });
+
+    });
+
+    describe('Execute', () => {
+        
+        beforeEach(async () => {
+            await PuppeteerController.initialize();
+        });
+
+        it('Execute a function in browser context', async () => {
+
+            const result = await PuppeteerController.execute(url, async (browser, page) => {
+                return await page.evaluate(() => {
+                    return 2+2;
+                });
+            });
+
+            assert.strictEqual(result, 4);
+        });
+
+        it('Execute an async function in browser context', async () => {
+
+            const result = await PuppeteerController.execute(url, async (browser, page) => {
+                return await page.evaluate(async () => {
+                    return 2+2;
+                });
+            });
+
+            assert.strictEqual(result, 4);
+        });
+
+        it('Execute a faulty function in browser context', async () => {
+
+            async function failWithMessage() {
+                return await PuppeteerController.execute(url, async (browser, page) => {
+                    return await page.evaluate(async () => {
+                        throw new Error('Custom function failed');
+                    });
+                });
+            }
+
+            assert.rejects(failWithMessage, {
+                name: 'Error',
+                message: /Function execution failed with the following message: /
+            });
+        });
+
+        afterEach(async () => {
+            await PuppeteerController.close();
+        });
     });
     
     after(async () => {
