@@ -195,6 +195,10 @@ class Process {
         return await customFunction(browser, page, ...args);
     }
 
+    static setBrowserController(browserController) {
+        Process.#browserController = browserController;
+    }
+
 }
 
 export default Process;
