@@ -17,9 +17,8 @@
 import assert, { fail } from "assert";
 import NanoServer from '../../../testing-server/server.js';
 import PuppeteerController from '../../../../src/browserControllers/puppeteer/puppeteerController.js';
-import { isRegExp } from "util/types";
 
-describe.only('PuppeteerController Class', () => {
+describe('PuppeteerController Class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081/';
@@ -31,7 +30,7 @@ describe.only('PuppeteerController Class', () => {
     describe('Initialize Puppeteer', () => {
 
         it('Create a configured browser and page instances', async () => {
-            const result = PuppeteerController.initialize();
+            const result = PuppeteerController.initialize('about:blank');
             await assert.doesNotReject(result);
             await PuppeteerController.close();
         });
@@ -41,7 +40,7 @@ describe.only('PuppeteerController Class', () => {
     describe('Close Puppeteer connections', () => {
         
         it('Close browser and page', async () => {
-            await PuppeteerController.initialize();
+            await PuppeteerController.initialize('about:blank');
             const result = PuppeteerController.close();
             await assert.doesNotReject(result);
         });
@@ -50,12 +49,14 @@ describe.only('PuppeteerController Class', () => {
 
     describe('Evaluate', () => {
 
+        let identifier;
+
         beforeEach(async () => {
-            await PuppeteerController.initialize();
+            identifier = await PuppeteerController.initialize('about:blank');
         });
 
         it('Execute a function in browser context', async () => {
-            const result = await PuppeteerController.evaluate(() => {
+            const result = await PuppeteerController.evaluate(identifier, () => {
                 return 2+2;
             });
 
@@ -63,7 +64,7 @@ describe.only('PuppeteerController Class', () => {
         });
 
         it('Execute an async function in browser context', async () => {
-            const result = await PuppeteerController.evaluate(async () => {
+            const result = await PuppeteerController.evaluate(identifier, async () => {
                 return 2+2;
             });
             assert.strictEqual(result, 4);
@@ -72,7 +73,7 @@ describe.only('PuppeteerController Class', () => {
         it('Execute a faulty function in browser context', async () => {
             
             async function failWithMessage() {
-                return await PuppeteerController.evaluate(() => {
+                return await PuppeteerController.evaluate(identifier, () => {
                     throw new Error('Custom function failed.');
                 });
             }
@@ -91,13 +92,15 @@ describe.only('PuppeteerController Class', () => {
 
     describe('Execute', () => {
         
+        let identifier;
+
         beforeEach(async () => {
-            await PuppeteerController.initialize();
+            identifier = await PuppeteerController.initialize('about:blank');
         });
 
         it('Execute a function in browser context', async () => {
 
-            const result = await PuppeteerController.execute(url, async (browser, page) => {
+            const result = await PuppeteerController.execute(identifier, async (browser, page) => {
                 return await page.evaluate(() => {
                     return 2+2;
                 });
@@ -108,7 +111,7 @@ describe.only('PuppeteerController Class', () => {
 
         it('Execute an async function in browser context', async () => {
 
-            const result = await PuppeteerController.execute(url, async (browser, page) => {
+            const result = await PuppeteerController.execute(identifier, async (browser, page) => {
                 return await page.evaluate(async () => {
                     return 2+2;
                 });
@@ -120,7 +123,7 @@ describe.only('PuppeteerController Class', () => {
         it('Execute a faulty function in browser context', async () => {
 
             async function failWithMessage() {
-                return await PuppeteerController.execute(url, async (browser, page) => {
+                return await PuppeteerController.execute(identifier, async (browser, page) => {
                     return await page.evaluate(async () => {
                         throw new Error('Custom function failed');
                     });
@@ -139,17 +142,19 @@ describe.only('PuppeteerController Class', () => {
     });
 
     describe('Inject', () => {
+
+        let identifier;
         beforeEach(async () => {
-            await PuppeteerController.initialize();
+            identifier = await PuppeteerController.initialize('about:blank');
         });
 
         describe('Inject function', () => {
             it('Inject a function in browser context', async () => {
-                await PuppeteerController.inject(function sum(num1, num2) {
+                await PuppeteerController.inject(identifier, function sum(num1, num2) {
                     return num1+num2;
                 });
     
-                const result = await PuppeteerController.evaluate(() => {
+                const result = await PuppeteerController.evaluate(identifier, () => {
                     return sum(2, 2);
                 });
     
@@ -157,11 +162,11 @@ describe.only('PuppeteerController Class', () => {
             });
     
             it('Inject an async function in browser context', async () => {
-                await PuppeteerController.inject(async function sum(num1, num2) {
+                await PuppeteerController.inject(identifier, async function sum(num1, num2) {
                     return num1+num2;
                 });
     
-                const result = await PuppeteerController.evaluate(async () => {
+                const result = await PuppeteerController.evaluate(identifier, async () => {
                     return await sum(2, 2);
                 });
     
@@ -169,12 +174,12 @@ describe.only('PuppeteerController Class', () => {
             });
     
             it('Inject a faulty function in browser context', async () => {
-                await PuppeteerController.inject(async function sum(num1, num2) {
+                await PuppeteerController.inject(identifier, async function sum(num1, num2) {
                     throw new Error('Injected function failed.');
                 });
     
                 async function failWithMessage() {
-                    return await PuppeteerController.evaluate(async () => {
+                    return await PuppeteerController.evaluate(identifier, async () => {
                         return await sum(2, 2);
                     });
                 }
@@ -195,8 +200,8 @@ describe.only('PuppeteerController Class', () => {
                     }
                 }
 
-                await PuppeteerController.inject(Test);
-                const result = await PuppeteerController.evaluate(() => {
+                await PuppeteerController.inject(identifier, Test);
+                const result = await PuppeteerController.evaluate(identifier, () => {
                     return Test.sum(2, 2);
                 });
 
@@ -210,17 +215,20 @@ describe.only('PuppeteerController Class', () => {
     });
 
     describe('Expose', () => {
+
+        let identifier;
+
         beforeEach(async () => {
-            await PuppeteerController.initialize();
+            identifier = await PuppeteerController.initialize('about:blank');
         });
 
         describe('Expose function', () => {
             it('Expose a function in browser context', async () => {
-                await PuppeteerController.expose(function sum(num1, num2) {
+                await PuppeteerController.expose(identifier, function sum(num1, num2) {
                     return num1+num2;
                 });
     
-                const result = await PuppeteerController.evaluate(async () => {
+                const result = await PuppeteerController.evaluate(identifier, async () => {
                     return await sum(2, 2);
                 });
     
@@ -228,11 +236,11 @@ describe.only('PuppeteerController Class', () => {
             });
     
             it('Expose an async function in browser context', async () => {
-                await PuppeteerController.expose(async function sum(num1, num2) {
+                await PuppeteerController.expose(identifier, async function sum(num1, num2) {
                     return num1+num2;
                 });
     
-                const result = await PuppeteerController.evaluate(async () => {
+                const result = await PuppeteerController.evaluate(identifier, async () => {
                     return await sum(2, 2);
                 });
     
@@ -240,12 +248,12 @@ describe.only('PuppeteerController Class', () => {
             });
     
             it('Expose a faulty function in browser context', async () => {
-                await PuppeteerController.expose(async function sum(num1, num2) {
+                await PuppeteerController.expose(identifier, async function sum(num1, num2) {
                     throw new Error('Injected function failed.');
                 });
     
                 async function failWithMessage() {
-                    return await PuppeteerController.evaluate(async () => {
+                    return await PuppeteerController.evaluate(identifier, async () => {
                         return await sum(2, 2);
                     });
                 }
