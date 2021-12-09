@@ -29,6 +29,9 @@ import { MonitorManager } from './plugin-ins/index.js';
  */
 class Process {
 
+    /**
+     * Provides methods and features to interact with the browser.
+     */
     static #browserController = PuppeteerController;
 
     /**
@@ -71,33 +74,37 @@ class Process {
      * ```
      */
     static async execute(url, customFunction, { browserOptions = {} } = {}) {
-        let pageConnection;
+        let connectionIdentifier;
         
         try {
-            pageConnection = await Process.#browserController.initialize(url, browserOptions);
-            await Process.configurePageConnection(pageConnection);
-            return await Process.#browserController.execute(pageConnection, customFunction);
+            connectionIdentifier = await Process.#browserController.initialize(url, browserOptions);
+            await Process.configureConnection(connectionIdentifier);
+            return await Process.#browserController.execute(connectionIdentifier, customFunction);
         } catch (e) {
             throw new Error('Impressionist detect an error in the custom function: ' + e.message);
         } finally {
-            await Process.#browserController.close(pageConnection);
+            await Process.#browserController.close(connectionIdentifier);
         }
     }
 
-    static async configurePageConnection(pageConnection) {
-        await Process.#enableCollector(pageConnection);
-        await Process.#registerSelectors(pageConnection);
-        await Process.#registerStrategies(pageConnection);
-        await Process.#addProxyFunctions(pageConnection);
-        await Process.#exposeLogger(pageConnection);
+    /**
+     * Enable Impressionist features and configurations in a page connection.
+     * @param {*} connectionIdentifier 
+     */
+    static async configureConnection(connectionIdentifier) {
+        await Process.#enableCollector(connectionIdentifier);
+        await Process.#registerSelectors(connectionIdentifier);
+        await Process.#registerStrategies(connectionIdentifier);
+        await Process.#addProxyFunctions(connectionIdentifier);
+        await Process.#exposeLogger(connectionIdentifier);
     }
 
     /**
      * Exposes the logger function to be used in the browser.
      * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      */
-    static async #exposeLogger(pageConnection) {
-        await PuppeteerController.expose(pageConnection, function logger(report) {
+    static async #exposeLogger(connectionIdentifier) {
+        await PuppeteerController.expose(connectionIdentifier, function logger(report) {
             MonitorManager.log(report);
         });
     }
@@ -124,9 +131,9 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #registerSelectors(pageConnection) {
+    static async #registerSelectors(connectionIdentifier) {
         const classesRegistered = Object.keys(Selectors).map(cl => {
-            return PuppeteerController.evaluate(pageConnection, (cl) => {
+            return PuppeteerController.evaluate(connectionIdentifier, (cl) => {
                 eval(cl+".register()");
                 return true;
             }, cl);
@@ -141,8 +148,8 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #registerStrategies(pageConnection) {
-        await PuppeteerController.evaluate(pageConnection, () => {
+    static async #registerStrategies(connectionIdentifier) {
+        await PuppeteerController.evaluate(connectionIdentifier, () => {
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
@@ -158,21 +165,21 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #addProxyFunctions(pageConnection) {
-        await PuppeteerController.inject(pageConnection, 'const collector = (...args) => new Collector(new Collection(...args))');
-        await PuppeteerController.inject(pageConnection, 'const elements = SelectorDirectory.get("elements")');
-        await PuppeteerController.inject(pageConnection, 'const options = SelectorDirectory.get("options")');
-        await PuppeteerController.inject(pageConnection, 'const css = SelectorDirectory.get("css")');
-        await PuppeteerController.inject(pageConnection, 'const xpath = SelectorDirectory.get("xpath")');
-        await PuppeteerController.inject(pageConnection, 'const merge = SelectorDirectory.get("merge")');
-        await PuppeteerController.inject(pageConnection, 'const property = SelectorDirectory.get("property")');
-        await PuppeteerController.inject(pageConnection, 'const pre = SelectorDirectory.get("pre")');
-        await PuppeteerController.inject(pageConnection, 'const post = SelectorDirectory.get("post")');
-        await PuppeteerController.inject(pageConnection, 'const all = SelectorDirectory.get("all")');
-        await PuppeteerController.inject(pageConnection, 'const single = SelectorDirectory.get("single")');
-        await PuppeteerController.inject(pageConnection, 'const init = SelectorDirectory.get("init")');
-        await PuppeteerController.inject(pageConnection, 'const select = SelectorDirectory.get("select")');
-        await PuppeteerController.inject(pageConnection, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
+    static async #addProxyFunctions(connectionIdentifier) {
+        await PuppeteerController.inject(connectionIdentifier, 'const collector = (...args) => new Collector(new Collection(...args))');
+        await PuppeteerController.inject(connectionIdentifier, 'const elements = SelectorDirectory.get("elements")');
+        await PuppeteerController.inject(connectionIdentifier, 'const options = SelectorDirectory.get("options")');
+        await PuppeteerController.inject(connectionIdentifier, 'const css = SelectorDirectory.get("css")');
+        await PuppeteerController.inject(connectionIdentifier, 'const xpath = SelectorDirectory.get("xpath")');
+        await PuppeteerController.inject(connectionIdentifier, 'const merge = SelectorDirectory.get("merge")');
+        await PuppeteerController.inject(connectionIdentifier, 'const property = SelectorDirectory.get("property")');
+        await PuppeteerController.inject(connectionIdentifier, 'const pre = SelectorDirectory.get("pre")');
+        await PuppeteerController.inject(connectionIdentifier, 'const post = SelectorDirectory.get("post")');
+        await PuppeteerController.inject(connectionIdentifier, 'const all = SelectorDirectory.get("all")');
+        await PuppeteerController.inject(connectionIdentifier, 'const single = SelectorDirectory.get("single")');
+        await PuppeteerController.inject(connectionIdentifier, 'const init = SelectorDirectory.get("init")');
+        await PuppeteerController.inject(connectionIdentifier, 'const select = SelectorDirectory.get("select")');
+        await PuppeteerController.inject(connectionIdentifier, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
     }
 
     /**
