@@ -208,6 +208,59 @@ describe.only('PuppeteerController Class', () => {
             await PuppeteerController.close();
         });
     });
+
+    describe('Expose', () => {
+        beforeEach(async () => {
+            await PuppeteerController.initialize();
+        });
+
+        describe('Expose function', () => {
+            it('Expose a function in browser context', async () => {
+                await PuppeteerController.expose(function sum(num1, num2) {
+                    return num1+num2;
+                });
+    
+                const result = await PuppeteerController.evaluate(async () => {
+                    return await sum(2, 2);
+                });
+    
+                assert.strictEqual(result, 4);
+            });
+    
+            it('Expose an async function in browser context', async () => {
+                await PuppeteerController.expose(async function sum(num1, num2) {
+                    return num1+num2;
+                });
+    
+                const result = await PuppeteerController.evaluate(async () => {
+                    return await sum(2, 2);
+                });
+    
+                assert.strictEqual(result, 4);
+            });
+    
+            it('Expose a faulty function in browser context', async () => {
+                await PuppeteerController.expose(async function sum(num1, num2) {
+                    throw new Error('Injected function failed.');
+                });
+    
+                async function failWithMessage() {
+                    return await PuppeteerController.evaluate(async () => {
+                        return await sum(2, 2);
+                    });
+                }
+    
+                await assert.rejects(failWithMessage, {
+                    name: 'Error',
+                    message: /Function execution failed with the following message: /
+                });
+            });
+        });
+
+        afterEach(async () => {
+            await PuppeteerController.close();
+        });
+    });
     
     after(async () => {
         await testingServer.stop();

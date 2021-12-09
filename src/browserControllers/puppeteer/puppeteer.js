@@ -61,7 +61,7 @@ class Puppeteer {
         try {
             await page.goto(url);
         } catch(e) {
-            throw new Error('Puppeteer goto method failed with the following message: ', e.message);
+            throw new Error('Puppeteer goto method failed with the following message: ' + e.message);
         }
     }
 
@@ -76,7 +76,7 @@ class Puppeteer {
         try {
             return await page.evaluate(pageFunction, ...args);
         } catch (e) {
-            throw new Error('Execution of pageFunction in browser context failed with the following message: ', e.message);
+            throw new Error('Execution of pageFunction in browser context failed with the following message: ' + e.message);
         }
     }
 

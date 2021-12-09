@@ -57,6 +57,11 @@ class PuppeteerController {
             content: serializedFunctionality
         });
     }
+
+    static async expose(functionality) {
+        const name = functionality.name;
+        await PuppeteerController.mainPage.exposeFunction(name, functionality);
+    }
 }
 
 export default PuppeteerController;
