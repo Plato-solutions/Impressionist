@@ -36,7 +36,7 @@ class PuppeteerController {
      * @param { string } url - URL.
      * @param { object } [ options = {} ] - Please read the documentation
      * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
-     * @returns { symbol } Promise which resolves to a unique identifier represented by a Symbol.
+     * @returns { Promise<symbol> } Promise which resolves to a unique identifier represented by a Symbol.
      */
     static async initialize(url, options) {
         PuppeteerController.browser ||= await Puppeteer.launch(options);
