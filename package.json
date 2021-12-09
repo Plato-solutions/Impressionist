@@ -11,6 +11,7 @@
     "docs-lib-collector": "jsdoc2md lib/** >> docs/api/api.md && jsdoc2md lib/**/** >> docs/api/api.md && jsdoc2md lib/**/**/** >> docs/api/api.md && jsdoc2md lib/**/**/**/** >> docs/api/api.md",
     "coverage": "c8 --100 npm test",
     "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
+    "test-Process": "mocha --timeout 60000 ./test/src/process.js",
     "test-browserControllers": "mocha --timeout 60000 --recursive ./test/src/browserControllers/**",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
     "test-Collection": "mocha --timeout 60000 --recursive ./test/collector/collection/**",

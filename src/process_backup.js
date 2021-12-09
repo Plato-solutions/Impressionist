@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-import { PuppeteerController } from './browserControllers/index.js';
+import puppeteer from 'puppeteer';
+import useProxy from 'puppeteer-page-proxy';
+import Environment from './environment.js';
 import * as BrowserClasses from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
@@ -28,8 +30,6 @@ import { MonitorManager } from './plugin-ins/index.js';
  * @summary Initialize Puppeteer.
  */
 class Process {
-
-    static #browserController = PuppeteerController;
 
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
@@ -70,18 +70,198 @@ class Process {
      * }
      * ```
      */
-    static async execute(url, customFunction, { browserOptions = {} } = {}) {
-        let pageConnection;
-        
+    static async execute(
+        url,
+        customFunction,
+        {
+            browserOptions = {},
+            args = []
+        } = {}
+    ) {
+
+        const  { browser, page } = await Process.openConnection(url, browserOptions);
+
+        let result;
+
         try {
-            pageConnection = await Process.#browserController.initialize(url, browserOptions);
-            // TODO: Page configuration.
-            return await Process.#browserController.execute(pageConnection, customFunction);
+            
+            result = await customFunction(browser, page, ...args);
+
         } catch (e) {
-            // Error handling.
+
+            if(!Environment.is(Environment.PRODUCTION)) {
+                console.error(e);
+            }
+
         } finally {
-            await Process.#browserController.close(pageConnection);
+            await page.close();
+            await browser.close();
+            return result;
         }
+    }
+
+    /**
+     * Open a connection to a browser instance.
+     * @param { string } url - Target URL for scraping process.
+     * @param { object } [ browserOptions = {} ] - Please read the documentation
+     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
+     * @returns { Promise<object> } Promise object that represents an object that stores the browser, page instances.
+     */
+     static async openConnection(url, browserOptions = {}) {
+        const  { browser, page } = await Process.#initializePuppeteer(browserOptions);
+        await Process.setPageConfigurations(page, url);
+        
+        return { browser, page };
+    }
+
+    /**
+     * Creates the Browser and Page instances.
+     * @param { object } [ browserOptions = {} ] - Please read the documentation
+     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
+     * @returns { Promise<object> } Promise object that represents an object that stores the browser, page instances.
+     */
+    static async #initializePuppeteer(browserOptions) {
+        const browser = await Process.#createBrowser({ ...{ args: ['--no-sandbox'] }, ...browserOptions });
+        const page = await Process.createPage(browser);
+
+        return { browser, page };
+    }
+
+    /**
+     * Create a new instance of {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser class}.
+     * @private
+     * @param { object } [options = {}] - Please read the documentation about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
+     * @returns { Promise<object> } Promise object that represents a {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser instance}.
+     */
+    static async #createBrowser(options = {}) {
+        return await puppeteer.launch(options);
+    }
+
+    /**
+     * Creates a new instance of {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page}.
+     * @param { object } browser - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser instance}.
+     * @returns { Promise<object> } Promise object that represents a {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     * 
+     * @example <caption>Create a second Page instance</caption>
+     * ```
+     * (async () => {
+     *     const data = await Impressionist.Process.execute(url, scrape);
+     *     console.log(JSON.stringify(data));
+     * })(scrape);
+     * 
+     * async function scrape(browser, page) {
+     *      const resultMainPage = await page.evaluate(...);
+     *      
+     *      // Need for a second page instance
+     *      const secondPage = await Impressionist.Process.createPage(browser);
+     * 
+     *      ...
+     * 
+     * }
+     * ```
+     */
+    static async createPage(browser) {
+        return await browser.newPage();
+    }
+
+    /**
+     * Method that takes as a parameter the Page instance that is started internally within the class.
+     * The method can modify the behavior of the Page instance. Please read the documentation about the
+     * {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-class-page Page instance}.
+     * 
+     * @param {page} page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     * @param {string} url - Target URL.
+     * @property {number} [defaultTimeout = 60000 ] - Maximum time.
+     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetdefaulttimeouttimeout page.setDefaultTimeout} documentation.
+     * @property {object} [viewport = { width: 1366, height: 768, deviceScaleFactor: 1 } ] - Viewport.
+     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetviewportviewport page.setViewport} documentation.
+     * @property {object} [navigation = { waitUntil: 'networkidle2' } ] - Navigation parameters.
+     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagegotourl-options page.goto} documentation.
+     * @returns {Promise<void>} Promise object that represents the method execution completion.
+     * 
+     * @example <caption>Create a second Page instance and apply default configurations</caption>
+     * ```
+     * (async () => {
+     *     const data = await Impressionist.Process.execute(url, scrape);
+     *     console.log(JSON.stringify(data));
+     * })(scrape);
+     * 
+     * async function scrape(browser, page) {
+     *      const resultMainPage = await page.evaluate(...);
+     *      
+     *      // Need for a second page instance
+     *      const secondPage = await Impressionist.Process.createPage(browser);
+     *      
+     *      // Apply default configurations
+     *      await Impressionist.Process.setPageConfigurations(secondPage, 'https://...');
+     *      
+     *      // Using the second Page instance
+     *      const resultSecondPage = await secondPage.evaluate(...);
+     * 
+     *      ...
+     * 
+     * }
+     * ```
+     * 
+     *  @example <caption>Create a second Page instance and set a different viewport</caption>
+     * ```
+     * (async () => {
+     *     const data = await Impressionist.Process.execute(url, scrape);
+     *     console.log(JSON.stringify(data));
+     * })(scrape);
+     * 
+     * async function scrape(browser, page) {
+     *      const resultMainPage = await page.evaluate(...);
+     *      
+     *      // Need for a second page instance
+     *      const secondPage = await Impressionist.Process.createPage(browser);
+     *      
+     *      // Apply different configurations
+     *      await Impressionist.Process.setPageConfigurations(secondPage, 'https://...', {
+     *          viewport: {
+     *              width: 1920,
+                    height: 1080,
+                    deviceScaleFactor: 1
+     *          }
+     *      });
+     *      
+     *      // Using the second Page instance
+     *      const resultSecondPage = await secondPage.evaluate(...);
+     * 
+     *      ...
+     * 
+     * }
+     * ```
+     */
+    static async setPageConfigurations(
+        page,
+        url,
+        {
+            defaultTimeout = 60000,
+            viewport = {
+                width: 1366,
+                height: 768,
+                deviceScaleFactor: 1,
+            },
+            navigation = {
+                waitUntil: 'networkidle2'
+            }
+        } = {}
+    ) {
+        await Process.#enableProxyFeatures(page);
+        
+        await page.setDefaultTimeout(defaultTimeout);
+        await page.setViewport(viewport);
+
+        await page.goto(url, navigation);
+
+        Process.#enableDebugMode(page);
+        await Process.#exposeFunctionalities(page);
+
+        await Process.#enableImpressionist(page);
+        await Process.#registerSelectors(page);
+        await Process.#registerStrategies(page);
+        await Process.#addProxyFunctions(page);
     }
 
     /**
