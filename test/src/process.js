@@ -38,6 +38,52 @@ describe('Process Class', () => {
             assert.strictEqual(result, 'Plato Plugin');
         });
 
+        it('Get the h1 innerText value using Impressionist collector features', async() => {
+            const result = await Process.execute(url, async (browser, page) => {
+                //await page.waitForTimeout(1200000);
+                return await page.evaluate(async () => {
+                    return await collector({
+                        name: 'h1'
+                    }).call();
+                });
+            }, /* { browserOptions: {headless: false} } */);
+
+            assert.deepStrictEqual(result[0], { name: 'Plato Plugin' } );
+        });
+
+        it('Execute a faulty function', async() => {
+            
+            async function failWithMessage() {
+                return await Process.execute(url, async (browser, page) => {
+                    return await page.evaluate(() => {
+                        throw new Error('Execution failed');
+                    });
+                });
+            }
+
+            await assert.rejects(failWithMessage, {
+                name: 'Error',
+                message: /Impressionist detect an error in the custom function: /
+            });
+        });
+
+        it('Execute a faulty function using a fake selector', async() => {
+            
+            async function failWithMessage() {
+                return await Process.execute(url, async (browser, page) => {
+                    return await page.evaluate(async () => {
+                        return await collecting({ // collection does not exist.
+                            name: 'h1'
+                        }).call();
+                    });
+                });
+            }
+
+            await assert.rejects(failWithMessage, {
+                name: 'Error',
+                message: /Impressionist detect an error in the custom function: /
+            });
+        });
     });
     
     after(async () => {

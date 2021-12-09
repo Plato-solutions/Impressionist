@@ -15,7 +15,7 @@
  */
 
 import { PuppeteerController } from './browserControllers/index.js';
-import * as BrowserClasses from '../lib/index.js';
+import * as Collector from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
 
@@ -75,73 +75,30 @@ class Process {
         
         try {
             pageConnection = await Process.#browserController.initialize(url, browserOptions);
-            // TODO: Page configuration.
+            await Process.configurePageConnection(pageConnection);
             return await Process.#browserController.execute(pageConnection, customFunction);
         } catch (e) {
-            // Error handling.
+            throw new Error('Impressionist detect an error in the custom function: ' + e.message);
         } finally {
             await Process.#browserController.close(pageConnection);
         }
     }
 
-    /**
-     * Setting proxies per page basis.
-     * Please check {@link https://www.npmjs.com/package/puppeteer-page-proxy puppeteer-page-proxy} npm package.
-     * 
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
-     */
-    static async #enableProxyFeatures(page) {
-        if(Environment.is(Environment.PRODUCTION)) {
-            await useProxy(page, Environment.get('PROXY'));
-        }
-    }
-
-    /**
-     * Display console.log messages in environments different than Production.
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     */
-    static #enableDebugMode(page) {
-        if(!Environment.is(Environment.PRODUCTION)) {
-            
-            page.on('console', msg => {
-                
-                for (let i = 0; i < msg.args().length; ++i) {
-                    console.log(`${i}: ${msg.args()[i]}`);
-                }
-
-            });
-        }
-    }
-
-    static async #exposeFunctionalities(page) {
-        await Process.#exposePage(page);
-        await Process.#exposeLogger(page);
-        await Process.#exposeClick(page);
-    }
-
-    static async #exposePage(page) {
-        await page.exposeFunction('puppeteerPage', async (fn, ...args) => {
-            return await page[fn](...args);
-        });
+    static async configurePageConnection(pageConnection) {
+        await Process.#enableCollector(pageConnection);
+        await Process.#registerSelectors(pageConnection);
+        await Process.#registerStrategies(pageConnection);
+        await Process.#addProxyFunctions(pageConnection);
+        await Process.#exposeLogger(pageConnection);
     }
 
     /**
      * Exposes the logger function to be used in the browser.
      * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      */
-    static async #exposeLogger(page) {
-        await page.exposeFunction('logger', (report) => {
+    static async #exposeLogger(pageConnection) {
+        await PuppeteerController.expose(pageConnection, function logger(report) {
             MonitorManager.log(report);
-        });
-    }
-
-    static async #exposeClick(page) {
-        await page.exposeFunction('puppeteerClick', async (selector, delay = 0) => {
-            await page.click(selector);
-            await page.waitForTimeout(delay);
         });
     }
 
@@ -151,12 +108,12 @@ class Process {
      * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #enableImpressionist(page) {
+    static async #enableCollector(pageConnecction) {
 
-        await page.addScriptTag({ content: BrowserClasses['Selector'].toString() });
+        await PuppeteerController.inject(pageConnecction, Collector['Selector'].toString());
         
-        Object.entries(BrowserClasses).map(async customClass => { 
-                await page.addScriptTag({ content: BrowserClasses[customClass[0]].toString() });
+        Object.entries(Collector).map(async customClass => { 
+                await PuppeteerController.inject(pageConnecction, Collector[customClass[0]].toString());
             }
         );
     }
@@ -167,9 +124,9 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #registerSelectors(page) {
+    static async #registerSelectors(pageConnection) {
         const classesRegistered = Object.keys(Selectors).map(cl => {
-            return page.evaluate((cl) => {
+            return PuppeteerController.evaluate(pageConnection, (cl) => {
                 eval(cl+".register()");
                 return true;
             }, cl);
@@ -184,9 +141,8 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #registerStrategies(page) {
-        await page.evaluate(() => {
-            //SelectorDirectory.register(SelectorInterpreter);
+    static async #registerStrategies(pageConnection) {
+        await PuppeteerController.evaluate(pageConnection, () => {
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
@@ -202,23 +158,21 @@ class Process {
      * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
      * @returns { Promise<void> } Promise object that represents the method execution completion.
      */
-    static async #addProxyFunctions(page) {
-        await page.addScriptTag({ content: 'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'});
-        await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
-        await page.addScriptTag({ content: 'const elements = SelectorDirectory.get("elements")'});
-        await page.addScriptTag({ content: 'const options = SelectorDirectory.get("options")'});
-        await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
-        await page.addScriptTag({ content: 'const xpath = SelectorDirectory.get("xpath")'});
-        await page.addScriptTag({ content: 'const merge = SelectorDirectory.get("merge")'});
-        await page.addScriptTag({ content: 'const property = SelectorDirectory.get("property")'});
-        await page.addScriptTag({ content: 'const pre = SelectorDirectory.get("pre")'});
-        await page.addScriptTag({ content: 'const post = SelectorDirectory.get("post")'});
-        await page.addScriptTag({ content: 'const all = SelectorDirectory.get("all")'});
-        await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
-        await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
-        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("select")'});
-        await page.addScriptTag({ content: 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }'});
-        await page.addScriptTag({ content: 'function clickAndWait(selector, forSelector, timeout) { return async function ClickAndWait() { if(typeof forSelector === "number") { timeout = forSelector; forSelector = "" } await Promise.any([puppeteerClick(selector, timeout), page.waitForSelector(forSelector)]) } }' });
+    static async #addProxyFunctions(pageConnection) {
+        await PuppeteerController.inject(pageConnection, 'const collector = (...args) => new Collector(new Collection(...args))');
+        await PuppeteerController.inject(pageConnection, 'const elements = SelectorDirectory.get("elements")');
+        await PuppeteerController.inject(pageConnection, 'const options = SelectorDirectory.get("options")');
+        await PuppeteerController.inject(pageConnection, 'const css = SelectorDirectory.get("css")');
+        await PuppeteerController.inject(pageConnection, 'const xpath = SelectorDirectory.get("xpath")');
+        await PuppeteerController.inject(pageConnection, 'const merge = SelectorDirectory.get("merge")');
+        await PuppeteerController.inject(pageConnection, 'const property = SelectorDirectory.get("property")');
+        await PuppeteerController.inject(pageConnection, 'const pre = SelectorDirectory.get("pre")');
+        await PuppeteerController.inject(pageConnection, 'const post = SelectorDirectory.get("post")');
+        await PuppeteerController.inject(pageConnection, 'const all = SelectorDirectory.get("all")');
+        await PuppeteerController.inject(pageConnection, 'const single = SelectorDirectory.get("single")');
+        await PuppeteerController.inject(pageConnection, 'const init = SelectorDirectory.get("init")');
+        await PuppeteerController.inject(pageConnection, 'const select = SelectorDirectory.get("select")');
+        await PuppeteerController.inject(pageConnection, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
     }
 
     /**
