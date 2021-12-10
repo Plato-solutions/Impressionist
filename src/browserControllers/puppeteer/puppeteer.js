@@ -98,6 +98,17 @@ class Puppeteer {
     static async addScriptTag(page, options) {
         await page.addScriptTag(options);
     }
+
+    /**
+     * Add an event listener to page.
+     * @param { object } page - Page instance.
+     * @param { string } method - {@link https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-eventemitteronevent-handler EventEmitter} method.
+     * @param { string | symbol } event - The event to add the handler to.
+     * @param { function } handler - The event listener that will be added.
+     */
+    static addEventListener(page, method, event, handler) {
+        page[method](event, handler);
+    }
 }
 
 export default Puppeteer;
