@@ -28,42 +28,50 @@ class EnvironmentControl {
      * Use the Process class to extend its functionality.
      * @param { Process } Impressionist - Process class.
      */
-    visit(Impressionist) {
+    static visit(Impressionist) {
         if(Environment.is(Environment.PRODUCTION)) {
-            
-            /**
-             * Use the proxies to open connections in the target url.
-             */
-            Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
-                await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
-                await Impressionist.enableImpressionistFeatures(connectionIdentifier);
-            }
-
-            /**
-             * Configure Sentry
-             */
-            Sentry.initialize({
-                dsn: Environment.get('SENTRY_DSN'),
-                release: Environment.get('npm_package_version'),
-                enviroment: Environment.get('ENV'),
-            }, Object.assign({
-                impressionist_version: Environment.IMPRESSIONIST_VERSION,
-                node_version: process.versions.node
-            }, Environment.get('SENTRY_TAGS')));
-
-            /**
-             * Add Sentry as another monitor manager.
-             */
-            MonitorManager.subscribe(Sentry);
-
+            EnvironmentControl.#enableProxy(Impressionist);
+            EnvironmentControl.#enableSentry();
         } else {
-            /**
-             * Enable debug mode when development.
-             */
-            Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
-                await Impressionist.browserController.enableDebugMode(connectionIdentifier);
-                await Impressionist.enableImpressionistFeatures(connectionIdentifier);
-            }
+            EnvironmentControl.#enableDebugMode(Impressionist);
+        }
+    }
+
+    /**
+     * Use the proxies to open connections in the target url.
+     * @param { Process } Impressionist - Process class.
+     */
+    static #enableProxy(Impressionist) {
+        Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
+            await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
+            await Impressionist.enableImpressionistFeatures(connectionIdentifier);
+        }
+    }
+
+    /**
+     * Initialize sentry to be used in the MonitorManager.
+     */
+    static #enableSentry() {
+        Sentry.initialize({
+            dsn: Environment.get('SENTRY_DSN'),
+            release: Environment.get('npm_package_version'),
+            enviroment: Environment.get('ENV'),
+        }, Object.assign({
+            impressionist_version: Environment.IMPRESSIONIST_VERSION,
+            node_version: process.versions.node
+        }, Environment.get('SENTRY_TAGS')));
+
+        MonitorManager.subscribe(Sentry);
+    }
+
+    /**
+     * Enable console message from browser.
+     * @param { Process } Impressionist - Process class.
+     */
+    static #enableDebugMode(Impressionist) {
+        Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
+            await Impressionist.browserController.enableDebugMode(connectionIdentifier);
+            await Impressionist.enableImpressionistFeatures(connectionIdentifier);
         }
     }
 
