@@ -24,9 +24,19 @@ class Pino {
     /**
      * The configured instance of Pino.
      */
-    static #logger = pino({ // TODO: Disable in Production. (Only for development).
+    static #logger = pino({
         name: 'Impressionist',
         level: 'debug',
+        transport: {
+            target: 'pino-pretty',
+            options: {
+                singleLine: true,
+                colorize: false,
+                mkdir: true,
+                append: false,
+                destination: "./logs/.impressionist.log",
+            }
+        }
     });
 
     /**

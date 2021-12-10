@@ -43,6 +43,7 @@
   "dependencies": {
     "@sentry/node": "^6.13.3",
     "pino": "^7.0.0-rc.9",
+    "pino-pretty": "^7.2.0",
     "puppeteer": "^10.4.0",
     "puppeteer-page-proxy": "^1.2.8"
   },
