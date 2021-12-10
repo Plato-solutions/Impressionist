@@ -14,6 +14,7 @@
  limitations under the License.
  */
 
+import useProxy from "puppeteer-page-proxy";
 import Puppeteer from "./puppeteer.js";
 
 /**
@@ -112,6 +113,26 @@ class PuppeteerController {
     static async expose(identifier, functionality, name) {
         name ||= functionality.name;
         await Puppeteer.exposeFunction(PuppeteerController.pages.get(identifier), name, functionality);
+    }
+
+    /**
+     * Setting proxies per page basis.
+     * @param { symbol } identifier - Unique identifier for a page connection.
+     * @param { string | object } proxy - Proxy to use in the current page. Must begin with a protocol e.g. http://, https://, socks://.
+     */
+    static async enableProxy(identifier, proxy) {
+        await useProxy(PuppeteerController.pages.get(identifier), proxy);
+    }
+
+    /**
+     * Display console.log messages in environments different than Production.
+     * @param { symbol } identifier - Unique identifier for a page connection.
+     */
+    static async enableDebugMode(identifier) {
+        const page = PuppeteerController.pages.get(identifier);
+        Puppeteer.addEventListener(PuppeteerController.pages.get(identifier), 'on', 'console', msg => {
+            console.log(...msg.args());
+        });
     }
 }
 
