@@ -15,11 +15,25 @@
  */
 
 import Environment from "../environment.js";
+import { MonitorManager } from "./index.js";
+import Process from "../process.js";
 
+/**
+ * 
+ */
 class EnvironmentControl {
 
-    visit(impressionist) {
-        
+    /**
+     * 
+     * @param { Process } Impressionist - Process class.
+     */
+    visit(Impressionist) {
+        if(Environment.is(Environment.PRODUCTION)) {
+            Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
+                await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
+                await Impressionist.enableImpressionistFeatures(connectionIdentifier);
+            }
+        }
     }
 
 }
