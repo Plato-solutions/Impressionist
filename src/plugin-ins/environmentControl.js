@@ -39,6 +39,9 @@ class EnvironmentControl {
                 await Impressionist.enableImpressionistFeatures(connectionIdentifier);
             }
 
+            /**
+             * Configure Sentry
+             */
             Sentry.initialize({
                 dsn: Environment.get('SENTRY_DSN'),
                 release: Environment.get('npm_package_version'),
@@ -48,6 +51,9 @@ class EnvironmentControl {
                 node_version: process.versions.node
             }, Environment.get('SENTRY_TAGS')));
 
+            /**
+             * Add Sentry as another monitor manager.
+             */
             MonitorManager.subscribe(Sentry);
 
         } else {
