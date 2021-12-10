@@ -30,9 +30,9 @@ import { MonitorManager } from './plugin-ins/index.js';
 class Process {
 
     /**
-     * Provides methods and features to interact with the browser.
+     * Provides methods and features to interact with the browser. By default, PuppeteerController.
      */
-    static #browserController = PuppeteerController;
+    static browserController = PuppeteerController;
 
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
@@ -77,14 +77,24 @@ class Process {
         let connectionIdentifier;
         
         try {
-            connectionIdentifier = await Process.#browserController.initialize(url, browserOptions);
+            connectionIdentifier = await Process.initialize(url, browserOptions);
             await Process.configureConnection(connectionIdentifier);
-            return await Process.#browserController.execute(connectionIdentifier, customFunction);
+            return await Process.executeFunction(connectionIdentifier, customFunction);
         } catch (e) {
-            throw new Error('Impressionist detect an error in the custom function: ' + e.message);
+            await Process.handleError(e, connectionIdentifier);
         } finally {
-            await Process.#browserController.close(connectionIdentifier);
+            await Process.close(connectionIdentifier);
         }
+    }
+
+    /**
+     * Perform actions to initialize a connection to a page using the browser controller.
+     * @param { string } url - URL or browser Endpoint.
+     * @param { object } [ browserOptions = {} ] - Options to configure the browser controller.
+     * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
+     */
+    static async initialize(url, browserOptions) {
+        return await Process.browserController.initialize(url, browserOptions);
     }
 
     /**
@@ -92,19 +102,49 @@ class Process {
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async configureConnection(connectionIdentifier) {
-        await Process.#enableCollector(connectionIdentifier);
-        await Process.#registerSelectors(connectionIdentifier);
-        await Process.#registerStrategies(connectionIdentifier);
-        await Process.#addProxyFunctions(connectionIdentifier);
-        await Process.#exposeLogger(connectionIdentifier);
+        await Process.enableCollector(connectionIdentifier);
+        await Process.registerSelectors(connectionIdentifier);
+        await Process.registerStrategies(connectionIdentifier);
+        await Process.addProxyFunctions(connectionIdentifier);
+        await Process.exposeLogger(connectionIdentifier);
+    }
+
+    /**
+     * Execute the function in the browser context provided by the browser controller.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @param { function } customFunction - Custom function to be executed in the Puppeteer context.
+     * Like customFunction(browser, page, ...args) { ... }.
+     * @returns { Promise<any> } Promise which resolves to the result of the execution of the function.
+     */
+    static async executeFunction(connectionIdentifier, customFunction) {
+        return await Process.browserController.execute(connectionIdentifier, customFunction);
+    }
+
+    /**
+     * Handle errors.
+     * @param { Error } error - Error object.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @returns { Promise<any> } Promise which resolves to any result of error handling.
+     */
+    static async handleError(error, connectionIdentifier) {
+        throw new Error('Impressionist detect an error in the custom function: ' + error.message);
+    }
+
+    /**
+     * Close connections.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @returns { Promise<any> } Promise which resolves to any result of closing connections.
+     */
+    static async close(connectionIdentifier) {
+        await Process.browserController.close(connectionIdentifier);
     }
 
     /**
      * Exposes the logger function to be used in the browser context.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #exposeLogger(connectionIdentifier) {
-        await PuppeteerController.expose(connectionIdentifier, function logger(report) {
+    static async exposeLogger(connectionIdentifier) {
+        await Process.browserController.expose(connectionIdentifier, function logger(report) {
             MonitorManager.log(report);
         });
     }
@@ -113,12 +153,12 @@ class Process {
      * Load the library classes in the browser environment.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #enableCollector(pageConnecction) {
+    static async enableCollector(pageConnecction) {
 
-        await PuppeteerController.inject(pageConnecction, Collector['Selector'].toString());
+        await Process.browserController.inject(pageConnecction, Collector['Selector'].toString());
         
         Object.entries(Collector).map(async customClass => { 
-                await PuppeteerController.inject(pageConnecction, Collector[customClass[0]].toString());
+                await Process.browserController.inject(pageConnecction, Collector[customClass[0]].toString());
             }
         );
     }
@@ -127,9 +167,9 @@ class Process {
      * Make the registration of Selectable sub-classes using their static method register.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #registerSelectors(connectionIdentifier) {
+    static async registerSelectors(connectionIdentifier) {
         const classesRegistered = Object.keys(Selectors).map(cl => {
-            return PuppeteerController.evaluate(connectionIdentifier, (cl) => {
+            return Process.browserController.evaluate(connectionIdentifier, (cl) => {
                 eval(cl+".register()");
                 return true;
             }, cl);
@@ -142,8 +182,8 @@ class Process {
      * Register strategies.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #registerStrategies(connectionIdentifier) {
-        await PuppeteerController.evaluate(connectionIdentifier, () => {
+    static async registerStrategies(connectionIdentifier) {
+        await Process.browserController.evaluate(connectionIdentifier, () => {
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
@@ -157,21 +197,21 @@ class Process {
      * Add functions to be used in Browser Context.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #addProxyFunctions(connectionIdentifier) {
-        await PuppeteerController.inject(connectionIdentifier, 'const collector = (...args) => new Collector(new Collection(...args))');
-        await PuppeteerController.inject(connectionIdentifier, 'const elements = SelectorDirectory.get("elements")');
-        await PuppeteerController.inject(connectionIdentifier, 'const options = SelectorDirectory.get("options")');
-        await PuppeteerController.inject(connectionIdentifier, 'const css = SelectorDirectory.get("css")');
-        await PuppeteerController.inject(connectionIdentifier, 'const xpath = SelectorDirectory.get("xpath")');
-        await PuppeteerController.inject(connectionIdentifier, 'const merge = SelectorDirectory.get("merge")');
-        await PuppeteerController.inject(connectionIdentifier, 'const property = SelectorDirectory.get("property")');
-        await PuppeteerController.inject(connectionIdentifier, 'const pre = SelectorDirectory.get("pre")');
-        await PuppeteerController.inject(connectionIdentifier, 'const post = SelectorDirectory.get("post")');
-        await PuppeteerController.inject(connectionIdentifier, 'const all = SelectorDirectory.get("all")');
-        await PuppeteerController.inject(connectionIdentifier, 'const single = SelectorDirectory.get("single")');
-        await PuppeteerController.inject(connectionIdentifier, 'const init = SelectorDirectory.get("init")');
-        await PuppeteerController.inject(connectionIdentifier, 'const select = SelectorDirectory.get("select")');
-        await PuppeteerController.inject(connectionIdentifier, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
+    static async addProxyFunctions(connectionIdentifier) {
+        await Process.browserController.inject(connectionIdentifier, 'const collector = (...args) => new Collector(new Collection(...args))');
+        await Process.browserController.inject(connectionIdentifier, 'const elements = SelectorDirectory.get("elements")');
+        await Process.browserController.inject(connectionIdentifier, 'const options = SelectorDirectory.get("options")');
+        await Process.browserController.inject(connectionIdentifier, 'const css = SelectorDirectory.get("css")');
+        await Process.browserController.inject(connectionIdentifier, 'const xpath = SelectorDirectory.get("xpath")');
+        await Process.browserController.inject(connectionIdentifier, 'const merge = SelectorDirectory.get("merge")');
+        await Process.browserController.inject(connectionIdentifier, 'const property = SelectorDirectory.get("property")');
+        await Process.browserController.inject(connectionIdentifier, 'const pre = SelectorDirectory.get("pre")');
+        await Process.browserController.inject(connectionIdentifier, 'const post = SelectorDirectory.get("post")');
+        await Process.browserController.inject(connectionIdentifier, 'const all = SelectorDirectory.get("all")');
+        await Process.browserController.inject(connectionIdentifier, 'const single = SelectorDirectory.get("single")');
+        await Process.browserController.inject(connectionIdentifier, 'const init = SelectorDirectory.get("init")');
+        await Process.browserController.inject(connectionIdentifier, 'const select = SelectorDirectory.get("select")');
+        await Process.browserController.inject(connectionIdentifier, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
     }
 
     /**
@@ -199,7 +239,15 @@ class Process {
      * @param { object } browserController - Browser controller.
      */
     static setBrowserController(browserController) {
-        Process.#browserController = browserController;
+        Process.browserController = browserController;
+    }
+
+    /**
+     * Load a plugin.
+     * @param { object } plugin - A class to extends or modify the Impressionist behavior.
+     */
+    static loadPlugin(plugin) {
+        plugin.visit(this);
     }
 
 }
