@@ -89,7 +89,7 @@ class Process {
 
     /**
      * Enable Impressionist features and configurations in a page connection.
-     * @param {*} connectionIdentifier 
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async configureConnection(connectionIdentifier) {
         await Process.#enableCollector(connectionIdentifier);
@@ -100,8 +100,8 @@ class Process {
     }
 
     /**
-     * Exposes the logger function to be used in the browser.
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     * Exposes the logger function to be used in the browser context.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async #exposeLogger(connectionIdentifier) {
         await PuppeteerController.expose(connectionIdentifier, function logger(report) {
@@ -111,9 +111,7 @@ class Process {
 
     /**
      * Load the library classes in the browser environment.
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async #enableCollector(pageConnecction) {
 
@@ -127,9 +125,7 @@ class Process {
 
     /**
      * Make the registration of Selectable sub-classes using their static method register.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async #registerSelectors(connectionIdentifier) {
         const classesRegistered = Object.keys(Selectors).map(cl => {
@@ -144,9 +140,7 @@ class Process {
 
     /**
      * Register strategies.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async #registerStrategies(connectionIdentifier) {
         await PuppeteerController.evaluate(connectionIdentifier, () => {
@@ -161,9 +155,7 @@ class Process {
 
     /**
      * Add functions to be used in Browser Context.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async #addProxyFunctions(connectionIdentifier) {
         await PuppeteerController.inject(connectionIdentifier, 'const collector = (...args) => new Collector(new Collection(...args))');
@@ -202,6 +194,10 @@ class Process {
         return await customFunction(browser, page, ...args);
     }
 
+    /**
+     * Set a browser controller which Impressionist use to interact with the browser context.
+     * @param { object } browserController - Browser controller.
+     */
     static setBrowserController(browserController) {
         Process.#browserController = browserController;
     }
