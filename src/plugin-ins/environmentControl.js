@@ -37,6 +37,14 @@ class EnvironmentControl {
                 await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
                 await Impressionist.enableImpressionistFeatures(connectionIdentifier);
             }
+        } else {
+            /**
+             * Enable debug mode when development.
+             */
+            Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
+                await Impressionist.browserController.enableDebugMode(connectionIdentifier);
+                await Impressionist.enableImpressionistFeatures(connectionIdentifier);
+            }
         }
     }
 
