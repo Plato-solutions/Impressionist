@@ -98,10 +98,18 @@ class Process {
     }
 
     /**
-     * Enable Impressionist features and configurations in a page connection.
+     * Configure a page connection.
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async configureConnection(connectionIdentifier) {
+        await Process.enableImpressionistFeatures(connectionIdentifier);
+    }
+
+    /**
+     * Enable all the Impressionist features to be used in the browser context.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     */
+    static async enableImpressionistFeatures(connectionIdentifier) {
         await Process.enableCollector(connectionIdentifier);
         await Process.registerSelectors(connectionIdentifier);
         await Process.registerStrategies(connectionIdentifier);
