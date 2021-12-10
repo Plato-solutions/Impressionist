@@ -40,13 +40,12 @@ describe('Process Class', () => {
 
         it('Get the h1 innerText value using Impressionist collector features', async() => {
             const result = await Process.execute(url, async (browser, page) => {
-                //await page.waitForTimeout(1200000);
                 return await page.evaluate(async () => {
                     return await collector({
                         name: 'h1'
                     }).call();
                 });
-            }, /* { browserOptions: {headless: false} } */);
+            });
 
             assert.deepStrictEqual(result[0], { name: 'Plato Plugin' } );
         });
@@ -84,6 +83,34 @@ describe('Process Class', () => {
                 message: /Impressionist detect an error in the custom function: /
             });
         });
+    });
+
+    describe('Add a plugin', () => {
+
+        it('Result converted to JSON string', async() => {
+
+            class JSONPlugin {
+                static visit(process) {
+                    process.executeFunction = async function executeFunction(connectionIdentifier, customFunction) {
+                        const result = await process.browserController.execute(connectionIdentifier, customFunction);
+                        return JSON.stringify(result);
+                    }
+                }
+            }
+
+            Process.loadPlugin(JSONPlugin);
+
+            const result = await Process.execute(url, async (browser, page) => {
+                return await page.evaluate(async () => {
+                    return await collector({
+                        name: 'h1'
+                    }).call();
+                });
+            });
+
+            assert.strictEqual(result, '[{"name":"Plato Plugin"}]');
+        });
+
     });
     
     after(async () => {
