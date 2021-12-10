@@ -19,16 +19,20 @@ import { MonitorManager } from "./index.js";
 import Process from "../process.js";
 
 /**
- * 
+ * Plugin to extend the Impressionist behavior according to the environmental variables.
  */
 class EnvironmentControl {
 
     /**
-     * 
+     * Use the Process class to extend its functionality.
      * @param { Process } Impressionist - Process class.
      */
     visit(Impressionist) {
         if(Environment.is(Environment.PRODUCTION)) {
+            
+            /**
+             * Use the proxies to open connections in the target url.
+             */
             Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
                 await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
                 await Impressionist.enableImpressionistFeatures(connectionIdentifier);
