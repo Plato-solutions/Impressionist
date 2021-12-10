@@ -14,7 +14,13 @@
  limitations under the License.
  */
 
+import Environment from "../environment.js";
+
 class EnvironmentControl {
+
+    visit(impressionist) {
+        
+    }
 
 }
 
