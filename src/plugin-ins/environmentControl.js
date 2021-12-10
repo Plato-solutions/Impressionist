@@ -48,7 +48,7 @@ class EnvironmentControl {
                 node_version: process.versions.node
             }, Environment.get('SENTRY_TAGS')));
 
-            
+            MonitorManager.subscribe(Sentry);
 
         } else {
             /**
