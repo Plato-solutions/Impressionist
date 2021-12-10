@@ -15,6 +15,7 @@
  */
 
 import Environment from "../environment.js";
+import Sentry from "./monitoring/sentry.js";
 import { MonitorManager } from "./index.js";
 import Process from "../process.js";
 
@@ -37,6 +38,18 @@ class EnvironmentControl {
                 await Impressionist.browserController.enableProxy(connectionIdentifier, Environment.get('PROXY'));
                 await Impressionist.enableImpressionistFeatures(connectionIdentifier);
             }
+
+            Sentry.initialize({
+                dsn: Environment.get('SENTRY_DSN'),
+                release: Environment.get('npm_package_version'),
+                enviroment: Environment.get('ENV'),
+            }, Object.assign({
+                impressionist_version: Environment.IMPRESSIONIST_VERSION,
+                node_version: process.versions.node
+            }, Environment.get('SENTRY_TAGS')));
+
+            
+
         } else {
             /**
              * Enable debug mode when development.
