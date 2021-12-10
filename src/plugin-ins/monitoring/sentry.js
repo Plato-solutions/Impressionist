@@ -15,7 +15,6 @@
  */
 
 import * as sentry from '@sentry/node';
-import Environment from '../../environment.js';
 
 /**
  * Provides an interface for {@link https://docs.sentry.io/platforms/node/ Sentry integration} with Puppeteerist.
@@ -25,55 +24,27 @@ class Sentry {
     /**
      * The configured Sentry instance.
      */
-    static #logger = Sentry.#setConfigurations(sentry);
-
-    /**
-     * Perform the necessary steps to configure Sentry.
-     * 
-     * @example
-     * ```
-     * Sentry.setConfigurations();
-     * ```
-     */
-    static #setConfigurations(sentry) {
-        if(Environment.is(Environment.PRODUCTION)) {
-            Sentry.#initialize(sentry);
-            Sentry.#setTags(sentry);
-        }
-
-        return sentry;
-    }
+    static #logger;
 
     /**
      * Specifies the basic options for Sentry initialization.
-     * Please check {@link https://docs.sentry.io/platforms/node/configuration/options/ Sentry documentation}.
-     * 
-     * @private
+     * @param { object } options - Please check {@link https://docs.sentry.io/platforms/node/configuration/options/ Sentry documentation}.
+     * @param { object } tags - Set of tags.
      */
-    static #initialize(sentry) {
-        sentry.init({
-            dsn: Environment.get('SENTRY_DSN'),
-            release: Environment.get('npm_package_version'),
-            enviroment: Environment.get('ENV'),
-        });
+    static initialize(options, tags) {
+        sentry.init(options);
+        Sentry.#setTags(tags);
+        Sentry.#logger = sentry;
     }
 
     /**
      * Add the necessary tags for Sentry.
      * Some come from environment variables and others are defined by the library locally.
-     * 
-     * @private
      */
-    static #setTags(sentry) {
-        
-        if(Environment.has('SENTRY_TAGS')) {
-            for(const [name, value] of Object.entries(Environment.get('SENTRY_TAGS'))) {
-                sentry.setTag(name, value);
-            }
+    static #setTags(tags) {
+        for(const [name, value] in tags) {
+            sentry.setTag(name, value);
         }
-
-        sentry.setTag('impressionist_version', Environment.IMPRESSIONIST_VERSION);
-        sentry.setTag('node_version', process.versions.node);
     }
 
     /**
