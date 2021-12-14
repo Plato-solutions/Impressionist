@@ -15,7 +15,7 @@
     "test-browserControllers": "mocha --timeout 60000 --recursive ./test/src/browserControllers/**",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
     "test-Collection": "mocha --timeout 60000 --recursive ./test/collector/collection/**",
-    "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessor/**",
+    "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessors/**",
     "test-factory": "mocha --timeout 60000 ./test/collector/factory/**",
     "test-option": "mocha --timeout 60000 --recursive ./test/collector/option/**",
     "test-option-strategies": "mocha --timeout 60000 --recursive ./test/collector/option/strategy/**",
