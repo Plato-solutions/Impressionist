@@ -17,15 +17,11 @@
 import assert from "assert";
 import Impressionist from '../../src/process.js';
 import NanoServer from '../testing-server/server.js';
-import puppeteer from 'puppeteer';
 
 describe('Main Scrape Test', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
-
-    let browser;
-    let page;
 
     before(async () => {
         await testingServer.start();
