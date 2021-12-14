@@ -110,7 +110,7 @@ describe('Puppeteer Class', () => {
                     }
                 }
     
-                assert.rejects(failWithMessage, {
+                await assert.rejects(failWithMessage, {
                     name: 'Error',
                     message: /Puppeteer goto method failed with the following message: /
                 });
@@ -175,9 +175,9 @@ describe('Puppeteer Class', () => {
                     }
                 }
 
-                assert.rejects(failWithMessage, {
+                await assert.rejects(failWithMessage, {
                     name: 'Error',
-                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                    message: /Execution of pageFunction in browser context failed with the following message: /
                 });
             });
         });
@@ -238,9 +238,9 @@ describe('Puppeteer Class', () => {
                     }
                 }
 
-                assert.rejects(failWithMessage, {
+                await assert.rejects(failWithMessage, {
                     name: 'Error',
-                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                    message: /Execution of pageFunction in browser context failed with the following message: /
                 });
             });
 
@@ -302,9 +302,9 @@ describe('Puppeteer Class', () => {
                     }
                 }
 
-                assert.rejects(failWithMessage, {
+                await assert.rejects(failWithMessage, {
                     name: 'Error',
-                    message: /Execution of pageFunction in browser context failed with the following message: Custom function failed./
+                    message: /Execution of pageFunction in browser context failed with the following message: /
                 });
             });
         });

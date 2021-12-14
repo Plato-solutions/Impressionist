@@ -10,7 +10,7 @@
     "docs-plugins": "jsdoc2md src/**/**/* >> docs/api/api.md",
     "docs-lib-collector": "jsdoc2md lib/** >> docs/api/api.md && jsdoc2md lib/**/** >> docs/api/api.md && jsdoc2md lib/**/**/** >> docs/api/api.md && jsdoc2md lib/**/**/**/** >> docs/api/api.md",
     "coverage": "c8 --100 npm test",
-    "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
+    "test": "mocha --timeout 60000 --recursive ./test/collector/",
     "test-Process": "mocha --timeout 60000 ./test/src/process.js",
     "test-browserControllers": "mocha --timeout 60000 --recursive ./test/src/browserControllers/**",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
@@ -22,8 +22,7 @@
     "test-Query": "mocha --timeout 60000 ./test/collector/query/query.js",
     "test-querySelectors": "mocha --timeout 60000 ./test/collector/query/selectors/**",
     "test-queryInterpreter": "mocha --timeout 60000 --recursive ./test/collector/query/interpreter/**",
-    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js",
-    "test-error-selectors": "mocha --timeout 60000 ./test/collector/query/selectors/**"
+    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js"
   },
   "repository": {
     "type": "git",

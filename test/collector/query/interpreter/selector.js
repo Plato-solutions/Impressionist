@@ -82,7 +82,7 @@ describe('SelectorInterpreter', () => {
             });
         }
     
-        assert.rejects(failWithMessage, {
+        await assert.rejects(failWithMessage, {
             name: 'Error',
             message: /Unable to interpret the Select String: /
         });
