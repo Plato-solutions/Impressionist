@@ -219,7 +219,7 @@ class Process {
         await Process.browserController.inject(connectionIdentifier, 'const single = SelectorDirectory.get("single")');
         await Process.browserController.inject(connectionIdentifier, 'const init = SelectorDirectory.get("init")');
         await Process.browserController.inject(connectionIdentifier, 'const select = SelectorDirectory.get("select")');
-        await Process.browserController.inject(connectionIdentifier, 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
+        await Process.browserController.inject(connectionIdentifier, 'const load = { all: function loadAll(selector, stopLoad){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector, stopLoad) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }');
     }
 
     /**
