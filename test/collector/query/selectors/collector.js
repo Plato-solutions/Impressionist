@@ -55,7 +55,7 @@ describe.only('Selector - Collector', async () => {
 
             const result = await Impressionist.execute(url, async (browser, page) => {
                 return await page.evaluate(async () => {
-                    return await new CollectorSelector({ media_gallery: '#carousel > img{src}*' }).call();
+                    return await new CollectorSelector({ media_gallery: '#carousel > img{src}*' }).all().call();
                 });
             });
 
@@ -66,7 +66,7 @@ describe.only('Selector - Collector', async () => {
 
             const result = await Impressionist.execute(url, async (browser, page) => {
                 return await page.evaluate(async () => {
-                    return await new CollectorSelector({ name: 'h1' }).single().call();
+                    return await new CollectorSelector({ name: 'h1' }).call();
                 });
             });
 
