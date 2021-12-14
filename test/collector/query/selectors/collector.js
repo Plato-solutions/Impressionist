@@ -18,13 +18,14 @@ import Impressionist from '../../../../src/process.js';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe('Selector - Collector', async () => {
+describe.only('Selector - Collector', async () => {
     
     const testingServer = new NanoServer();
-    await testingServer.start();
     const url = 'http://localhost:8081';
-
-    let page;
+    
+    before(async () => {
+        await testingServer.start();
+    });
 
     describe('Errors', () => {
 
@@ -41,25 +42,7 @@ describe('Selector - Collector', async () => {
             
             await assert.rejects(missingThrowError, {
                 name: 'Error',
-                message: /Property - The context is not an instance of Context class./
-            });
-
-        });
-
-        it('Passing no object definition', async () => {
-
-            async function missingThrowError() {    
-                return Impressionist.execute(url, async (browser, page) => {
-                    return await page.evaluate(async () => {
-                        const selector = new CollectorSelector(123);
-                        return await selector.call(new Context());
-                    });
-                });
-            } 
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /Property - Constructor definition should be a string. Instead it received a number./
+                message: /CollectorSelector - The context is not an instance of Context class./
             });
 
         });
@@ -72,7 +55,7 @@ describe('Selector - Collector', async () => {
 
             const result = await Impressionist.execute(url, async (browser, page) => {
                 return await page.evaluate(async () => {
-                    return await CollectorSelector({ media_gallery: '#carousel > img{src}*' }).call();
+                    return await new CollectorSelector({ media_gallery: '#carousel > img{src}*' }).call();
                 });
             });
 
@@ -83,7 +66,7 @@ describe('Selector - Collector', async () => {
 
             const result = await Impressionist.execute(url, async (browser, page) => {
                 return await page.evaluate(async () => {
-                    return await CollectorSelector({ name: 'h1' }).single().call();
+                    return await new CollectorSelector({ name: 'h1' }).single().call();
                 });
             });
 
@@ -93,8 +76,6 @@ describe('Selector - Collector', async () => {
     });
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 
