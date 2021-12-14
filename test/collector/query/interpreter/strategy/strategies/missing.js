@@ -14,24 +14,18 @@
  limitations under the License.
  */
 
-import puppeteer  from 'puppeteer';
 import NanoServer from '../../../../../testing-server/server.js';
 import Impressionist from '../../../../../../src/process.js'
 import assert from 'assert';
+import { Context } from '../../../../../../lib/index.js';
 
 describe('Selector Interpreters - Missing Strategy', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
 
-    let browser;
-    let page;
-
     before(async () => {
         await testingServer.start();
-        browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-        page = await browser.newPage();
-        await Impressionist.setPageConfigurations(page, url);
     });
 
     describe('interpret method', () => {
@@ -39,17 +33,14 @@ describe('Selector Interpreters - Missing Strategy', () => {
         it("h{1", async () => {
             
             async function failWithMessage() {
-                return await page.evaluate(async () => { 
-            
-                    const query = InterpreterMissingStrategy.interpret('h{1');
-                    
-                    const context = new Context();
-    
-                    return await query.call(context);
+                return await Impressionist.execute(url, async(browser, page) => {
+                    return await page.evaluate(async () => { 
+                        return await InterpreterMissingStrategy.interpret('h{1').call(new Context());
+                    });
                 });
             }
         
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Unable to interpret the Select String: /
             });
@@ -59,17 +50,14 @@ describe('Selector Interpreters - Missing Strategy', () => {
         it("h{1*", async () => {
                 
             async function failWithMessage() {
-                return await page.evaluate(async () => { 
-            
-                    const query = InterpreterMissingStrategy.interpret('h{1*');
-                    
-                    const context = new Context();
-    
-                    return await query.call(context);
+                return await Impressionist.execute(url, async(browser, page) => {
+                    return await page.evaluate(async () => { 
+                        return await InterpreterMissingStrategy.interpret('h{1*').call(new Context());
+                    });
                 });
             }
         
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Unable to interpret the Select String: /
             });
@@ -79,17 +67,14 @@ describe('Selector Interpreters - Missing Strategy', () => {
         it("::document {}> h1", async () => {
                 
             async function failWithMessage() {
-                return await page.evaluate(async () => { 
-            
-                    const query = InterpreterMissingStrategy.interpret('::document {}> h1');
-                    
-                    const context = new Context();
-    
-                    return await query.call(context);
+                return await Impressionist.execute(url, async(browser, page) => {
+                    return await page.evaluate(async () => { 
+                        return await InterpreterMissingStrategy.interpret('::document {}> h1').call(new Context());
+                    });
                 });
             }
         
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Unable to interpret the Select String: /
             });
@@ -99,17 +84,14 @@ describe('Selector Interpreters - Missing Strategy', () => {
         it("::document > {h1*", async () => {
                 
             async function failWithMessage() {
-                return await page.evaluate(async () => { 
-            
-                    const query = InterpreterMissingStrategy.interpret('::document > h1*');
-                    
-                    const context = new Context();
-    
-                    return await query.call(context);
+                return await Impressionist.execute(url, async(browser, page) => {
+                    return await page.evaluate(async () => { 
+                        return await InterpreterMissingStrategy.interpret('::document > h1*').call(new Context());
+                    });
                 });
             }
         
-            assert.rejects(failWithMessage, {
+            await assert.rejects(failWithMessage, {
                 name: 'Error',
                 message: /Unable to interpret the Select String: /
             });
@@ -120,8 +102,6 @@ describe('Selector Interpreters - Missing Strategy', () => {
 
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 
