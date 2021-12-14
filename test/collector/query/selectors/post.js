@@ -19,7 +19,7 @@ import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 import { Context } from '../../../../lib/index.js';
 
-describe.only('Selector - Post', () => {
+describe('Selector - Post', () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
