@@ -18,7 +18,7 @@ import Impressionist from '../../../../src/process.js';
 import NanoServer from '../../../testing-server/server.js';
 import assert from 'assert';
 
-describe.only('Selector - Collector', async () => {
+describe('Selector - Collector', async () => {
     
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
