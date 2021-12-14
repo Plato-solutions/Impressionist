@@ -16,23 +16,16 @@
 
 
 import assert from "assert";
-import * as Impressionist from '../../../../../src/index.js';
+import Impressionist from '../../../../../src/process.js';
 import NanoServer from '../../../../testing-server/server.js';
-import puppeteer from 'puppeteer';
 
 describe('OptionStrategy - MissingStrategy class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
 
-    let browser;
-    let page;
-
     before(async () => {
         await testingServer.start();
-        browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-        page = await browser.newPage();
-        await Impressionist.Process.setPageConfigurations(page, url);
     });
   
     describe('match method', () => {
@@ -40,11 +33,11 @@ describe('OptionStrategy - MissingStrategy class', () => {
         it('Throw error', async () => {
             
             async function missingThrowError() {    
-
-                return await page.evaluate(async () => {
-                    return await MissingStrategy.match('#select1');
+                return await Impressionist.execute(url, async(browser, page) => {
+                    return await page.evaluate(async () => {
+                        return await MissingStrategy.match('#select1');
+                    });
                 });
-
             }    
             
             await assert.rejects(missingThrowError, {
@@ -60,12 +53,13 @@ describe('OptionStrategy - MissingStrategy class', () => {
 
         it('Return null properties', async () => {
             
-            const result = await page.evaluate(async () => {
-                return await MissingStrategy.getOptions('id', null);
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    return await MissingStrategy.getOptions('id', null);
+                });
             });
 
             assert.deepStrictEqual(result, [{ value: null, id: null }]);
-
         });
         
     });
@@ -74,19 +68,18 @@ describe('OptionStrategy - MissingStrategy class', () => {
 
         it('Return true', async () => {
 
-            const result = await page.evaluate(async () => {
-                return await MissingStrategy.setOption(null);
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    return await MissingStrategy.setOption(null);
+                });
             });
             
             assert.strictEqual(result, true);
-
         });
         
     });
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 
