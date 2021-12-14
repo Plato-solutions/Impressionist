@@ -16,53 +16,42 @@
 
 
 import assert from "assert";
-import * as Impressionist from '../../../../../src/index.js';
+import Impressionist from '../../../../../src/process.js';
 import NanoServer from '../../../../testing-server/server.js';
-import puppeteer from 'puppeteer';
 
 describe('OptionStrategy - SelectStrategy class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
 
-    let browser;
-    let page;
-
     before(async () => {
         await testingServer.start();
-        browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-        page = await browser.newPage();
-        await Impressionist.Process.setPageConfigurations(page, url);
     });
   
     describe('match method', () => {
 
         it('match method returns true', async () => {
-    
-            const result = await page.evaluate(async () => {
-                
-                const selectElement = document.querySelector('#option-1');
-                
-                return await SelectStrategy.match(selectElement);
-                
+            
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('#option-1');
+                    return await SelectStrategy.match(selectElement);
+                });
             });
     
             assert.strictEqual(result, true);
-            
         });
     
         it('match method returns false', async () => {
     
-            const result = await page.evaluate(async () => {
-                
-                const selectElement = document.querySelector('div');
-                
-                return await SelectStrategy.match(selectElement);
-                
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('div');
+                    return await SelectStrategy.match(selectElement);
+                });
             });
     
             assert.strictEqual(result, false);
-            
         });
 
     });
@@ -71,10 +60,11 @@ describe('OptionStrategy - SelectStrategy class', () => {
 
         it('Get options from a select element', async () => {
             
-            const result = await page.evaluate(async () => {
-                const selectElement = document.querySelector('#option-1');
-
-                return await SelectStrategy.getOptions('edition', selectElement);
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('#option-1');
+                    return await SelectStrategy.getOptions('edition', selectElement);
+                });
             });
 
             assert.deepStrictEqual(result, [
@@ -96,10 +86,11 @@ describe('OptionStrategy - SelectStrategy class', () => {
         
         it('Get options from a select element without options', async () => {
             
-            const result = await page.evaluate(async () => {
-                const selectElement = document.querySelector('#option-no-options-1');
-
-                return await SelectStrategy.getOptions('edition', selectElement);
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('#option-no-options-1');
+                    return await SelectStrategy.getOptions('edition', selectElement);
+                });
             });
 
             assert.deepStrictEqual(result, [
@@ -115,12 +106,13 @@ describe('OptionStrategy - SelectStrategy class', () => {
     describe('setOption method', () => {
 
         it('Set second option to a select element', async () => {
-            const result = await page.evaluate(async () => {
-                const selectElement = document.querySelector('#option-1');
 
-                await SelectStrategy.setOption(selectElement, '20');
-
-                return selectElement.value;
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('#option-1');
+                    await SelectStrategy.setOption(selectElement, '20');
+                    return selectElement.value;
+                });
             });
 
             const secondOptionOfFirstSelectElement = '20';
@@ -129,12 +121,13 @@ describe('OptionStrategy - SelectStrategy class', () => {
         });
 
         it('Set third option to a select element', async () => {
-            const result = await page.evaluate(async () => {
-                const selectElement = document.querySelector('#option-1');
 
-                await SelectStrategy.setOption(selectElement, '30');
-
-                return selectElement.value;
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    const selectElement = document.querySelector('#option-1');
+                    await SelectStrategy.setOption(selectElement, '30');
+                    return selectElement.value;
+                });
             });
 
             const thridOptionOfFirstSelectElement = '30';
@@ -145,8 +138,6 @@ describe('OptionStrategy - SelectStrategy class', () => {
     });
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 
