@@ -33,7 +33,7 @@ class EnvironmentControl {
             EnvironmentControl.#enableProxy(Impressionist);
             EnvironmentControl.#enableSentry();
         } else {
-            EnvironmentControl.#enableDebugMode(Impressionist);
+            EnvironmentControl.#customConnectionSetup(Impressionist);
         }
     }
 
@@ -68,10 +68,21 @@ class EnvironmentControl {
      * Enable console message from browser.
      * @param { Process } Impressionist - Process class.
      */
-    static #enableDebugMode(Impressionist) {
+    static #customConnectionSetup(Impressionist) {
         Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
-            await Impressionist.browserController.enableDebugMode(connectionIdentifier);
+            // await Impressionist.browserController.enableDebugMode(connectionIdentifier);
             await Impressionist.enableImpressionistFeatures(connectionIdentifier);
+            
+            await Impressionist.browserController.execute(connectionIdentifier, async(browser, page) => {
+                await page.exposeFunction('puppeteerPage', async (fn, ...args) => {
+                    return await page[fn](...args);
+                });
+            });
+
+            await Impressionist.browserController.inject(
+                connectionIdentifier,
+                'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'
+            );
         }
     }
 
