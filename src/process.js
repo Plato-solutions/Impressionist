@@ -206,7 +206,7 @@ class Process {
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async addProxyFunctions(connectionIdentifier) {
-        await Process.browserController.inject(connectionIdentifier, 'const collector = (...args) => new Collector(new Collection(...args))');
+        await Process.browserController.inject(connectionIdentifier, 'const collector = SelectorDirectory.get("collectorselector")');
         await Process.browserController.inject(connectionIdentifier, 'const elements = SelectorDirectory.get("elements")');
         await Process.browserController.inject(connectionIdentifier, 'const options = SelectorDirectory.get("options")');
         await Process.browserController.inject(connectionIdentifier, 'const css = SelectorDirectory.get("css")');

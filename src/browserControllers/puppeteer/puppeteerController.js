@@ -128,10 +128,11 @@ class PuppeteerController {
      * Display console.log messages in environments different than Production.
      * @param { symbol } identifier - Unique identifier for a page connection.
      */
-    static async enableDebugMode(identifier) {
-        const page = PuppeteerController.pages.get(identifier);
+    static enableDebugMode(identifier) {
         Puppeteer.addEventListener(PuppeteerController.pages.get(identifier), 'on', 'console', msg => {
-            console.log(...msg.args());
+            for (let i = 0; i < msg.args().length; ++i) {
+                console.log(`${i}: ${msg.args()[i]}`);
+            }
         });
     }
 }
