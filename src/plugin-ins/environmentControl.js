@@ -81,7 +81,7 @@ class EnvironmentControl {
 
             await Impressionist.browserController.inject(
                 connectionIdentifier,
-                'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'
+                'const page = new Proxy({}, { get: function (target, prop) { target[prop] = async function (...args) { return await puppeteerPage(prop, ...args) }; return target[prop] } })'
             );
         }
     }
