@@ -30,20 +30,15 @@ describe('OptionStrategy - MissingStrategy class', () => {
   
     describe('match method', () => {
 
-        it('Throw error', async () => {
+        it('Always return true', async () => {
             
-            async function missingThrowError() {    
-                return await Impressionist.execute(url, async(browser, page) => {
-                    return await page.evaluate(async () => {
-                        return await MissingStrategy.match('#select1');
-                    });
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(() => {
+                    return MissingStrategy.match('#select1');
                 });
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
             });
+            
+            assert.strictEqual(result, true);
             
         });
 
