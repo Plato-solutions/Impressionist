@@ -64,13 +64,8 @@ class Process {
      * @example <caption>Enabling Browser User Interface</caption>
      * ```
      * (async () => {
-     *     const data = await Impressionist.Process.execute(url, scrape, { browserOptions: { headless: false } } );
-     *     console.log(JSON.stringify(data));
-     * })(scrape);
-     * 
-     * async function scrape(browser, page) {
-     *      ...
-     * }
+     *     return await Impressionist.Process.execute(url, function scrape() { ... }, { browserOptions: { headless: false } } );
+     * })();
      * ```
      */
     static async execute(url, customFunction, { browserOptions = {} } = {}) {
