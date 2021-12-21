@@ -10,30 +10,30 @@ This Selector allows you to iterate a group of queries over different elements. 
 
 ```html
 <div class="reviews">
-  <li>
-    <ul>
+  <ul>
+    <li>
       <span class="author">...</span>
       <p class="description">...</p>
       <span class="rating">...</span>
-    </ul>
-    <ul>
+    </li>
+    <li>
       <span class="author">...</span>
       <p class="description">...</p>
       <span class="rating">...</span>
-    </ul>
-    <ul>
+    </li>
+    <li>
       <span class="author">...</span>
       <p class="description">...</p>
       <span class="rating">...</span>
-    </ul>
+    </li>
     ...
-  </li>
+  </ul>
 </div>
 ```
 
-This example is very close to reality. We see a list of <ul> elements whose structure is the same in each case. It is here where it would be very useful to be able to define the selectors of each data and simply iterate the same queries for each element <ul>. It is here where we can apply the Element selector.
+This example is very close to reality. We see a list of \<ul> elements whose structure is the same in each case. It is here where it would be very useful to be able to define the selectors of each data and simply iterate the same queries for each \<ul> element. It is here where we can apply the ***elements()*** selector.
 
-First, let's think about how to get the list of all <ul> elements. If it were a CSS selector query it would be `document.querySelectorAll('div.reviews > li > ul)`, but since we've already learned how to use Select Strings, we know we can represent it like this: `'{div.reviews > li > ul}*'`, so so so far our collector would look like this:
+First, let's think about how to get the list of all \<ul> elements. If it were a CSS selector query it would be `document.querySelectorAll('div.reviews > li > ul)`, but since we've already learned how to use Select Strings, we know we can represent it like this: `'{div.reviews > li > ul}*'`, then our collector would look like this:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -49,7 +49,7 @@ const result = Impressionist.execute('http...', async (browser, page) => {
 console.log(result);
 ```
 
-Now, the Element selector provides an Iterate method with which we can specify which queries we are going to execute for each iteration of the obtained elements:
+Now, the ***elements()*** selector provides an Iterate method with which we can specify which queries we are going to execute for each iteration of the obtained elements:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -72,7 +72,7 @@ console.log(result);
 We will obtain a result like the following:
 
 ```bash
-[{
+{
   reviews: [
     {
       author: "...",
@@ -91,14 +91,14 @@ We will obtain a result like the following:
     },
     ...
   ] 
-}]
+}
 ```
 
 
 
 ### options
 
-In the case of the Options selector, it differs from Elements in the sense that its objective is much more specific; in a website, we can find elements that need the interaction of a user to configure, for example, a product or service.
+In the case of the ***options()*** selector, it differs from ***elements()*** in the sense that its objective is much more specific; in a website, we can find elements that need the interaction of a user to configure, for example, a product or service.
 
 Let's go a little further in the example and think of a website that offers products or services that can be configured, such as the edition, support plans, and installation options. These options can be represented by different elements in the DOM, for example, buttons, checkboxes, dropdowns, etc, as shown in the following HTML layout:
 
@@ -111,23 +111,23 @@ Let's go a little further in the example and think of a website that offers prod
       <option>Enterprise Edition</option>
     </select>    
   </div>
-	<div>
+  <div>
     <span>Support</span>
-  	<select id="support">
-    	<option>3 Months</option>
-    	<option>6 Months</option>
-  	</select>  
+    <select id="support">
+      <option>3 Months</option>
+      <option>6 Months</option>
+    </select>  
   </div>
   <div id="installation">
     <span type="checkbox">Professional Installation</span>
-  	<input>
+    <input>
   </div>
 </div>
 ```
 
 Calculating all possible values of the mixture of all options may be difficult, and the algorithm may be extensive. In this case, Options selector does all that, and even more, as we will see later.
 
-Building a collector for where using Options selector can be like the following. First, you need to add the different options using a set of queries, where again, you can use the Select Strings for getting the DOM elements for each Select element:
+Building a collector for where using the ***options()*** selector can be like the following. First, you need to add the different options using a set of queries, where again, you can use the Select Strings for getting the DOM elements for each Select element:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -147,7 +147,7 @@ const result = Impressionist.execute('http...', async (browser, page) => {
 console.log(result);
 ```
 
-Like Elements, Options selector use iterate to collect items for each iteration, in this case, each possible value of all options creates a new iteration. By default, every option will be collected so there is no need to add collectors inside the iterate definition for them, but you can add other collectors to get more data. In this example, let's suppose that for each possible option combination, the price changes dynamically, so this is a good use of iterate to get prices on every iteration:
+Like ***elements()***, the ***options()*** selector uses iterate to collect items for each iteration, in this case, each possible value of all options creates a new iteration. By default, every option will be collected so there is no need to add collectors inside the iterate definition for them, but you can add other collectors to get more data. In this example, let's suppose that for each possible option combination, the price changes dynamically, so this is a good use of iterate to get prices on every iteration:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -253,7 +253,7 @@ For example, let's suppose we want to extract some representative images of a Pl
     <img src="https://...main.jpg" alt="Plugin Main Image">
   </div>
   ...
-	<div>
+  <div>
     <h3>Screenshots</h3>
   	<div class="carousel">
       <img src="https://...1.jpg" alt="Plugin Screenshot #1">
@@ -286,13 +286,13 @@ console.log(result);
 Then, the result will be:
 
 ```bash
-[{
-	main_image: 'https://...main.jpg',
-	carousel: ['https://...1.jpg', 'https://...2.jpg', 'https://...3.jpg', 'https://...4.jpg']
-}]
+{
+  main_image: 'https://...main.jpg',
+  carousel: ['https://...1.jpg', 'https://...2.jpg', 'https://...3.jpg', 'https://...4.jpg']
+}
 ```
 
-Because the elements are in different nodes, a simple query cannot get all of them in a single field. We can improve this using the Merge selector:
+Because the elements are in different nodes, a simple query can't get all of them in a single field. We can improve this using the Merge selector:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -311,15 +311,15 @@ console.log(result);
 The result will look like this:
 
 ```bash
-[{ 
-	media_gallery: [
-		'https://...main.jpg',
-		'https://...1.jpg',
-		'https://...2.jpg',
-		'https://...3.jpg',
-		'https://...4.jpg'
+{ 
+  media_gallery: [
+    'https://...main.jpg',
+    'https://...1.jpg',
+    'https://...2.jpg',
+    'https://...3.jpg',
+    'https://...4.jpg'
   ]
-}]
+}
 ```
 
 
@@ -330,7 +330,7 @@ The following selectors extend the functionality of query chains giving the deve
 
 ### pre
 
-It allows you execute actions before the extraction of the elements. Let's suppose that some images in a carousel are loaded as the user clicks on the next button. If we try to extract all the images from that carousel using a simple Select String we will probably only extract those present after the Document is loaded, but those loaded using the lazy-load feature will not appear. In those cases, it is useful to execute actions before the extraction. Consider the following example:
+It allows you execute actions **before the extraction of the elements**. Let's suppose that some images in a carousel are loaded as the user clicks on the next button. If we try to extract all the images from that carousel using a simple Select String we will probably only extract a limited amount of images, but those loaded using the lazy-load feature will not appear. In those cases, it is useful to execute actions before the extraction. Consider the following example:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -338,14 +338,15 @@ import Impressionist from 'impressionist';
 const result = Impressionist.execute('http...', async (browser, page) => {
     return await page.evaluate(async () => {
         return await collector({
-          media_gallery: pre(function loadAllImages(context) => ...).select('div.carousel > img{src}*'),
+          media_gallery: pre(function loadAllImages(context) => ...)
+          .select('div.carousel > img{src}*'),
         }).call();
     });
 });
 
 console.log(result);
 ```
-
+The ***pre()*** selector receives the context parameter which you will use to change it or return the same context as the output of the custom function. For example, in the example above, the context is the Document object, because the actions that we are doing involve to load new elements in the Document, we want to return the same context.
 
 
 ### post
@@ -358,7 +359,8 @@ import Impressionist from 'impressionist';
 const result = Impressionist.execute('http...', async (browser, page) => {
     return await page.evaluate(async () => {
         return await collector({
-          media_gallery: select('h1').post(function removeScapeSequenceCharacter(pluginName) => ...),
+          media_gallery: select('h1')
+          .post(function removeScapeSequenceCharacter(pluginName) => ...),
         }).call();
     });
 });
@@ -366,11 +368,12 @@ const result = Impressionist.execute('http...', async (browser, page) => {
 console.log(result);
 ```
 
+See how the custom function receives the context by its parameters, in this case, the context given by the previous selector( select('h1') ) gives the plugin name as the context in a string type so the custom function can make a normalization of the text.
 
 
 ### init
 
-It allows you execute actions once, before the execution of the Collector, in other words, during the query initialization:
+It allows you execute actions **once**, *before the execution of the **collector()***, in other words, during the query initialization:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -378,14 +381,15 @@ import Impressionist from 'impressionist';
 const result = await Impressionist.execute('http...', async (browser, page) => {
     return await page.evaluate(async () => {
         return await collector({
-          media_gallery: init(function loadAllImages() => ...).select('div.carousel > img{src}*'),
+          media_gallery: init(function loadAllImages() => ...)
+          .select('div.carousel > img{src}*'),
         }).call();
     });
 });
 
 console.log(result);
 ```
-
+All functions here are asynchronous because the execution of the custom function can't stop the execution of the collector, so don't expect that if you use async/await functions the collector will wait until that promise is resolved. If you need to make sure that an asynchronous function ends and then collect something, use ***pre()*** instead.
 
 
 ## Advanced Select Strings
@@ -430,6 +434,29 @@ For example:
 
 Let's think for example of a list of reviews such as the following:
 
+```html
+<div class="reviews">
+  <div>
+    <span class="author">...</span>
+    <span class="rating">...</span>
+    This is the review content...
+  </div>
+  <div>
+    <span class="author">...</span>
+    <span class="rating">...</span>
+    This is the review content...
+  </div>
+  <div>
+    <span class="author">...</span>
+    <span class="rating">...</span>
+    This is the review content...
+  </div>
+    ...
+</div>
+```
+
+To get the reviews data our scraper will look like this:
+
 ```javascript
 import Impressionist from 'impressionist';
 
@@ -437,17 +464,17 @@ import Impressionist from 'impressionist';
   const result = await Impressionist.execute('http...', async (browser, page) => {
       return await page.evaluate(async () => {
           return await collector({
-            reviews: elements('{div.reviews > li}*').iterate({
+            reviews: elements('{div.reviews > div}*').iterate({
                 author: 'span.author',
-                body: '::item{innerText}',
-                rating: 'span.rating'
+                rating: 'span.rating',
+                body: '::item{innerText}'
             })
           }).call();
       });
   });
 
-	console.log(result);
+  console.log(result);
 })();
 ```
 
-See how the "body" field makes use of ::item in order to extract the innerText of the LI element that is currently being iterated.
+See how the "body" field makes use of ::item in order to extract the innerText of the DIV element that is currently being iterated.

@@ -176,7 +176,7 @@ console.log(result);
 
 ### Get the "media_gallery"
 
-The image gallery of our plugin is made up of multiple images. In our case, we want to extract the 'src' property of each of the images. To do so, we have to 1) specify the selector that references all the '<img>' elements present inside the div with the class 'carousel', 2) specify the 'src' property inside curly braces, and 3) use the '*' symbol to indicate that we want to extract all the elements that match that selector. The Select String would be '.carousel img{src}*'. So, our selector will finally have this structure:
+The image gallery of our plugin is made up of multiple images. In our case, we want to extract the 'src' property of each of the images. To do so, we have to 1) specify the selector that references all the '\<img\>' elements present inside the div with the class 'carousel', 2) specify the 'src' property inside curly braces, and 3) use the '*' symbol to indicate that we want to extract all the elements that match that selector. The Select String would be '.carousel img{src}*'. So, our selector will finally have this structure:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -197,14 +197,15 @@ console.log(result);
 The result of the execution will be as follows:
 
 ```bash
-[{
+{
   name: 'Plato Plugin',
   content: '<div class="content"><h2>Content</h2><p>Content shows detailed information about the plugin like benefits and features.</p></div>',
   media_gallery: [
     'https://scrape-test.platoanalitycs.com/images/img1.jpg',
     'https://scrape-test.platoanalitycs.com/images/img2.jpg',
-    'https://scrape-test.platoanalitycs.com/images/img3.jp']
-}]
+    'https://scrape-test.platoanalitycs.com/images/img3.jp'
+  ]
+}
 ```
 
 In the following pages, we will see how we can take advantage of advanced functionalities to configure the way we can extract data.

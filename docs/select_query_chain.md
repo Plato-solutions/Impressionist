@@ -2,7 +2,7 @@
 
 
 
-The select() method is the default interpreter that takes the Select Strings and builds query chains of Selectors. Just to be clear, the above scraper can also be built as follows:
+The ***select()*** method is the default interpreter that takes the Select Strings and, under the hood, builds a query chain of Selectors. Just to be clear, the previous scraper example can also be built as follows:
 
 ```javascript
 import Impressionist from 'impressionist';
@@ -20,15 +20,15 @@ const result = Impressionist.execute('http...', async (browser, page) => {
 console.log(result);
 ```
 
-So far Select Strings works quite well for extracting any property of a DOM element. Now we want to go a little deeper by understanding the process.
+So far, Select Strings works quite well for extracting any property of a DOM element. Now we want to go a little deeper by understanding the process.
 
-Each Query String is composed of Selectors concatenated in a chain form. Each Selector has a specific responsibility. Next, we will see the basic selectors, and then we will see how to build the same scraper of the last section using only Query Chains.
+Each Query is composed of Selectors concatenated in a chain form. Each Selector has a specific responsibility. Next, we will see the basic selectors, and then we will see how to build the same scraper of the last section using only Query Chains.
 
 
 
 ## Selectors
 
-While select is the most used form, there are additional selectors types that can be used as well.
+While ***select()*** is the most used form, there are additional selectors types that can be used as well.
 
 
 
@@ -36,11 +36,16 @@ While select is the most used form, there are additional selectors types that ca
 
 #### css
 
-The 'css' selector, as the name implies, uses a CSS selector to extract all matching elements in the DOM.
+The 'css' selector, as the name implies, uses a CSS selector to extract **all** matching elements in the DOM. Additionally, you can set an alternative CSS selector using the ***.alt()*** method.
 
 ```javascript
 return await collector({
   name: css('h1')
+}).call(); // [h1]
+```
+```javascript
+return await collector({
+  name: css('h1').alt('h2.name')
 }).call(); // [h1]
 ```
 
@@ -48,19 +53,23 @@ return await collector({
 
 #### xpath
 
-The 'xpath' selector uses an Xpath expression to extract all matching elements in the DOM.
+The 'xpath' selector uses an Xpath expression to extract all matching elements in the DOM. Additionally, you can set an alternative Xpath expression using the ***.alt()*** method.
 
 ```javascript
 return await collector({
   name: xpath('//h1')
 }).call();  //[h1]
 ```
-
+```javascript
+return await collector({
+  name: xpath('//h1').alt('//h2')
+}).call();  //[h1]
+```
 
 
 #### property
 
-The selector 'property' extracts a specific property from a list of DOM elements.
+The selector 'property' extracts a specific property from a list of DOM elements. Additionally, you can set an alternative property using the ***.alt()*** method.
 
 ```javascript
 return await collector({
@@ -82,7 +91,7 @@ return await collector({
 
 #### single
 
-Ensures that only one is returned. By default, the 'single( )' selector is applied to every Query Chain.
+Ensures that only one element is matched and returned. By default, the 'single( )' selector is applied to every Query Chain.
 
 ```javascript
 return await collector({
@@ -95,7 +104,7 @@ Now let's suppose there is more than one h1 element in the DOM. In this case sin
 ```javascript
 return await collector({
   name: css('h1').property('innerText').single()
-}).call(); // Error: There is more than one element that matches the selector.
+}).call(); // Error: There is more than one element that match the selector.
 ```
 
 
@@ -136,7 +145,7 @@ return await collector({
 
 #### default
 
-Returns the specified value if there are no values. This selector prevents 'require( )' from being applied by default.
+Returns the specified value if, for example, the selector didn't match any element. This selector prevents 'require( )' from being applied by default.
 
 Here you get the expected result:
 
@@ -211,3 +220,6 @@ const result = Impressionist.execute('http...', async (browser, page) => {
 
 console.log(result);
 ```
+
+At this point you may be wondering when to use a Select String, a select() selector or a Query chain of Selectors.
+The answer is, if you need something more configurable then use a query chain of selectors. For example, the Select Strings are very easy to use but it doesn't allow us to set alternatives or get elements using Xpath expressions. Also, as we will see in our next topic, Select Strings can't use Advance Selectors because those advance concepts only exist in a query chain of selectors.
