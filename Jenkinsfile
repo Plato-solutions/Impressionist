@@ -50,5 +50,15 @@ pipeline {
             }
         }
         
+          stage('publish'){
+            steps{
+                sh 'git checkout devops-test'
+                nodejs(nodeJSInstallationName: 'NodeJs') {
+                    sh 'npm config ls'
+                    sh 'npm i'
+                    sh 'npm run publish'
+            }
+        }
+        
     }
 }
