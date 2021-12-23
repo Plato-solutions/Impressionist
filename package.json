@@ -1,10 +1,11 @@
 {
   "type": "module",
   "name": "@plato2/impressionist",
-  "version": "0.4.0-alpha",
+  "version": "0.5.0-beta",
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
+    "publish": "npm publish --access public",
     "docs": "npm run docs-src && npm run docs-plugins && npm run docs-lib-collector",
     "docs-src": "jsdoc2md src/* > docs/api/api.md",
     "docs-plugins": "jsdoc2md src/**/**/* >> docs/api/api.md",
