@@ -26,7 +26,7 @@ class MonitorManager {
     /**
      * Monitoring and logging tools.
      */
-    static #monitors = Environment.is(Environment.PRODUCTION) ? new Set([ Sentry ]) : new Set([ Pino ]);
+    static #monitors = new Set([ Pino ]);
 
     /**
      * Register a report.

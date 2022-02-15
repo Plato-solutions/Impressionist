@@ -1,27 +1,29 @@
 {
   "type": "module",
   "name": "@plato2/impressionist",
-  "version": "0.4.0-alpha",
+  "version": "0.5.0-beta",
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
+    "publish": "npm publish --access public",
     "docs": "npm run docs-src && npm run docs-plugins && npm run docs-lib-collector",
     "docs-src": "jsdoc2md src/* > docs/api/api.md",
     "docs-plugins": "jsdoc2md src/**/**/* >> docs/api/api.md",
     "docs-lib-collector": "jsdoc2md lib/** >> docs/api/api.md && jsdoc2md lib/**/** >> docs/api/api.md && jsdoc2md lib/**/**/** >> docs/api/api.md && jsdoc2md lib/**/**/**/** >> docs/api/api.md",
     "coverage": "c8 --100 npm test",
-    "test": "mocha --timeout 60000 --recursive ./test/collector/**/*",
+    "test": "mocha --timeout 60000 --recursive ./test/",
+    "test-Process": "mocha --timeout 60000 ./test/src/process.js",
+    "test-browserControllers": "mocha --timeout 60000 --recursive ./test/src/browserControllers/**",
     "test-Collector": "mocha --timeout 60000 ./test/collector/collector.js",
     "test-Collection": "mocha --timeout 60000 --recursive ./test/collector/collection/**",
-    "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessor/**",
+    "test-contextAccessors": "mocha --timeout 60000 ./test/collector/contextAccessors/**",
     "test-factory": "mocha --timeout 60000 ./test/collector/factory/**",
     "test-option": "mocha --timeout 60000 --recursive ./test/collector/option/**",
     "test-option-strategies": "mocha --timeout 60000 --recursive ./test/collector/option/strategy/**",
     "test-Query": "mocha --timeout 60000 ./test/collector/query/query.js",
     "test-querySelectors": "mocha --timeout 60000 ./test/collector/query/selectors/**",
     "test-queryInterpreter": "mocha --timeout 60000 --recursive ./test/collector/query/interpreter/**",
-    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js",
-    "test-error-selectors": "mocha --timeout 60000 ./test/collector/query/selectors/**"
+    "test-scraper": "mocha --timeout 60000 ./test/scraper/main.js"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,7 @@
   "dependencies": {
     "@sentry/node": "^6.13.3",
     "pino": "^7.0.0-rc.9",
+    "pino-pretty": "^7.2.0",
     "puppeteer": "^10.4.0",
     "puppeteer-page-proxy": "^1.2.8"
   },

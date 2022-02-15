@@ -14,10 +14,8 @@
  limitations under the License.
  */
 
-import puppeteer from 'puppeteer';
-import useProxy from 'puppeteer-page-proxy';
-import Environment from './environment.js';
-import * as BrowserClasses from '../lib/index.js';
+import { PuppeteerController } from './browserControllers/index.js';
+import * as Collector from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
 
@@ -30,6 +28,11 @@ import { MonitorManager } from './plugin-ins/index.js';
  * @summary Initialize Puppeteer.
  */
 class Process {
+
+    /**
+     * Provides methods and features to interact with the browser. By default, PuppeteerController.
+     */
+    static browserController = PuppeteerController;
 
     /**
      * It provides the necessary context to run a function in the puppeteer or browser context
@@ -61,295 +64,115 @@ class Process {
      * @example <caption>Enabling Browser User Interface</caption>
      * ```
      * (async () => {
-     *     const data = await Impressionist.Process.execute(url, scrape, { browserOptions: { headless: false } } );
-     *     console.log(JSON.stringify(data));
-     * })(scrape);
-     * 
-     * async function scrape(browser, page) {
-     *      ...
-     * }
+     *     return await Impressionist.Process.execute(url, function scrape() { ... }, { browserOptions: { headless: false } } );
+     * })();
      * ```
      */
-    static async execute(
-        url,
-        customFunction,
-        {
-            browserOptions = {},
-            args = []
-        } = {}
-    ) {
-
-        const  { browser, page } = await Process.openConnection(url, browserOptions);
-
-        let result;
-
+    static async execute(url, customFunction, { browserOptions = {} } = {}) {
+        let connectionIdentifier;
+        
         try {
-            
-            result = await customFunction(browser, page, ...args);
-
+            connectionIdentifier = await Process.initialize(url, browserOptions);
+            await Process.configureConnection(connectionIdentifier);
+            return await Process.executeFunction(connectionIdentifier, customFunction);
         } catch (e) {
-
-            if(!Environment.is(Environment.PRODUCTION)) {
-                console.error(e);
-            }
-
+            await Process.handleError(e, connectionIdentifier);
         } finally {
-            await page.close();
-            await browser.close();
-            return result;
+            await Process.close(connectionIdentifier);
         }
     }
 
     /**
-     * Open a connection to a browser instance.
-     * @param { string } url - Target URL for scraping process.
-     * @param { object } [ browserOptions = {} ] - Please read the documentation
-     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
-     * @returns { Promise<object> } Promise object that represents an object that stores the browser, page instances.
+     * Perform actions to initialize a connection to a page using the browser controller.
+     * @param { string } url - URL or browser Endpoint.
+     * @param { object } [ browserOptions = {} ] - Options to configure the browser controller.
+     * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
      */
-     static async openConnection(url, browserOptions = {}) {
-        const  { browser, page } = await Process.#initializePuppeteer(browserOptions);
-        await Process.setPageConfigurations(page, url);
-        
-        return { browser, page };
+    static async initialize(url, browserOptions) {
+        return await Process.browserController.initialize(url, browserOptions);
     }
 
     /**
-     * Creates the Browser and Page instances.
-     * @param { object } [ browserOptions = {} ] - Please read the documentation
-     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
-     * @returns { Promise<object> } Promise object that represents an object that stores the browser, page instances.
+     * Configure a page connection.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #initializePuppeteer(browserOptions) {
-        const browser = await Process.#createBrowser({ ...{ args: ['--no-sandbox'] }, ...browserOptions });
-        const page = await Process.createPage(browser);
-
-        return { browser, page };
+    static async configureConnection(connectionIdentifier) {
+        await Process.enableImpressionistFeatures(connectionIdentifier);
     }
 
     /**
-     * Create a new instance of {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser class}.
-     * @private
-     * @param { object } [options = {}] - Please read the documentation about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
-     * @returns { Promise<object> } Promise object that represents a {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser instance}.
+     * Enable all the Impressionist features to be used in the browser context.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #createBrowser(options = {}) {
-        return await puppeteer.launch(options);
+    static async enableImpressionistFeatures(connectionIdentifier) {
+        await Process.enableCollector(connectionIdentifier);
+        await Process.registerSelectors(connectionIdentifier);
+        await Process.registerStrategies(connectionIdentifier);
+        await Process.addProxyFunctions(connectionIdentifier);
+        await Process.exposeLogger(connectionIdentifier);
     }
 
     /**
-     * Creates a new instance of {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page}.
-     * @param { object } browser - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser Browser instance}.
-     * @returns { Promise<object> } Promise object that represents a {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * 
-     * @example <caption>Create a second Page instance</caption>
-     * ```
-     * (async () => {
-     *     const data = await Impressionist.Process.execute(url, scrape);
-     *     console.log(JSON.stringify(data));
-     * })(scrape);
-     * 
-     * async function scrape(browser, page) {
-     *      const resultMainPage = await page.evaluate(...);
-     *      
-     *      // Need for a second page instance
-     *      const secondPage = await Impressionist.Process.createPage(browser);
-     * 
-     *      ...
-     * 
-     * }
-     * ```
+     * Execute the function in the browser context provided by the browser controller.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @param { function } customFunction - Custom function to be executed in the Puppeteer context.
+     * Like customFunction(browser, page, ...args) { ... }.
+     * @returns { Promise<any> } Promise which resolves to the result of the execution of the function.
      */
-    static async createPage(browser) {
-        return await browser.newPage();
+    static async executeFunction(connectionIdentifier, customFunction) {
+        return await Process.browserController.execute(connectionIdentifier, customFunction);
     }
 
     /**
-     * Method that takes as a parameter the Page instance that is started internally within the class.
-     * The method can modify the behavior of the Page instance. Please read the documentation about the
-     * {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-class-page Page instance}.
-     * 
-     * @param {page} page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @param {string} url - Target URL.
-     * @property {number} [defaultTimeout = 60000 ] - Maximum time.
-     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetdefaulttimeouttimeout page.setDefaultTimeout} documentation.
-     * @property {object} [viewport = { width: 1366, height: 768, deviceScaleFactor: 1 } ] - Viewport.
-     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetviewportviewport page.setViewport} documentation.
-     * @property {object} [navigation = { waitUntil: 'networkidle2' } ] - Navigation parameters.
-     * Please read {@link https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagegotourl-options page.goto} documentation.
-     * @returns {Promise<void>} Promise object that represents the method execution completion.
-     * 
-     * @example <caption>Create a second Page instance and apply default configurations</caption>
-     * ```
-     * (async () => {
-     *     const data = await Impressionist.Process.execute(url, scrape);
-     *     console.log(JSON.stringify(data));
-     * })(scrape);
-     * 
-     * async function scrape(browser, page) {
-     *      const resultMainPage = await page.evaluate(...);
-     *      
-     *      // Need for a second page instance
-     *      const secondPage = await Impressionist.Process.createPage(browser);
-     *      
-     *      // Apply default configurations
-     *      await Impressionist.Process.setPageConfigurations(secondPage, 'https://...');
-     *      
-     *      // Using the second Page instance
-     *      const resultSecondPage = await secondPage.evaluate(...);
-     * 
-     *      ...
-     * 
-     * }
-     * ```
-     * 
-     *  @example <caption>Create a second Page instance and set a different viewport</caption>
-     * ```
-     * (async () => {
-     *     const data = await Impressionist.Process.execute(url, scrape);
-     *     console.log(JSON.stringify(data));
-     * })(scrape);
-     * 
-     * async function scrape(browser, page) {
-     *      const resultMainPage = await page.evaluate(...);
-     *      
-     *      // Need for a second page instance
-     *      const secondPage = await Impressionist.Process.createPage(browser);
-     *      
-     *      // Apply different configurations
-     *      await Impressionist.Process.setPageConfigurations(secondPage, 'https://...', {
-     *          viewport: {
-     *              width: 1920,
-                    height: 1080,
-                    deviceScaleFactor: 1
-     *          }
-     *      });
-     *      
-     *      // Using the second Page instance
-     *      const resultSecondPage = await secondPage.evaluate(...);
-     * 
-     *      ...
-     * 
-     * }
-     * ```
+     * Handle errors.
+     * @param { Error } error - Error object.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @returns { Promise<any> } Promise which resolves to any result of error handling.
      */
-    static async setPageConfigurations(
-        page,
-        url,
-        {
-            defaultTimeout = 60000,
-            viewport = {
-                width: 1366,
-                height: 768,
-                deviceScaleFactor: 1,
-            },
-            navigation = {
-                waitUntil: 'networkidle2'
-            }
-        } = {}
-    ) {
-        await Process.#enableProxyFeatures(page);
-        
-        await page.setDefaultTimeout(defaultTimeout);
-        await page.setViewport(viewport);
-
-        await page.goto(url, navigation);
-
-        Process.#enableDebugMode(page);
-        await Process.#exposeFunctionalities(page);
-
-        await Process.#enableImpressionist(page);
-        await Process.#registerSelectors(page);
-        await Process.#registerStrategies(page);
-        await Process.#addProxyFunctions(page);
+    static async handleError(error, connectionIdentifier) {
+        throw new Error('Impressionist detect an error in the custom function: ' + error.message);
     }
 
     /**
-     * Setting proxies per page basis.
-     * Please check {@link https://www.npmjs.com/package/puppeteer-page-proxy puppeteer-page-proxy} npm package.
-     * 
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * Close connections.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
+     * @returns { Promise<any> } Promise which resolves to any result of closing connections.
      */
-    static async #enableProxyFeatures(page) {
-        if(Environment.is(Environment.PRODUCTION)) {
-            await useProxy(page, Environment.get('PROXY'));
-        }
+    static async close(connectionIdentifier) {
+        await Process.browserController.close(connectionIdentifier);
     }
 
     /**
-     * Display console.log messages in environments different than Production.
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
+     * Exposes the logger function to be used in the browser context.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static #enableDebugMode(page) {
-        if(!Environment.is(Environment.PRODUCTION)) {
-            
-            page.on('console', msg => {
-                
-                for (let i = 0; i < msg.args().length; ++i) {
-                    console.log(`${i}: ${msg.args()[i]}`);
-                }
-
-            });
-        }
-    }
-
-    static async #exposeFunctionalities(page) {
-        await Process.#exposePage(page);
-        await Process.#exposeLogger(page);
-        await Process.#exposeClick(page);
-    }
-
-    static async #exposePage(page) {
-        await page.exposeFunction('puppeteerPage', async (fn, ...args) => {
-            return await page[fn](...args);
-        });
-    }
-
-    /**
-     * Exposes the logger function to be used in the browser.
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     */
-    static async #exposeLogger(page) {
-        await page.exposeFunction('logger', (report) => {
+    static async exposeLogger(connectionIdentifier) {
+        await Process.browserController.expose(connectionIdentifier, function logger(report) {
             MonitorManager.log(report);
-        });
-    }
-
-    static async #exposeClick(page) {
-        await page.exposeFunction('puppeteerClick', async (selector, delay = 0) => {
-            await page.click(selector);
-            await page.waitForTimeout(delay);
         });
     }
 
     /**
      * Load the library classes in the browser environment.
-     * @private
-     * @param { object } page - {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #enableImpressionist(page) {
+    static async enableCollector(pageConnecction) {
 
-        await page.addScriptTag({ content: BrowserClasses['Selector'].toString() });
+        await Process.browserController.inject(pageConnecction, Collector['Selector'].toString());
         
-        Object.entries(BrowserClasses).map(async customClass => { 
-                await page.addScriptTag({ content: BrowserClasses[customClass[0]].toString() });
+        Object.entries(Collector).map(async customClass => { 
+                await Process.browserController.inject(pageConnecction, Collector[customClass[0]].toString());
             }
         );
     }
 
     /**
      * Make the registration of Selectable sub-classes using their static method register.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #registerSelectors(page) {
+    static async registerSelectors(connectionIdentifier) {
         const classesRegistered = Object.keys(Selectors).map(cl => {
-            return page.evaluate((cl) => {
+            return Process.browserController.evaluate(connectionIdentifier, (cl) => {
                 eval(cl+".register()");
                 return true;
             }, cl);
@@ -360,13 +183,10 @@ class Process {
 
     /**
      * Register strategies.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #registerStrategies(page) {
-        await page.evaluate(() => {
-            //SelectorDirectory.register(SelectorInterpreter);
+    static async registerStrategies(connectionIdentifier) {
+        await Process.browserController.evaluate(connectionIdentifier, () => {
             InterpreterStrategyManager.add(InterpreterElementStrategy);
             InterpreterStrategyManager.add(InterpreterInnerTextStrategy);
             InterpreterStrategyManager.add(InterpreterPropertyStrategy);
@@ -378,27 +198,23 @@ class Process {
 
     /**
      * Add functions to be used in Browser Context.
-     * @private
-     * @param { object } page {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page Page instance}.
-     * @returns { Promise<void> } Promise object that represents the method execution completion.
+     * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
-    static async #addProxyFunctions(page) {
-        await page.addScriptTag({ content: 'const page = new Proxy({}, { get: function (target, prop) { target[prop] = function (...args) { puppeteerPage(prop, ...args) }; return target[prop] } })'});
-        await page.addScriptTag({ content: 'const collector = (...args) => new Collector(new Collection(...args))'});
-        await page.addScriptTag({ content: 'const elements = SelectorDirectory.get("elements")'});
-        await page.addScriptTag({ content: 'const options = SelectorDirectory.get("options")'});
-        await page.addScriptTag({ content: 'const css = SelectorDirectory.get("css")'});
-        await page.addScriptTag({ content: 'const xpath = SelectorDirectory.get("xpath")'});
-        await page.addScriptTag({ content: 'const merge = SelectorDirectory.get("merge")'});
-        await page.addScriptTag({ content: 'const property = SelectorDirectory.get("property")'});
-        await page.addScriptTag({ content: 'const pre = SelectorDirectory.get("pre")'});
-        await page.addScriptTag({ content: 'const post = SelectorDirectory.get("post")'});
-        await page.addScriptTag({ content: 'const all = SelectorDirectory.get("all")'});
-        await page.addScriptTag({ content: 'const single = SelectorDirectory.get("single")'});
-        await page.addScriptTag({ content: 'const init = SelectorDirectory.get("init")'});
-        await page.addScriptTag({ content: 'const select = SelectorDirectory.get("select")'});
-        await page.addScriptTag({ content: 'const load = { all: function loadAll(selector){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(selector) } },  pagination: function loadPagination(selector){ return async function paginationParts(){ return await Pagination.execute(selector) } } }'});
-        await page.addScriptTag({ content: 'function clickAndWait(selector, forSelector, timeout) { return async function ClickAndWait() { if(typeof forSelector === "number") { timeout = forSelector; forSelector = "" } await Promise.any([puppeteerClick(selector, timeout), page.waitForSelector(forSelector)]) } }' });
+    static async addProxyFunctions(connectionIdentifier) {
+        await Process.browserController.inject(connectionIdentifier, 'const collector = SelectorDirectory.get("collectorselector")');
+        await Process.browserController.inject(connectionIdentifier, 'const elements = SelectorDirectory.get("elements")');
+        await Process.browserController.inject(connectionIdentifier, 'const options = SelectorDirectory.get("options")');
+        await Process.browserController.inject(connectionIdentifier, 'const css = SelectorDirectory.get("css")');
+        await Process.browserController.inject(connectionIdentifier, 'const xpath = SelectorDirectory.get("xpath")');
+        await Process.browserController.inject(connectionIdentifier, 'const merge = SelectorDirectory.get("merge")');
+        await Process.browserController.inject(connectionIdentifier, 'const property = SelectorDirectory.get("property")');
+        await Process.browserController.inject(connectionIdentifier, 'const pre = SelectorDirectory.get("pre")');
+        await Process.browserController.inject(connectionIdentifier, 'const post = SelectorDirectory.get("post")');
+        await Process.browserController.inject(connectionIdentifier, 'const all = SelectorDirectory.get("all")');
+        await Process.browserController.inject(connectionIdentifier, 'const single = SelectorDirectory.get("single")');
+        await Process.browserController.inject(connectionIdentifier, 'const init = SelectorDirectory.get("init")');
+        await Process.browserController.inject(connectionIdentifier, 'const select = SelectorDirectory.get("select")');
+        await Process.browserController.inject(connectionIdentifier, 'const load = { all: function loadAll(...args){ return async function loadLazyLoad(){ return await LazyLoadHandler.execute(...args) } },  pagination: function loadPagination(...args){ return async function paginationParts(){ return await Pagination.execute(...args) } } }');
     }
 
     /**
@@ -419,6 +235,22 @@ class Process {
         const page = await target.page();
 
         return await customFunction(browser, page, ...args);
+    }
+
+    /**
+     * Set a browser controller which Impressionist use to interact with the browser context.
+     * @param { object } browserController - Browser controller.
+     */
+    static setBrowserController(browserController) {
+        Process.browserController = browserController;
+    }
+
+    /**
+     * Load a plugin.
+     * @param { object } plugin - A class to extends or modify the Impressionist behavior.
+     */
+    static loadPlugin(plugin) {
+        plugin.visit(this);
     }
 
 }
