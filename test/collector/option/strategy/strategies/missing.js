@@ -1,39 +1,44 @@
+/*
+ Copyright 2021 Plato Solutions, Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+
 import assert from "assert";
-import * as Impressionist from '../../../../../src/index.js';
+import Impressionist from '../../../../../src/process.js';
 import NanoServer from '../../../../testing-server/server.js';
-import puppeteer from 'puppeteer';
 
 describe('OptionStrategy - MissingStrategy class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
 
-    let browser;
-    let page;
-
     before(async () => {
         await testingServer.start();
-        browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-        page = await browser.newPage();
-        await Impressionist.Process.setPageConfigurations(page, url);
     });
   
     describe('match method', () => {
 
-        it('Throw error', async () => {
+        it('Always return true', async () => {
             
-            async function missingThrowError() {    
-
-                return await page.evaluate(async () => {
-                    return await MissingStrategy.match('#select1');
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(() => {
+                    return MissingStrategy.match('#select1');
                 });
-
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
             });
+            
+            assert.strictEqual(result, true);
             
         });
 
@@ -41,49 +46,35 @@ describe('OptionStrategy - MissingStrategy class', () => {
 
     describe('getOptions method', () => {
 
-        it('Throw error', async () => {
+        it('Return null properties', async () => {
             
-            async function missingThrowError() {    
-
+            const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
-                    return await MissingStrategy.getOptions('id', 'element');
+                    return await MissingStrategy.getOptions('id', null);
                 });
-
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
             });
 
+            assert.deepStrictEqual(result, [{ value: null, id: null }]);
         });
         
     });
 
     describe('setOption method', () => {
 
-        it('Throw error', async () => {
+        it('Return true', async () => {
 
-            async function missingThrowError() {    
-
+            const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
-                    return await MissingStrategy.setOption('id', 'element');
+                    return await MissingStrategy.setOption(null);
                 });
-
-            }    
-            
-            await assert.rejects(missingThrowError, {
-                name: 'Error',
-                message: /None of the available strategies work for the item entered. Try entering custom functions./
             });
-
+            
+            assert.strictEqual(result, true);
         });
         
     });
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 
