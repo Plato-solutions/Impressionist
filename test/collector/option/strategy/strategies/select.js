@@ -63,7 +63,14 @@ describe('OptionStrategy - SelectStrategy class', () => {
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
                     const selectElement = document.querySelector('#option-1');
-                    return await SelectStrategy.getOptions('edition', selectElement);
+                    const result = await SelectStrategy.getOptions('edition', selectElement);
+
+                    return result.map(option => {
+                        return {
+                            value: option.value,
+                            edition: option.edition.innerText
+                        };
+                    });
                 });
             });
 

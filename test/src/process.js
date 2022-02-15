@@ -47,7 +47,7 @@ describe('Process Class', () => {
                 });
             });
 
-            assert.deepStrictEqual(result[0], { name: 'Plato Plugin' } );
+            assert.deepStrictEqual(result, { name: 'Plato Plugin' } );
         });
 
         it('Execute a faulty function', async() => {
@@ -108,7 +108,7 @@ describe('Process Class', () => {
                 });
             });
 
-            assert.strictEqual(result, '[{"name":"Plato Plugin"}]');
+            assert.strictEqual(result, '{"name":"Plato Plugin"}');
         });
 
     });

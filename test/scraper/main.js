@@ -31,6 +31,11 @@ describe('Main Scrape Test', () => {
 
         const result = await Impressionist.execute(url, async (browser, page) => {
 
+            page.on('console', (msg) => {
+                for (let i = 0; i < msg.args().length; ++i)
+                  console.log(`${i}: ${msg.args()[i]}`);
+            });
+
             return await page.evaluate( async () => {
 
                 const data = collector({
@@ -55,7 +60,7 @@ describe('Main Scrape Test', () => {
             });
         });
 
-        assert.deepStrictEqual(result, [{"name":"Plato Plugin","reviews":[{"title":"It is okay","author":"John Doe","rating":"4","date":"01-12-2021","body":"Nice product. I would recommend the version X."},{"title":"Amazing!","author":"Richard Roe","rating":"5","date":"10-12-2021","body":"Really good product."}],"bundles":[{"edition":"val-10","support":"val-40","installation":"val-60","price":"110"},{"edition":"val-10","support":"val-40","installation":"val-70","price":"120"},{"edition":"val-10","support":"val-40","installation":"val-80","price":"130"},{"edition":"val-10","support":"val-50","installation":"val-60","price":"120"},{"edition":"val-10","support":"val-50","installation":"val-70","price":"130"},{"edition":"val-10","support":"val-50","installation":"val-80","price":"140"},{"edition":"val-20","support":"val-40","installation":"val-60","price":"120"},{"edition":"val-20","support":"val-40","installation":"val-70","price":"130"},{"edition":"val-20","support":"val-40","installation":"val-80","price":"140"},{"edition":"val-20","support":"val-50","installation":"val-60","price":"130"},{"edition":"val-20","support":"val-50","installation":"val-70","price":"140"},{"edition":"val-20","support":"val-50","installation":"val-80","price":"150"},{"edition":"val-30","support":"val-40","installation":"val-60","price":"130"},{"edition":"val-30","support":"val-40","installation":"val-70","price":"140"},{"edition":"val-30","support":"val-40","installation":"val-80","price":"150"},{"edition":"val-30","support":"val-50","installation":"val-60","price":"140"},{"edition":"val-30","support":"val-50","installation":"val-70","price":"150"},{"edition":"val-30","support":"val-50","installation":"val-80","price":"160"}]}]);
+        assert.deepStrictEqual(result, {"name":"Plato Plugin","reviews":[{"title":"It is okay","author":"John Doe","rating":"4","date":"01-12-2021","body":"Nice product. I would recommend the version X."},{"title":"Amazing!","author":"Richard Roe","rating":"5","date":"10-12-2021","body":"Really good product."}],"bundles":[{"edition":"val-10","support":"val-40","installation":"val-60","price":"110"},{"edition":"val-10","support":"val-40","installation":"val-70","price":"120"},{"edition":"val-10","support":"val-40","installation":"val-80","price":"130"},{"edition":"val-10","support":"val-50","installation":"val-60","price":"120"},{"edition":"val-10","support":"val-50","installation":"val-70","price":"130"},{"edition":"val-10","support":"val-50","installation":"val-80","price":"140"},{"edition":"val-20","support":"val-40","installation":"val-60","price":"120"},{"edition":"val-20","support":"val-40","installation":"val-70","price":"130"},{"edition":"val-20","support":"val-40","installation":"val-80","price":"140"},{"edition":"val-20","support":"val-50","installation":"val-60","price":"130"},{"edition":"val-20","support":"val-50","installation":"val-70","price":"140"},{"edition":"val-20","support":"val-50","installation":"val-80","price":"150"},{"edition":"val-30","support":"val-40","installation":"val-60","price":"130"},{"edition":"val-30","support":"val-40","installation":"val-70","price":"140"},{"edition":"val-30","support":"val-40","installation":"val-80","price":"150"},{"edition":"val-30","support":"val-50","installation":"val-60","price":"140"},{"edition":"val-30","support":"val-50","installation":"val-70","price":"150"},{"edition":"val-30","support":"val-50","installation":"val-80","price":"160"}]});
     });
 
     after(async () => {

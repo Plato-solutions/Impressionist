@@ -36,8 +36,11 @@ describe('Option Class', () => {
                 
                 let result = [];
     
-                for await (let option of optionsIterable) {
-                    result.push(option);
+                for await (const {value, edition} of optionsIterable) {
+                    result.push({
+                        value,
+                        edition: edition.innerText
+                    });
                 }
     
                 return result;
@@ -70,8 +73,11 @@ describe('Option Class', () => {
                 
                 let result = [];
     
-                for await (let option of optionsIterable) {
-                    result.push(option);
+                for await (const {value, edition} of optionsIterable) {
+                    result.push({
+                        value,
+                        edition: edition.innerText
+                    });
                 }
     
                 return result;
@@ -103,9 +109,12 @@ describe('Option Class', () => {
                 const optionsIterable = await new Option('installation', toogleElement).call();
                 
                 let result = [];
-    
-                for await (let option of optionsIterable) {
-                    result.push(option);
+
+                for await (const {value, installation} of optionsIterable) {
+                    result.push({
+                        value,
+                        installation: installation.checked
+                    });
                 }
     
                 return result;

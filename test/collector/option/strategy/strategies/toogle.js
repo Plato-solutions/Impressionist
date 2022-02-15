@@ -64,18 +64,25 @@ describe('OptionStrategy - ToogleStrategy class', () => {
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
                     const selectElement = document.querySelector('#toogle');
-                    return await ToogleStrategy.getOptions('installation', selectElement);
+                    const result = await ToogleStrategy.getOptions('installation', selectElement);
+
+                    return result.map(option => {
+                        return {
+                            value: option.value,
+                            installation: option.installation.tagName
+                        };
+                    });
                 });
             });
 
             assert.deepStrictEqual(result, [
                 {
                     value: { click: {}, selection: true },
-                    installation: true
+                    installation: 'INPUT'
                 },
                 {
                     value: { click: {}, selection: false },
-                    installation: false
+                    installation: 'INPUT'
                 }
             ]);
 
@@ -89,7 +96,7 @@ describe('OptionStrategy - ToogleStrategy class', () => {
 
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
-                    const inputElement = document.querySelector('#toogle > input');
+                    const inputElement = document.querySelector('#toogle');
                     // inputElement.click(); // If the input is checked by default;
                     await ToogleStrategy.setOption(inputElement, { click: inputElement, selection: true });
                     return inputElement.checked;
@@ -103,7 +110,7 @@ describe('OptionStrategy - ToogleStrategy class', () => {
 
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
-                    const inputElement = document.querySelector('#toogle > input');
+                    const inputElement = document.querySelector('#toogle');
                     await ToogleStrategy.setOption(inputElement, { click: inputElement, selection: false });
                     return inputElement.checked;
                 });

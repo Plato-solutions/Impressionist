@@ -32,6 +32,7 @@ describe('OptionCollectorFactory Class', () => {
     it('Return a list of Elements', async () => {
         
         const result = await Impressionist.execute(url, async(browser, page) => {
+
             return await page.evaluate(async () => {
                 const values = await new OptionCollectorFactory({
                     edition: '{#option-1}',
@@ -41,7 +42,23 @@ describe('OptionCollectorFactory Class', () => {
                 let result = [];
     
                 for await(let value of values[0]) {
-                    result.push(value);
+                    const options = value.map(selectedOptions => {
+                        if(selectedOptions.support) {
+                            return {
+                                value: selectedOptions.value,
+                                support: selectedOptions.support.innerText
+                            };
+                        }
+
+                        if(selectedOptions.edition) {
+                            return {
+                                value: selectedOptions.value,
+                                edition: selectedOptions.edition.innerText
+                            };
+                        }
+                    });
+
+                    result.push(options);
                 }
     
                 return result;
@@ -89,7 +106,23 @@ describe('OptionCollectorFactory Class', () => {
                 let result = [];
     
                 for await(let value of values[0]) {
-                    result.push(value);
+                    const options = value.map(selectedOptions => {
+                        if(selectedOptions.support) {
+                            return {
+                                value: selectedOptions.value,
+                                support: selectedOptions.support.innerText
+                            };
+                        }else if(selectedOptions.edition) {
+                            return {
+                                value: selectedOptions.value,
+                                edition: selectedOptions.edition.innerText
+                            };
+                        } else {
+                            return selectedOptions;
+                        }
+                    });
+
+                    result.push(options);
                 }
     
                 return result;

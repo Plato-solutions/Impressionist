@@ -63,7 +63,14 @@ describe('OptionStrategy - GroupStrategy class', () => {
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
                     const element = document.querySelectorAll('#div-1 > div');
-                    return await GroupStrategy.getOptions('edition', element);
+                    const result = await GroupStrategy.getOptions('edition', element);
+
+                    return result.map(option => {
+                        return {
+                            value: option.value,
+                            edition: option.edition.innerText
+                        };
+                    });
                 });
             });
 
@@ -88,7 +95,7 @@ describe('OptionStrategy - GroupStrategy class', () => {
             
             const result = await Impressionist.execute(url, async(browser, page) => {
                 return await page.evaluate(async () => {
-                    const element = document.querySelectorAll('#div-no-optios-11 > div');
+                    const element = document.querySelectorAll('#div-no-options-11 > div');
                     return await GroupStrategy.getOptions('edition', element);
                 });
             });

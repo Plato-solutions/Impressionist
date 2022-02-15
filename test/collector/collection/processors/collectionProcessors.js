@@ -88,7 +88,23 @@ describe('Collection Class Processors', () => {
                     let result = [];
     
                     for await(let value of values) {
-                        result.push(value);
+                        const options = value.map(selectedOptions => {
+                            if(selectedOptions.support) {
+                                return {
+                                    value: selectedOptions.value,
+                                    support: selectedOptions.support.innerText
+                                };
+                            }
+    
+                            if(selectedOptions.edition) {
+                                return {
+                                    value: selectedOptions.value,
+                                    edition: selectedOptions.edition.innerText
+                                };
+                            }
+                        });
+    
+                        result.push(options);
                     }
     
                     return result;
