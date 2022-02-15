@@ -15,48 +15,34 @@
  */
 
 import assert from "assert";
-import * as Impressionist from '../../src/index.js';
+import { Context } from "../../lib/index.js";
+import Impressionist from '../../src/process.js';
 import NanoServer from '../testing-server/server.js';
-import puppeteer from 'puppeteer';
 
 describe('Collector Class', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
 
-    let browser;
-    let page;
-
     before(async () => {
         await testingServer.start();
-        browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-        page = await browser.newPage();
-        await Impressionist.Process.setPageConfigurations(page, url);
     });
 
     describe('Basic usage', () => {
 
         it('Process a Collection', async () => {
-            const result = await page.evaluate(async () => {
-    
-                const data = ( function () {
-    
-                    const css = SelectorDirectory.get('css');
-                    const merge = SelectorDirectory.get('merge');
-        
-                    return new Collector(
+            
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    return await new Collector(
                         new Collection({
                             name: css('h1').property('innerText').single(),
-                            media_gallery: merge([ css('#logo > img'), css('#carousel > img') ]).property('src').all(),
+                            media_gallery: merge([ css('#logo > img').all(), css('#carousel > img').all() ]).property('src').all(),
                         })
-                    );
-                    
-                } )();
-    
-                const context = new Context();
-                return await data.call(context);
-    
+                    ).call(new Context());
+                });
             });
+            
     
             assert.deepStrictEqual(result, [{
                 name: 'Plato Plugin',
@@ -71,13 +57,10 @@ describe('Collector Class', () => {
         });
     
         it('Process a Collection with an iterable', async () => {
-            const result = await page.evaluate(async () => {
-    
-                const data = ( function () {
-    
-                    const css = SelectorDirectory.get('css');
-        
-                    return new Collector(
+
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
+                    return await new Collector(
                         new IterableAccessor(
                             new Collection({
                                 reviews: css('div#reviews > ul > li').all()
@@ -90,13 +73,8 @@ describe('Collector Class', () => {
                             body: css('#review-body').property('innerText').single(),
                             date: css('#review-date').property('innerText').single()
                         })
-                    );
-                    
-                } )();
-    
-                const context = new Context();
-                return await data.call(context);
-    
+                    ).call(new Context());
+                });
             });
     
             assert.deepStrictEqual(result, [
@@ -123,25 +101,16 @@ describe('Collector Class', () => {
 
         it('Using the ElementCollectorFactory', async () => {
 
-            const result = await page.evaluate(async () => {
-
-                const data = ( function () {
-    
-                    const css = SelectorDirectory.get('css');
-        
+            const result = await Impressionist.execute(url, async(browser, page) => {
+                return await page.evaluate(async () => {
                     return new ElementCollectorFactory(css('#reviews > ul > li').all()).iterate({
                         author: css('#review-author').property('innerText').single(),
                         title: css('#review-title').property('innerText').single(),
                         rating: css('#review-rating').property('innerText').single(),
                         body: css('#review-body').property('innerText').single(),
                         date: css('#review-date').property('innerText').single()
-                    });
-            
-                } )();
-    
-                const context = new Context();
-                return await data.call(context);
-                
+                    }).call(new Context());
+                });
             });
     
             assert.deepStrictEqual(result, [
@@ -164,8 +133,6 @@ describe('Collector Class', () => {
     });
 
     after(async () => {
-        await page.close();
-        await browser.close();
         await testingServer.stop();
     });
 

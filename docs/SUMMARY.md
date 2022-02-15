@@ -10,6 +10,7 @@
 ## Advanced Concepts
 
 * [Advanced Selector](advanced_selector.md)
+* [Library Architecture](architecture.md)
 
 ## API Reference​
 
