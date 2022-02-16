@@ -36,7 +36,7 @@ pipeline {
         }*/
         stage('Generate documentation'){
             steps{
-                sh 'git checkout devops-test'
+                sh 'git checkout main'
                 nodejs(nodeJSInstallationName: 'NodeJs') {
                     sh 'npm config ls'
                     sh 'npm i'
@@ -52,7 +52,7 @@ pipeline {
         
           stage('publish'){
             steps{
-                sh 'git checkout devops-test'
+                sh 'git checkout main'
                 nodejs(nodeJSInstallationName: 'NodeJs') {
                     sh 'npm config ls'
                     sh 'npm i'
