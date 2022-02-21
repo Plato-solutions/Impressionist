@@ -34,21 +34,21 @@ pipeline {
                  }
              }
          }*/
-        stage('Generate documentation') {
-            steps {
-                sh 'git checkout main'
-                nodejs(nodeJSInstallationName: 'NodeJs') {
-                    sh 'npm config ls'
-                    sh 'npm i'
-                    sh 'mkdir -p ./docs/jsdoc-output/'
-                    sh 'chown -R jenkins:jenkins docs'
-                    sh 'ls -lah ./docs/jsdoc-output/'
-                    sh 'npm run docs'
-                    sh 'ls -l ./docs/jsdoc-output/'
-                }
-                sh 'git status && git pull && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push git@github.com:Plato-solutions/Impressionist.git'
-            }
-        }
+//        stage('Generate documentation') {
+//            steps {
+//                sh 'git checkout main'
+//                nodejs(nodeJSInstallationName: 'NodeJs') {
+//                    sh 'npm config ls'
+//                    sh 'npm i'
+//                    sh 'mkdir -p ./docs/jsdoc-output/'
+//                    sh 'chown -R jenkins:jenkins docs'
+//                    sh 'ls -lah ./docs/jsdoc-output/'
+//                    sh 'npm run docs'
+//                    sh 'ls -l ./docs/jsdoc-output/'
+//                }
+//                sh 'git status && git pull && git config --global user.email "jenkins@jenkins.com" && git config --global user.name "Jenkins User" && git add . && git commit -m "test for jenkins" && git push git@github.com:Plato-solutions/Impressionist.git'
+//            }
+//        }
 
         stage('publish') {
             steps {
