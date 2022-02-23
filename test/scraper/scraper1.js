@@ -18,7 +18,7 @@ import assert from "assert";
 import Impressionist from '../../src/process.js';
 import NanoServer from '../testing-server/server.js';
 
-describe.only('Main Scrape Test', () => {
+describe('Scraping with local testing page and Select Options', () => {
 
     const testingServer = new NanoServer();
     const url = 'http://localhost:8081';
@@ -30,11 +30,6 @@ describe.only('Main Scrape Test', () => {
     it('Scrape Test Page', async () => {
 
         const result = await Impressionist.execute(url, async (browser, page) => {
-
-            page.on('console', (msg) => {
-                for (let i = 0; i < msg.args().length; ++i)
-                  console.log(`${i}: ${msg.args()[i]}`);
-            });
 
             return await page.evaluate( async () => {
 

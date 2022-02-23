@@ -27,7 +27,7 @@ class Environment {
     /**
      * The current version of the library. It can be used, for example, for bug reporting plugins.
      */
-    static IMPRESSIONIST_VERSION = '0.5.0-beta';
+    static IMPRESSIONIST_VERSION = '0.5.1-beta';
 
     /**
      * Check if a specific environment is running. i.e prod or dev.
