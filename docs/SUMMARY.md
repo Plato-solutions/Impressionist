@@ -1,15 +1,15 @@
 # Table of contents
 
-* [intro](intro.md)
+* [Intro](intro.md)
 
 ## Getting Started
 
-* [Quick Start](quick_start.md)
-* [Select & Query Chain](select_query_chain.md)
+* [Quick Start](quick\_start.md)
+* [Select & Query Chain](select\_query\_chain.md)
 
 ## Advanced Concepts
 
-* [Advanced Selector](advanced_selector.md)
+* [Advanced Selector](advanced\_selector.md)
 * [Library Architecture](architecture.md)
 
 ## API Reference​
