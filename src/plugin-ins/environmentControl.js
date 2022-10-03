@@ -70,7 +70,8 @@ class EnvironmentControl {
      */
     static #customConnectionSetup(Impressionist) {
         Impressionist.configureConnection = async function configureConnection(connectionIdentifier) {
-            Impressionist.browserController.enableDebugMode(connectionIdentifier);
+            // TODO: Add env variable based on what debugger will be attached
+            // Impressionist.browserController.enableDebugMode(connectionIdentifier);
             await Impressionist.enableImpressionistFeatures(connectionIdentifier);
             
             await Impressionist.browserController.execute(connectionIdentifier, async(browser, page) => {
