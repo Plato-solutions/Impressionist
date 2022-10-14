@@ -45,11 +45,19 @@ class Puppeteer {
      * @param  {...any} controllers - Page or Browser instances.
      */
     static async close(...controllers) {
-        await Promise.all(
-            controllers.map(async (controller) => {
-                await controller.close();
-            })
-        );
+        try {
+            await Promise.all(
+              controllers.map(async (controller) => {
+                  if (!controller) {
+                      throw Error('Page or browser is not defined');
+                  }
+
+                  await controller.close();
+              })
+            );
+        } catch (e) {
+            throw new Error('Puppeteer close method failed with the following message: ' + e.message)
+        }
     }
 
     /**
