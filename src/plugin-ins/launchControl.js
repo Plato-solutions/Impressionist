@@ -1,4 +1,3 @@
-import Environment from '../environment.js'
 import Process from "../process.js";
 
 /**
@@ -16,6 +15,21 @@ class LaunchControl {
     }
 
     /**
+     * Get Google Chrome executable path based on system architecture.
+     */
+    static #getGoogleChromePath() {
+        const platform = process.platform;
+
+        const pathOptions = new Map([
+            ['darwin', "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"],
+            ['linux', "/usr/bin/google-chrome"],
+            ['win32', "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe"]
+        ])
+
+        return pathOptions.get(platform);
+    }
+
+    /**
      * Add options to launch process to allow running in Docker environment.
      * @param { Process } Impressionist - Process class.
      */
@@ -27,7 +41,7 @@ class LaunchControl {
             '--disable-gpu'
         ];
 
-        const chromeExecutablePath = Environment.get('GOOGLE_CHROME_PATH') || '/usr/bin/google-chrome';
+        const chromeExecutablePath = LaunchControl.#getGoogleChromePath() || '/usr/bin/google-chrome';
 
         Impressionist.initialize = async function initialize(url, browserOptions) {
             return await Impressionist.browserController.initialize(url, {
