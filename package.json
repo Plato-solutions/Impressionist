@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@plato2/impressionist",
-  "version": "0.5.1-beta",
+  "version": "0.5.4-beta",
   "description": "Impressionist is a JavaScript library that allows you to scrape data in less time.",
   "main": "./src/process.js",
   "scripts": {
@@ -44,7 +44,7 @@
     "@sentry/node": "^6.13.3",
     "pino": "^7.0.0-rc.9",
     "pino-pretty": "^7.2.0",
-    "puppeteer": "^10.4.0",
+    "puppeteer": "git+ssh://git@github.com/Plato-solutions/puppeteer.git#dom-world-fix",
     "puppeteer-page-proxy": "^1.2.8"
   },
   "devDependencies": {
