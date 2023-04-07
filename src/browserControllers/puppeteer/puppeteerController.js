@@ -35,14 +35,14 @@ class PuppeteerController {
     /**
      * Open a connection to an URL using a page instance.
      * @param { string } url - URL.
-     * @param { object } [ options = {} ] - Please read the documentation
+     * @param { object } [ options ] - Please read the documentation
      * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
      * @returns { Promise<symbol> } Promise which resolves to a unique identifier represented by a Symbol.
      */
     static async initialize(url, options) {
-        PuppeteerController.browser ||= await Puppeteer.launch(options);
+        PuppeteerController.browser ||= await Puppeteer.launch(options?.browserOptions);
         const page = await Puppeteer.newPage(PuppeteerController.browser);
-        await Puppeteer.goto(page, url);
+        await Puppeteer.goto(page, url, options?.pageOptions);
         const identifier = Symbol();
         PuppeteerController.pages.set(identifier, page);
         

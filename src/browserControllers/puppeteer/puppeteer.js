@@ -46,15 +46,14 @@ class Puppeteer {
      */
     static async close(...controllers) {
         try {
-            await Promise.all(
-              controllers.map(async (controller) => {
-                  if (!controller) {
-                      throw Error('Page or browser is not defined');
-                  }
 
-                  await controller.close();
-              })
-            );
+            for (const controller of controllers) {
+                if (!controller) {
+                    throw Error('Page or browser is not defined');
+                }
+    
+                await controller.close();
+            }
         } catch (e) {
             throw new Error('Puppeteer close method failed with the following message: ' + e.message)
         }
@@ -65,9 +64,9 @@ class Puppeteer {
      * @param { object } page - Page instance.
      * @param { string } url - URL.
      */
-    static async goto(page, url) {
+    static async goto(page, url, options) {
         try {
-            await page.goto(url);
+            await page.goto(url, options);
         } catch(e) {
             throw new Error('Puppeteer goto method failed with the following message: ' + e.message);
         }
