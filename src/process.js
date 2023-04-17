@@ -18,6 +18,7 @@ import { PuppeteerController } from './browserControllers/index.js';
 import * as Collector from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
+import Environment from './environment.js';
 
 /**
  * Provides {@link https://pptr.dev/ Puppeteer} initialization by creating
@@ -64,7 +65,7 @@ class Process {
      * @example <caption>Enabling Browser User Interface</caption>
      * ```
      * (async () => {
-     *      return await Impressionist.Process.execute(
+     *      return await Impressionist.execute(
      *          url,
      *          function scrape() { ... },
      *          {
@@ -77,7 +78,7 @@ class Process {
      * @example <caption>Set a specific page navigation timeout</caption>
      * ```
      * (async () => {
-     *      return await Impressionist.Process.execute(
+     *      return await Impressionist.execute(
      *          url,
      *          function scrape() { ... },
      *          { 
@@ -108,7 +109,12 @@ class Process {
      * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
      */
     static async initialize(url, options) {
-        return await Process.browserController.initialize(url, options);
+        const envImpressionistOptions = Environment.get('IMPRESSIONIST_OPTIONS');
+
+        const browserOptions = { ...envImpressionistOptions?.browserOptions, ...options?.browserOptions };
+        const pageOptions = { ...envImpressionistOptions?.pageOptions, ...options?.pageOptions };
+
+        return await Process.browserController.initialize(url, { browserOptions, pageOptions });
     }
 
     /**
