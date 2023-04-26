@@ -15,12 +15,12 @@
  */
 
 import useProxy from "puppeteer-page-proxy";
-import Puppeteer from "./puppeteer.js";
+import Puppeteer from "./puppeteerExtra.js";
 
 /**
- * Provides shorcut methods to Puppeteer configurations for initialize 
+ * Provides shorcut methods to Puppeteer-extra configurations for initialize 
  */
-class PuppeteerController {
+class PuppeteerExtraController {
 
     /**
      * Browser instance.
@@ -40,11 +40,11 @@ class PuppeteerController {
      * @returns { Promise<symbol> } Promise which resolves to a unique identifier represented by a Symbol.
      */
     static async initialize(url, options) {
-        PuppeteerController.browser ||= await Puppeteer.launch(options?.browserOptions);
-        const page = await Puppeteer.newPage(PuppeteerController.browser);
+        PuppeteerExtraController.browser ||= await Puppeteer.launch(options?.browserOptions);
+        const page = await Puppeteer.newPage(PuppeteerExtraController.browser);
         await Puppeteer.goto(page, url, options?.pageOptions);
         const identifier = Symbol();
-        PuppeteerController.pages.set(identifier, page);
+        PuppeteerExtraController.pages.set(identifier, page);
         
         return identifier;
     }
@@ -54,12 +54,12 @@ class PuppeteerController {
      * @param { symbol } [identifier] - Unique identifier for a page connection.
      */
     static async close(identifier) {
-        if(PuppeteerController.pages.size > 1) {
-            await Puppeteer.close(PuppeteerController.pages.get(identifier));
+        if(PuppeteerExtraController.pages.size > 1) {
+            await Puppeteer.close(PuppeteerExtraController.pages.get(identifier));
         } else {
-            PuppeteerController.pages.clear();
-            await Puppeteer.close(PuppeteerController.browser);
-            PuppeteerController.browser = null;
+            PuppeteerExtraController.pages.clear();
+            await Puppeteer.close(PuppeteerExtraController.browser);
+            PuppeteerExtraController.browser = null;
         }
     }
 
@@ -72,7 +72,7 @@ class PuppeteerController {
      */
     static async evaluate(identifier, pageFunction, ...args) {
         try {
-            return await Puppeteer.evaluate(PuppeteerController.pages.get(identifier), pageFunction, ...args);
+            return await Puppeteer.evaluate(PuppeteerExtraController.pages.get(identifier), pageFunction, ...args);
         } catch(e) {
             throw new Error('Function execution failed with the following message: ' + e.message);
         }
@@ -86,7 +86,7 @@ class PuppeteerController {
      */
     static async execute(identifier, puppeteerFunction) {
         try {
-            return await puppeteerFunction(PuppeteerController.browser, PuppeteerController.pages.get(identifier));
+            return await puppeteerFunction(PuppeteerExtraController.browser, PuppeteerExtraController.pages.get(identifier));
         } catch (e) {
             throw new Error('Function execution failed with the following message: ' + e.message);
         }
@@ -99,7 +99,7 @@ class PuppeteerController {
      */
     static async inject(identifier, functionality) {
         const serializedFunctionality = functionality.toString();
-        await Puppeteer.addScriptTag(PuppeteerController.pages.get(identifier), {
+        await Puppeteer.addScriptTag(PuppeteerExtraController.pages.get(identifier), {
             content: serializedFunctionality
         });
     }
@@ -112,7 +112,7 @@ class PuppeteerController {
      */
     static async expose(identifier, functionality, name) {
         name ||= functionality.name;
-        await Puppeteer.exposeFunction(PuppeteerController.pages.get(identifier), name, functionality);
+        await Puppeteer.exposeFunction(PuppeteerExtraController.pages.get(identifier), name, functionality);
     }
 
     /**
@@ -121,7 +121,7 @@ class PuppeteerController {
      * @param { string | object } proxy - Proxy to use in the current page. Must begin with a protocol e.g. http://, https://, socks://.
      */
     static async enableProxy(identifier, proxy) {
-        await useProxy(PuppeteerController.pages.get(identifier), proxy);
+        await useProxy(PuppeteerExtraController.pages.get(identifier), proxy);
     }
 
     /**
@@ -129,12 +129,21 @@ class PuppeteerController {
      * @param { symbol } identifier - Unique identifier for a page connection.
      */
     static enableDebugMode(identifier) {
-        Puppeteer.addEventListener(PuppeteerController.pages.get(identifier), 'on', 'console', msg => {
+        Puppeteer.addEventListener(PuppeteerExtraController.pages.get(identifier), 'on', 'console', msg => {
             for (let i = 0; i < msg.args().length; ++i) {
                 console.log(`${i}: ${msg.args()[i]}`);
             }
         });
     }
+
+    /**
+     * Use a puppeteer-extra plugin.
+     * @param {*} plugin - Plugin.
+     * @returns Puppeteer extra.
+     */
+    static use(plugin) {
+        return Puppeteer.use(plugin);
+    }
 }
 
-export default PuppeteerController;
+export default PuppeteerExtraController;

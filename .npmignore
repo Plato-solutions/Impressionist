@@ -1,0 +1,8 @@
+node_modules
+docs
+coverage
+test
+.DS_Store
+package-lock.json
+.gitignore
+.gitbook.yaml
