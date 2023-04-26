@@ -18,6 +18,7 @@ import { PuppeteerController } from './browserControllers/index.js';
 import * as Collector from '../lib/index.js';
 import * as Selectors from '../lib/collector/query/selector/index.js';
 import { MonitorManager } from './plugin-ins/index.js';
+import Environment from './environment.js';
 
 /**
  * Provides {@link https://pptr.dev/ Puppeteer} initialization by creating
@@ -44,9 +45,9 @@ class Process {
      * @param { string } url - Target URL for scraping process.
      * @param { function } customFunction - Custom function to be executed in the Puppeteer context.
      * Like customFunction(browser, page, ...args) { ... }.
-     * @property { object } [ browserOptions = {} ] - Please read the documentation
-     * about the {@link https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions Launch Options}.
-     * @property { Array } [ args = [] ] - Any parameter necessary for the custom function.
+     * @param { { browser: browserOptions, page: object } } options - Options to configure the browser and page.
+     * Please check the browser configuration in https://pptr.dev/api/puppeteer.puppeteerlaunchoptions
+     * Please check the page navigation options in https://pptr.dev/api/puppeteer.page.goto.
      * @returns {Promise} Promise object that represents the result of the custom function.
      * 
      * @example <caption>Basic Usage</caption>
@@ -64,15 +65,34 @@ class Process {
      * @example <caption>Enabling Browser User Interface</caption>
      * ```
      * (async () => {
-     *     return await Impressionist.Process.execute(url, function scrape() { ... }, { browserOptions: { headless: false } } );
+     *      return await Impressionist.execute(
+     *          url,
+     *          function scrape() { ... },
+     *          {
+     *              browserOptions: { headless: false }
+     *          }
+     *      );
+     * })();
+     * ```
+     * 
+     * @example <caption>Set a specific page navigation timeout</caption>
+     * ```
+     * (async () => {
+     *      return await Impressionist.execute(
+     *          url,
+     *          function scrape() { ... },
+     *          { 
+     *              pageOptions: { timeout: 120000 },
+     *          },
+     *      );
      * })();
      * ```
      */
-    static async execute(url, customFunction, { browserOptions = {} } = {}) {
+    static async execute(url, customFunction, options) {
         let connectionIdentifier;
         
         try {
-            connectionIdentifier = await Process.initialize(url, browserOptions);
+            connectionIdentifier = await Process.initialize(url, options);
             await Process.configureConnection(connectionIdentifier);
             return await Process.executeFunction(connectionIdentifier, customFunction);
         } catch (e) {
@@ -88,8 +108,13 @@ class Process {
      * @param { object } [ browserOptions = {} ] - Options to configure the browser controller.
      * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
      */
-    static async initialize(url, browserOptions) {
-        return await Process.browserController.initialize(url, browserOptions);
+    static async initialize(url, options) {
+        const envImpressionistOptions = Environment.get('IMPRESSIONIST_OPTIONS');
+
+        const browserOptions = { ...envImpressionistOptions?.browserOptions, ...options?.browserOptions };
+        const pageOptions = { ...envImpressionistOptions?.pageOptions, ...options?.pageOptions };
+
+        return await Process.browserController.initialize(url, { browserOptions, pageOptions });
     }
 
     /**
@@ -157,13 +182,11 @@ class Process {
      * @param { symbol } connectionIdentifier - Unique identifier for a page connection.
      */
     static async enableCollector(pageConnecction) {
-
         await Process.browserController.inject(pageConnecction, Collector['Selector'].toString());
         
-        Object.entries(Collector).map(async customClass => { 
-                await Process.browserController.inject(pageConnecction, Collector[customClass[0]].toString());
-            }
-        );
+        for (const customClass of Object.entries(Collector)) {
+            await Process.browserController.inject(pageConnecction, Collector[customClass[0]].toString());
+        }
     }
 
     /**

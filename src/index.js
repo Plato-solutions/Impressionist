@@ -14,5 +14,6 @@
  limitations under the License.
  */
 
-export { default as Process } from './process.js';
+export { default } from './process.js';
+export * from './browserControllers/index.js';
 export * from '../lib/collector/index.js';

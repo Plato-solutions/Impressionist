@@ -6,20 +6,9 @@
 </dd>
 <dt><a href="#Process">Process</a></dt>
 <dd><p>Provides <a href="https://pptr.dev/">Puppeteer</a> initialization by creating
-<a href="https://pptr.dev/#?product=Puppeteer&amp;version=v10.1.0&amp;show=api-class-browser">Browser</a> and
-<a href="https://pptr.dev/#?product=Puppeteer&amp;version=v10.1.0&amp;show=api-class-page">Page</a> instances
+<a href="https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser">Browser</a> and
+<a href="https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page">Page</a> instances
 to provide the browser context necessary for the execution of a custom function.</p>
-</dd>
-</dl>
-
-## Functions
-
-<dl>
-<dt><a href="#Process.">Process.([browserOptions])</a> ⇒ <code>Promise.&lt;object&gt;</code></dt>
-<dd><p>Creates the Browser and Page instances.</p>
-</dd>
-<dt><a href="#Process.">Process.(page)</a></dt>
-<dd><p>Exposes the logger function to be used in the browser.</p>
 </dd>
 </dl>
 
@@ -116,15 +105,34 @@ to provide the browser context necessary for the execution of a custom function.
 **Summary**: Initialize Puppeteer.  
 
 * [Process](#Process)
-    * [.execute(url, customFunction)](#Process.execute) ⇒ <code>Promise</code>
-    * [.openConnection(url, [browserOptions])](#Process.openConnection) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.createPage(browser)](#Process.createPage) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.setPageConfigurations(page, url)](#Process.setPageConfigurations) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.connect(browserWSEndpoint, customFunction, [...args])](#Process.connect) ⇒ <code>Promise.&lt;any&gt;</code>
+    * _instance_
+        * [.browserController](#Process+browserController)
+    * _static_
+        * [.execute(url, customFunction, options)](#Process.execute) ⇒ <code>Promise</code>
+        * [.initialize(url, [browserOptions])](#Process.initialize) ⇒ <code>Promise.&lt;symbol&gt;</code>
+        * [.configureConnection(connectionIdentifier)](#Process.configureConnection)
+        * [.enableImpressionistFeatures(connectionIdentifier)](#Process.enableImpressionistFeatures)
+        * [.executeFunction(connectionIdentifier, customFunction)](#Process.executeFunction) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.handleError(error, connectionIdentifier)](#Process.handleError) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.close(connectionIdentifier)](#Process.close) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.exposeLogger(connectionIdentifier)](#Process.exposeLogger)
+        * [.enableCollector(connectionIdentifier)](#Process.enableCollector)
+        * [.registerSelectors(connectionIdentifier)](#Process.registerSelectors)
+        * [.registerStrategies(connectionIdentifier)](#Process.registerStrategies)
+        * [.addProxyFunctions(connectionIdentifier)](#Process.addProxyFunctions)
+        * [.connect(browserWSEndpoint, customFunction, [...args])](#Process.connect) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.setBrowserController(browserController)](#Process.setBrowserController)
+        * [.loadPlugin(plugin)](#Process.loadPlugin)
 
+<a name="Process+browserController"></a>
+
+### process.browserController
+Provides methods and features to interact with the browser. By default, PuppeteerController.
+
+**Kind**: instance property of [<code>Process</code>](#Process)  
 <a name="Process.execute"></a>
 
-### Process.execute(url, customFunction) ⇒ <code>Promise</code>
+### Process.execute(url, customFunction, options) ⇒ <code>Promise</code>
 It provides the necessary context to run a function in the puppeteer or browser context
 by executing a series of steps, such as initializing a Browser instance and applying
 extra configurations defined by an input parameter, initializing a Page instance and
@@ -138,13 +146,7 @@ in the browser context of that specific instance.
 | --- | --- | --- |
 | url | <code>string</code> | Target URL for scraping process. |
 | customFunction | <code>function</code> | Custom function to be executed in the Puppeteer context. Like customFunction(browser, page, ...args) { ... }. |
-
-**Properties**
-
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| [browserOptions] | <code>object</code> | <code>{}</code> | Please read the documentation about the [Launch Options](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions). |
-| [args] | <code>Array</code> | <code>[]</code> | Any parameter necessary for the custom function. |
+| options | <code>Object</code> | Options to configure the browser and page. Please check the browser configuration in https://pptr.dev/api/puppeteer.puppeteerlaunchoptions Please check the page navigation options in https://pptr.dev/api/puppeteer.page.goto. |
 
 **Example** *(Basic Usage)*  
 ```
@@ -160,133 +162,155 @@ async function scrape(browser, page) {
 **Example** *(Enabling Browser User Interface)*  
 ```
 (async () => {
-    const data = await Impressionist.Process.execute(url, scrape, { browserOptions: { headless: false } } );
-    console.log(JSON.stringify(data));
-})(scrape);
-
-async function scrape(browser, page) {
-     ...
-}
+     return await Impressionist.Process.execute(
+         url,
+         function scrape() { ... },
+         {
+             browserOptions: { headless: false }
+         }
+     );
+})();
 ```
-<a name="Process.openConnection"></a>
+**Example** *(Set a specific page navigation timeout)*  
+```
+(async () => {
+     return await Impressionist.Process.execute(
+         url,
+         function scrape() { ... },
+         { 
+             pageOptions: { timeout: 120000 },
+         },
+     );
+})();
+```
+<a name="Process.initialize"></a>
 
-### Process.openConnection(url, [browserOptions]) ⇒ <code>Promise.&lt;object&gt;</code>
-Open a connection to a browser instance.
+### Process.initialize(url, [browserOptions]) ⇒ <code>Promise.&lt;symbol&gt;</code>
+Perform actions to initialize a connection to a page using the browser controller.
 
 **Kind**: static method of [<code>Process</code>](#Process)  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Promise object that represents an object that stores the browser, page instances.  
+**Returns**: <code>Promise.&lt;symbol&gt;</code> - Promise which resolves to a connection identifier.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| url | <code>string</code> |  | Target URL for scraping process. |
-| [browserOptions] | <code>object</code> | <code>{}</code> | Please read the documentation about the [Launch Options](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions). |
+| url | <code>string</code> |  | URL or browser Endpoint. |
+| [browserOptions] | <code>object</code> | <code>{}</code> | Options to configure the browser controller. |
 
-<a name="Process.createPage"></a>
+<a name="Process.configureConnection"></a>
 
-### Process.createPage(browser) ⇒ <code>Promise.&lt;object&gt;</code>
-Creates a new instance of [Page](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page).
+### Process.configureConnection(connectionIdentifier)
+Configure a page connection.
 
 **Kind**: static method of [<code>Process</code>](#Process)  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Promise object that represents a [Page instance](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page).  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| browser | <code>object</code> | [Browser instance](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-browser). |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
 
-**Example** *(Create a second Page instance)*  
-```
-(async () => {
-    const data = await Impressionist.Process.execute(url, scrape);
-    console.log(JSON.stringify(data));
-})(scrape);
+<a name="Process.enableImpressionistFeatures"></a>
 
-async function scrape(browser, page) {
-     const resultMainPage = await page.evaluate(...);
-     
-     // Need for a second page instance
-     const secondPage = await Impressionist.Process.createPage(browser);
-
-     ...
-
-}
-```
-<a name="Process.setPageConfigurations"></a>
-
-### Process.setPageConfigurations(page, url) ⇒ <code>Promise.&lt;void&gt;</code>
-Method that takes as a parameter the Page instance that is started internally within the class.
-The method can modify the behavior of the Page instance. Please read the documentation about the
-[Page instance](https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-class-page).
+### Process.enableImpressionistFeatures(connectionIdentifier)
+Enable all the Impressionist features to be used in the browser context.
 
 **Kind**: static method of [<code>Process</code>](#Process)  
-**Returns**: <code>Promise.&lt;void&gt;</code> - Promise object that represents the method execution completion.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| page | <code>page</code> | [Page instance](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page). |
-| url | <code>string</code> | Target URL. |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
 
-**Properties**
+<a name="Process.executeFunction"></a>
 
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| [defaultTimeout] | <code>number</code> | <code>60000</code> | Maximum time. Please read [page.setDefaultTimeout](https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetdefaulttimeouttimeout) documentation. |
-| [viewport] | <code>object</code> | <code>{ width: 1366, height: 768, deviceScaleFactor: 1 }</code> | Viewport. Please read [page.setViewport](https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagesetviewportviewport) documentation. |
-| [navigation] | <code>object</code> | <code>{ waitUntil: &#x27;networkidle2&#x27; }</code> | Navigation parameters. Please read [page.goto](https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pagegotourl-options) documentation. |
+### Process.executeFunction(connectionIdentifier, customFunction) ⇒ <code>Promise.&lt;any&gt;</code>
+Execute the function in the browser context provided by the browser controller.
 
-**Example** *(Create a second Page instance and apply default configurations)*  
-```
-(async () => {
-    const data = await Impressionist.Process.execute(url, scrape);
-    console.log(JSON.stringify(data));
-})(scrape);
+**Kind**: static method of [<code>Process</code>](#Process)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to the result of the execution of the function.  
 
-async function scrape(browser, page) {
-     const resultMainPage = await page.evaluate(...);
-     
-     // Need for a second page instance
-     const secondPage = await Impressionist.Process.createPage(browser);
-     
-     // Apply default configurations
-     await Impressionist.Process.setPageConfigurations(secondPage, 'https://...');
-     
-     // Using the second Page instance
-     const resultSecondPage = await secondPage.evaluate(...);
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+| customFunction | <code>function</code> | Custom function to be executed in the Puppeteer context. Like customFunction(browser, page, ...args) { ... }. |
 
-     ...
+<a name="Process.handleError"></a>
 
-}
-```
+### Process.handleError(error, connectionIdentifier) ⇒ <code>Promise.&lt;any&gt;</code>
+Handle errors.
 
- 
-**Example** *(Create a second Page instance and set a different viewport)*  
-```
-(async () => {
-    const data = await Impressionist.Process.execute(url, scrape);
-    console.log(JSON.stringify(data));
-})(scrape);
+**Kind**: static method of [<code>Process</code>](#Process)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to any result of error handling.  
 
-async function scrape(browser, page) {
-     const resultMainPage = await page.evaluate(...);
-     
-     // Need for a second page instance
-     const secondPage = await Impressionist.Process.createPage(browser);
-     
-     // Apply different configurations
-     await Impressionist.Process.setPageConfigurations(secondPage, 'https://...', {
-         viewport: {
-             width: 1920,
-                    height: 1080,
-                    deviceScaleFactor: 1
-         }
-     });
-     
-     // Using the second Page instance
-     const resultSecondPage = await secondPage.evaluate(...);
+| Param | Type | Description |
+| --- | --- | --- |
+| error | <code>Error</code> | Error object. |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
 
-     ...
+<a name="Process.close"></a>
 
-}
-```
+### Process.close(connectionIdentifier) ⇒ <code>Promise.&lt;any&gt;</code>
+Close connections.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to any result of closing connections.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="Process.exposeLogger"></a>
+
+### Process.exposeLogger(connectionIdentifier)
+Exposes the logger function to be used in the browser context.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="Process.enableCollector"></a>
+
+### Process.enableCollector(connectionIdentifier)
+Load the library classes in the browser environment.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="Process.registerSelectors"></a>
+
+### Process.registerSelectors(connectionIdentifier)
+Make the registration of Selectable sub-classes using their static method register.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="Process.registerStrategies"></a>
+
+### Process.registerStrategies(connectionIdentifier)
+Register strategies.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="Process.addProxyFunctions"></a>
+
+### Process.addProxyFunctions(connectionIdentifier)
+Add functions to be used in Browser Context.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| connectionIdentifier | <code>symbol</code> | Unique identifier for a page connection. |
+
 <a name="Process.connect"></a>
 
 ### Process.connect(browserWSEndpoint, customFunction, [...args]) ⇒ <code>Promise.&lt;any&gt;</code>
@@ -301,32 +325,37 @@ Execute a function in a specific browser endpoint.
 | customFunction | <code>function</code> |  | Custom function to be executed in the Puppeteer context. Like customFunction(browser, page, ...args) { ... }. |
 | [...args] | <code>Array.&lt;any&gt;</code> | <code>[]</code> | Any parameter necessary for the custom function. |
 
-<a name="Process."></a>
+<a name="Process.setBrowserController"></a>
 
-## Process.([browserOptions]) ⇒ <code>Promise.&lt;object&gt;</code>
-Creates the Browser and Page instances.
+### Process.setBrowserController(browserController)
+Set a browser controller which Impressionist use to interact with the browser context.
 
-**Kind**: global function  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Promise object that represents an object that stores the browser, page instances.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [browserOptions] | <code>object</code> | <code>{}</code> | Please read the documentation about the [Launch Options](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions). |
-
-<a name="Process."></a>
-
-## Process.(page)
-Exposes the logger function to be used in the browser.
-
-**Kind**: global function  
+**Kind**: static method of [<code>Process</code>](#Process)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| page | <code>object</code> | [Page instance](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-class-page). |
+| browserController | <code>object</code> | Browser controller. |
+
+<a name="Process.loadPlugin"></a>
+
+### Process.loadPlugin(plugin)
+Load a plugin.
+
+**Kind**: static method of [<code>Process</code>](#Process)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| plugin | <code>object</code> | A class to extends or modify the Impressionist behavior. |
 
 ## Classes
 
 <dl>
+<dt><a href="#Puppeteer">Puppeteer</a></dt>
+<dd><p>Controls access to puppeteer methods and features.</p>
+</dd>
+<dt><a href="#PuppeteerController">PuppeteerController</a></dt>
+<dd><p>Provides shorcut methods to Puppeteer configurations for initialize</p>
+</dd>
 <dt><a href="#MonitorManager">MonitorManager</a></dt>
 <dd><p>Log on each of the subscribed monitoring tools.</p>
 </dd>
@@ -342,9 +371,259 @@ Exposes the logger function to be used in the browser.
 
 <dl>
 <dt><a href="#Sentry.">Sentry.()</a></dt>
-<dd><p>Perform the necessary steps to configure Sentry.</p>
+<dd><p>Add the necessary tags for Sentry.
+Some come from environment variables and others are defined by the library locally.</p>
 </dd>
 </dl>
+
+<a name="Puppeteer"></a>
+
+## Puppeteer
+Controls access to puppeteer methods and features.
+
+**Kind**: global class  
+
+* [Puppeteer](#Puppeteer)
+    * [.launch([options])](#Puppeteer.launch) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.newPage(browser)](#Puppeteer.newPage) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.close(...controllers)](#Puppeteer.close)
+    * [.goto(page, url)](#Puppeteer.goto)
+    * [.evaluate(page, pageFunction, ...args)](#Puppeteer.evaluate) ⇒ <code>Promise.&lt;any&gt;</code>
+    * [.exposeFunction(page, name, puppeteerFunction)](#Puppeteer.exposeFunction)
+    * [.addScriptTag(page, options)](#Puppeteer.addScriptTag)
+    * [.addEventListener(page, method, event, handler)](#Puppeteer.addEventListener)
+
+<a name="Puppeteer.launch"></a>
+
+### Puppeteer.launch([options]) ⇒ <code>Promise.&lt;object&gt;</code>
+Enables a connection to control the browser.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Promise which resolves to browser instance.  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>object</code> | <code>{}</code> | Please read the documentation about the [Launch Options](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions). |
+
+<a name="Puppeteer.newPage"></a>
+
+### Puppeteer.newPage(browser) ⇒ <code>Promise.&lt;object&gt;</code>
+Create a new [Page object](https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-class-page).
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Promise which resolves to a new Page object. The Page is created in a default browser context.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| browser | <code>object</code> | Browser instance. |
+
+<a name="Puppeteer.close"></a>
+
+### Puppeteer.close(...controllers)
+Close any instance of Page or Browser.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ...controllers | <code>any</code> | Page or Browser instances. |
+
+<a name="Puppeteer.goto"></a>
+
+### Puppeteer.goto(page, url)
+Navigate to a specific URL.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page | <code>object</code> | Page instance. |
+| url | <code>string</code> | URL. |
+
+<a name="Puppeteer.evaluate"></a>
+
+### Puppeteer.evaluate(page, pageFunction, ...args) ⇒ <code>Promise.&lt;any&gt;</code>
+Execute a function in the browser context.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to a result of the function executed in the browser context.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page | <code>object</code> | Page instance. |
+| pageFunction | <code>function</code> | A function to be executed in the browser context. |
+| ...args | <code>any</code> | Function arguments. |
+
+<a name="Puppeteer.exposeFunction"></a>
+
+### Puppeteer.exposeFunction(page, name, puppeteerFunction)
+Expose a NodeJS function to be called from the browser context.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page | <code>object</code> | Page Instance. |
+| name | <code>string</code> | Function name to be called from the browser context. |
+| puppeteerFunction | <code>function</code> | Function that is going to be executed in the NodeJS context. |
+
+<a name="Puppeteer.addScriptTag"></a>
+
+### Puppeteer.addScriptTag(page, options)
+Add a new script tag in the HTML layout.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page | <code>object</code> | Page instance. |
+| options | <code>object</code> | Options for load content in the script tag. Please check the [documentation](https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-pageaddscripttagoptions). |
+
+<a name="Puppeteer.addEventListener"></a>
+
+### Puppeteer.addEventListener(page, method, event, handler)
+Add an event listener to page.
+
+**Kind**: static method of [<code>Puppeteer</code>](#Puppeteer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page | <code>object</code> | Page instance. |
+| method | <code>string</code> | [EventEmitter](https://pptr.dev/#?product=Puppeteer&version=v12.0.1&show=api-eventemitteronevent-handler) method. |
+| event | <code>string</code> \| <code>symbol</code> | The event to add the handler to. |
+| handler | <code>function</code> | The event listener that will be added. |
+
+<a name="PuppeteerController"></a>
+
+## PuppeteerController
+Provides shorcut methods to Puppeteer configurations for initialize
+
+**Kind**: global class  
+
+* [PuppeteerController](#PuppeteerController)
+    * _instance_
+        * [.browser](#PuppeteerController+browser)
+        * [.pages](#PuppeteerController+pages)
+    * _static_
+        * [.initialize(url, [options])](#PuppeteerController.initialize) ⇒ <code>Promise.&lt;symbol&gt;</code>
+        * [.close([identifier])](#PuppeteerController.close)
+        * [.evaluate(identifier, pageFunction, ...args)](#PuppeteerController.evaluate) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.execute(identifier, puppeteerFunction)](#PuppeteerController.execute) ⇒ <code>Promise.&lt;any&gt;</code>
+        * [.inject(identifier, functionality)](#PuppeteerController.inject)
+        * [.expose(identifier, functionality, [name])](#PuppeteerController.expose)
+        * [.enableProxy(identifier, proxy)](#PuppeteerController.enableProxy)
+        * [.enableDebugMode(identifier)](#PuppeteerController.enableDebugMode)
+
+<a name="PuppeteerController+browser"></a>
+
+### puppeteerController.browser
+Browser instance.
+
+**Kind**: instance property of [<code>PuppeteerController</code>](#PuppeteerController)  
+<a name="PuppeteerController+pages"></a>
+
+### puppeteerController.pages
+Page instances.
+
+**Kind**: instance property of [<code>PuppeteerController</code>](#PuppeteerController)  
+<a name="PuppeteerController.initialize"></a>
+
+### PuppeteerController.initialize(url, [options]) ⇒ <code>Promise.&lt;symbol&gt;</code>
+Open a connection to an URL using a page instance.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+**Returns**: <code>Promise.&lt;symbol&gt;</code> - Promise which resolves to a unique identifier represented by a Symbol.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| url | <code>string</code> | URL. |
+| [options] | <code>object</code> | Please read the documentation about the [Launch Options](https://pptr.dev/#?product=Puppeteer&version=v10.1.0&show=api-puppeteerlaunchoptions). |
+
+<a name="PuppeteerController.close"></a>
+
+### PuppeteerController.close([identifier])
+Close connections.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [identifier] | <code>symbol</code> | Unique identifier for a page connection. |
+
+<a name="PuppeteerController.evaluate"></a>
+
+### PuppeteerController.evaluate(identifier, pageFunction, ...args) ⇒ <code>Promise.&lt;any&gt;</code>
+Evaluate a function in a specific page.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to the result of the pageFunction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| identifier | <code>symbol</code> | Unique identifier for a page connection. |
+| pageFunction | <code>function</code> | A function to be evaluated in the browser context. |
+| ...args | <code>any</code> | Arguments for being passed to the pageFunction. |
+
+<a name="PuppeteerController.execute"></a>
+
+### PuppeteerController.execute(identifier, puppeteerFunction) ⇒ <code>Promise.&lt;any&gt;</code>
+Execute a function which provides browser and page as parameters.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Promise which resolves to the result of the puppeteerFunction.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| identifier | <code>symbol</code> | Unique identifier for a page connection. |
+| puppeteerFunction | <code>function</code> | Custom function. |
+
+<a name="PuppeteerController.inject"></a>
+
+### PuppeteerController.inject(identifier, functionality)
+Inject a function in the HTML layout.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| identifier | <code>symbol</code> | Unique identifier for a page connection. |
+| functionality | <code>function</code> | Function to be load as a script tag in the page. |
+
+<a name="PuppeteerController.expose"></a>
+
+### PuppeteerController.expose(identifier, functionality, [name])
+Expose a NodeJS function to be used from the browser context.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| identifier | <code>symbol</code> |  | Unique identifier for a page connection. |
+| functionality | <code>function</code> |  | Function to be exposed. |
+| [name] | <code>string</code> | <code>&quot;functionality.name&quot;</code> | Function name to be used in the browserContext. |
+
+<a name="PuppeteerController.enableProxy"></a>
+
+### PuppeteerController.enableProxy(identifier, proxy)
+Setting proxies per page basis.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| identifier | <code>symbol</code> | Unique identifier for a page connection. |
+| proxy | <code>string</code> \| <code>object</code> | Proxy to use in the current page. Must begin with a protocol e.g. http://, https://, socks://. |
+
+<a name="PuppeteerController.enableDebugMode"></a>
+
+### PuppeteerController.enableDebugMode(identifier)
+Display console.log messages in environments different than Production.
+
+**Kind**: static method of [<code>PuppeteerController</code>](#PuppeteerController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| identifier | <code>symbol</code> | Unique identifier for a page connection. |
 
 <a name="MonitorManager"></a>
 
@@ -423,8 +702,21 @@ Provides an interface for [Sentry integration](https://docs.sentry.io/platforms/
 **Kind**: global class  
 
 * [Sentry](#Sentry)
+    * [.initialize(options, tags)](#Sentry.initialize)
     * [.log(report)](#Sentry.log)
     * [.sendException(error)](#Sentry.sendException) ⇒ <code>Promise.&lt;void&gt;</code>
+
+<a name="Sentry.initialize"></a>
+
+### Sentry.initialize(options, tags)
+Specifies the basic options for Sentry initialization.
+
+**Kind**: static method of [<code>Sentry</code>](#Sentry)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>object</code> | Please check [Sentry documentation](https://docs.sentry.io/platforms/node/configuration/options/). |
+| tags | <code>object</code> | Set of tags. |
 
 <a name="Sentry.log"></a>
 
@@ -452,13 +744,10 @@ Send error generated to Sentry while Puppeteer execution.
 <a name="Sentry."></a>
 
 ## Sentry.()
-Perform the necessary steps to configure Sentry.
+Add the necessary tags for Sentry.
+Some come from environment variables and others are defined by the library locally.
 
 **Kind**: global function  
-**Example**  
-```
-Sentry.setConfigurations();
-```
 ## Classes
 
 <dl>
@@ -506,6 +795,10 @@ of the Collectable tree and that does not have a Collectable default method spec
 <dl>
 <dt><a href="#Logger.">Logger.(elements)</a> ⇒ <code>Array.&lt;object&gt;</code></dt>
 <dd><p>Extract useful information from elements and give them a specific format inside a list.</p>
+</dd>
+<dt><a href="#clickAndWait">clickAndWait(elementSelector, waitFor)</a></dt>
+<dd><p>Click an element in the DOM and then wait for another event like a timeout,
+a selector being loading in the DOM or wait for the completion of an asyncronous function.</p>
 </dd>
 </dl>
 
@@ -799,7 +1092,7 @@ Search or look up the best strategy.
 | Param | Type | Description |
 | --- | --- | --- |
 | element | <code>Any</code> | A criterion to be evaluated. |
-| strategies | <code>Array.&lt;object&gt;</code> | Available strategies. |
+| strategies | <code>Set.&lt;object&gt;</code> | Available strategies. |
 
 <a name="TypeValidator"></a>
 
@@ -853,14 +1146,16 @@ Loads all DOM elements that are handled by a LazyLoad.
 **Kind**: global class  
 <a name="LazyLoadHandler.execute"></a>
 
-### LazyLoadHandler.execute(buttonSelector)
-Executes the loading of all the elements by providing a clickable element selector, for example, a Next button.
+### LazyLoadHandler.execute(buttonSelector, [stopLoad])
+Executes the loading of all the elements by providing a clickable element selector,
+for example, a button.
 
 **Kind**: static method of [<code>LazyLoadHandler</code>](#LazyLoadHandler)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| buttonSelector | <code>string</code> | CSS Selector. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| buttonSelector | <code>string</code> |  | CSS Selector that represents a button. |
+| [stopLoad] | <code>function</code> | <code>(button) &#x3D;&gt; button &amp;&amp; !(button?.disabled)</code> | A function that returns a boolean to control when the event needs to be stopped. By default function is ```(button) => button && !(button?.disabled)```, where the LazyLoadHandler needs to stop when the button is disabled. |
 
 <a name="Pagination"></a>
 
@@ -870,7 +1165,7 @@ Handles the pagination of an HTML section.
 **Kind**: global class  
 <a name="Pagination.execute"></a>
 
-### Pagination.execute(buttonSelector, [time])
+### Pagination.execute(buttonSelector, waitFor, [stopLoad])
 Create a generator object with the new rendered document.
 
 **Kind**: static method of [<code>Pagination</code>](#Pagination)  
@@ -878,7 +1173,11 @@ Create a generator object with the new rendered document.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | buttonSelector | <code>string</code> |  | CSS selector of the button that triggers the action to go to the next pagination. |
-| [time] | <code>number</code> | <code>300</code> | Delay time for rendering the document object. |
+| waitFor | <code>object</code> |  | Selector of an element and timeout in milliseconds to wait for. |
+| waitFor.timeout | <code>number</code> |  | The number of milliseconds to wait for. |
+| waitFor.selector | <code>string</code> |  | A selector of an element to wait for. |
+| waitFor.customFunction | <code>function</code> |  | A function that performs others waiting processes. |
+| [stopLoad] | <code>function</code> | <code>(button) &#x3D;&gt; button</code> | A function that returns a boolean to control when the event needs to be stopped. By default function is ```(button) => button```, where the Pagination functionality needs to stop when the button is not available. |
 
 <a name="Logger."></a>
 
@@ -891,6 +1190,22 @@ Extract useful information from elements and give them a specific format inside 
 | Param | Type | Description |
 | --- | --- | --- |
 | elements | <code>object</code> | Any element to record its value, data type and instance. |
+
+<a name="clickAndWait"></a>
+
+## clickAndWait(elementSelector, waitFor)
+Click an element in the DOM and then wait for another event like a timeout,
+a selector being loading in the DOM or wait for the completion of an asyncronous function.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| elementSelector | <code>string</code> | CSS Selector to click on. |
+| waitFor | <code>object</code> | Options to wait for. |
+| waitFor.timeout | <code>number</code> | Timeout. |
+| waitFor.selector | <code>string</code> | A CSS Selector. |
+| waitFor.customFunction | <code>function</code> | A function that performs others waiting processes. |
 
 ## Classes
 
@@ -906,14 +1221,14 @@ returning it to be collected upon.</p>
 <dd><p>Default ContextAcessor, used when there is not contextProcessor in Collector.</p>
 </dd>
 <dt><a href="#CollectionCollectorFactory">CollectionCollectorFactory</a></dt>
-<dd><p>Shortcut to create a Collector isntances for collecting a collection
+<dd><p>Create a Collector instance for collecting a collection
 for each iterable item in the context.</p>
 </dd>
 <dt><a href="#ElementCollectorFactory">ElementCollectorFactory</a></dt>
-<dd><p>Shortcut to create Collector that returns a NodeList of DOM elements.</p>
+<dd><p>Creates a Collector instance that returns a NodeList of DOM elements.</p>
 </dd>
 <dt><a href="#OptionCollectorFactory">OptionCollectorFactory</a></dt>
-<dd><p>Shortcut to create Collector that returns a list of combinations
+<dd><p>Creates a Collector instance that returns a list of combinations
 generated by Options intances.</p>
 </dd>
 <dt><a href="#Option">Option</a></dt>
@@ -956,7 +1271,8 @@ Execute a set of queries.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queries | <code>Object</code> \| <code>function</code> \| <code>string</code> | Set of queries. |
+| queries | <code>Object</code> | Set of queries. |
+| queries.* | <code>string</code> \| <code>function</code> \| <code>Query</code> | QUery. |
 
 <a name="Collection+call"></a>
 
@@ -1083,7 +1399,7 @@ Returns a generator with the incoming context.
 <a name="CollectionCollectorFactory"></a>
 
 ## CollectionCollectorFactory
-Shortcut to create a Collector isntances for collecting a collection
+Create a Collector instance for collecting a collection
 for each iterable item in the context.
 
 **Kind**: global class  
@@ -1100,7 +1416,7 @@ for each iterable item in the context.
 <a name="ElementCollectorFactory"></a>
 
 ## ElementCollectorFactory
-Shortcut to create Collector that returns a NodeList of DOM elements.
+Creates a Collector instance that returns a NodeList of DOM elements.
 
 **Kind**: global class  
 <a name="new_ElementCollectorFactory_new"></a>
@@ -1115,7 +1431,7 @@ Shortcut to create Collector that returns a NodeList of DOM elements.
 <a name="OptionCollectorFactory"></a>
 
 ## OptionCollectorFactory
-Shortcut to create Collector that returns a list of combinations
+Creates a Collector instance that returns a list of combinations
 generated by Options intances.
 
 **Kind**: global class  
@@ -1291,10 +1607,10 @@ each of the options in the Collector run.
 
 <dl>
 <dt><a href="#CollectionElementProcessor">CollectionElementProcessor</a></dt>
-<dd><p>Converts collection into a generator of elements.</p>
+<dd><p>Creates a generator from a list of elements.</p>
 </dd>
 <dt><a href="#CollectionOptionProcessor">CollectionOptionProcessor</a></dt>
-<dd><p>Processes collected values into options.</p>
+<dd><p>Creates a generator from a list of Option instances.</p>
 </dd>
 <dt><a href="#GroupStrategy">GroupStrategy</a></dt>
 <dd><p>Knows how to get and set values from a group of options.</p>
@@ -1314,19 +1630,26 @@ each of the options in the Collector run.
 <dt><a href="#InterpreterStrategyManager">InterpreterStrategyManager</a></dt>
 <dd><p>Manage which interpretation strategy will process the custom selector.</p>
 </dd>
-<dt><a href="#All">All</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#All">All</a></dt>
 <dd><p>Contains the specific logic to process nested structures. In case no parameter is passed
 to its constructor then it will return the previous result in the execution of the chain.</p>
 <p>The class itself is not open to developer use, but rather is used by a proxy function to
 build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Css">Css</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#CollectorSelector">CollectorSelector</a></dt>
+<dd><p>Execute a Collector instance.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
+</dd>
+<dt><a href="#Css">Css</a></dt>
 <dd><p>Contains specific logic to extract elements from the DOM using a CSS selector.</p>
 <p>The class itself is not open to developer use, but rather is used by a proxy function to
 build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Default">Default</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Default">Default</a></dt>
 <dd><p>Returns a default value if there the expected result is not valid.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
 <dt><a href="#SelectorDirectory">SelectorDirectory</a></dt>
 <dd><p>Provide a directory to store proxy function that will be used to instantiate the Implementation sub-classes.
@@ -1334,39 +1657,55 @@ The directory is made up of the name of each proxy function and its sub-class co
 </dd>
 <dt><a href="#Elements">Elements</a></dt>
 <dd><p>Creates a collector that will return a generator of a list of elements.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Init">Init</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Init">Init</a></dt>
 <dd><p>Perform actions during initialization.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
 <dt><a href="#Iterate">Iterate</a></dt>
 <dd><p>Iterate a Collector instance against a set of queries.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Merge">Merge</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Merge">Merge</a></dt>
 <dd><p>Contains the specific Selector that allows concatenating other query Selectors.</p>
 <p>The class itself is not open to developer use, but rather is used by a proxy function to
 build the instance. See the example for more information.</p>
 </dd>
 <dt><a href="#Options">Options</a></dt>
 <dd><p>Creates a collector that will return a generator of a list of option values.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Post">Post</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Post">Post</a></dt>
 <dd><p>Perform actions after data extraction.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Pre">Pre</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Pre">Pre</a></dt>
 <dd><p>Perform actions before data extraction.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Property">Property</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Property">Property</a></dt>
 <dd><p>Contains the specific Selector to obtain properties of DOM elements.</p>
 <p>The class itself is not open to developer use, but rather is used by a proxy function to
 build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Require">Require</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Require">Require</a></dt>
 <dd><p>Returns an error if the result is not a valid value.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
 <dt><a href="#Select">Select</a></dt>
 <dd><p>Interprets Select Strings.</p>
+<p>The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.</p>
 </dd>
-<dt><a href="#Single">Single</a> ⇐ <code><a href="#new_Selector_new">Selector</a></code></dt>
+<dt><a href="#Single">Single</a></dt>
 <dd><p>Contains the specific Selector to check if a single element is expected
 as it turns out, otherwise throw an error.</p>
 <p>The class itself is not open to developer use, but rather is used by a proxy function to
@@ -1382,6 +1721,12 @@ build the instance. See the example for more information.</p>
 ## Functions
 
 <dl>
+<dt><a href="#CollectionElementProcessor.">CollectionElementProcessor.(element)</a> ⇒ <code>boolean</code></dt>
+<dd><p>Check the object is a generator.</p>
+</dd>
+<dt><a href="#CollectionElementProcessor.">CollectionElementProcessor.(elements)</a></dt>
+<dd><p>Create a generator from a list of elements.</p>
+</dd>
 <dt><a href="#CollectionOptionProcessor.">CollectionOptionProcessor.(options)</a> ⇒ <code>Promise.&lt;Generator&gt;</code></dt>
 <dd><p>It takes Option instances and calculates all possible values ​​of the
 combinations of those options.</p>
@@ -1391,7 +1736,7 @@ combinations of those options.</p>
 <a name="CollectionElementProcessor"></a>
 
 ## CollectionElementProcessor
-Converts collection into a generator of elements.
+Creates a generator from a list of elements.
 
 **Kind**: global class  
 <a name="CollectionElementProcessor.call"></a>
@@ -1417,7 +1762,7 @@ const result = await page.evaluate(() => {
 <a name="CollectionOptionProcessor"></a>
 
 ## CollectionOptionProcessor
-Processes collected values into options.
+Creates a generator from a list of Option instances.
 
 **Kind**: global class  
 <a name="CollectionOptionProcessor.call"></a>
@@ -1622,7 +1967,7 @@ Knows how to get and set values from an element with two states: TRUE/FALSE.
 <a name="ToogleStrategy.getOptions"></a>
 
 ### ToogleStrategy.getOptions(identifier, element) ⇒ <code>Promise.&lt;Array&gt;</code>
-Extract a value that will be used to identify each option.
+Extracts a value that will be used to identify each option.
 
 **Kind**: static method of [<code>ToogleStrategy</code>](#ToogleStrategy)  
 **Returns**: <code>Promise.&lt;Array&gt;</code> - Object that represents a promise for a list of objects.  
@@ -1765,7 +2110,7 @@ to process a specific selector.
 ```
 <a name="All"></a>
 
-## All ⇐ [<code>Selector</code>](#new_Selector_new)
+## All
 Contains the specific logic to process nested structures. In case no parameter is passed
 to its constructor then it will return the previous result in the execution of the chain.
 
@@ -1774,105 +2119,18 @@ build the instance. See the example for more information.
 
 **Kind**: global class  
 **Summary**: Process nested structures.  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
+<a name="CollectorSelector"></a>
 
-* [All](#All) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
+## CollectorSelector
+Execute a Collector instance.
 
-<a name="Selector+alternatives"></a>
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
 
-### all.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>All</code>](#All)  
-<a name="Selector+validateParameters"></a>
-
-### all.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### all.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### all.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### all.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### all.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### all.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### all.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>All</code>](#All)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
+**Kind**: global class  
 <a name="Css"></a>
 
-## Css ⇐ [<code>Selector</code>](#new_Selector_new)
+## Css
 Contains specific logic to extract elements from the DOM using a CSS selector.
 
 The class itself is not open to developer use, but rather is used by a proxy function to
@@ -1880,203 +2138,15 @@ build the instance. See the example for more information.
 
 **Kind**: global class  
 **Summary**: Extracts Dom Elements.  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Css](#Css) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### css.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Css</code>](#Css)  
-<a name="Selector+validateParameters"></a>
-
-### css.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### css.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### css.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### css.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### css.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### css.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### css.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Css</code>](#Css)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Default"></a>
 
-## Default ⇐ [<code>Selector</code>](#new_Selector_new)
+## Default
 Returns a default value if there the expected result is not valid.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Default](#Default) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### default.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Default</code>](#Default)  
-<a name="Selector+validateParameters"></a>
-
-### default.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-<a name="Selector+execute"></a>
-
-### default.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### default.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### default.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### default.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### default.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### default.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Default</code>](#Default)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="SelectorDirectory"></a>
 
 ## SelectorDirectory
@@ -2135,115 +2205,23 @@ Creates an iterable object of all registries inside the registry object.
 ## Elements
 Creates a collector that will return a generator of a list of elements.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
 <a name="Init"></a>
 
-## Init ⇐ [<code>Selector</code>](#new_Selector_new)
+## Init
 Perform actions during initialization.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Init](#Init) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * _instance_
-        * [.alternatives](#Selector+alternatives)
-        * [.validateParameters()](#Selector+validateParameters)
-        * [.execute(context)](#Selector+execute)
-        * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-        * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-        * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-        * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-        * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-    * _static_
-        * [.register()](#Init.register)
-
-<a name="Selector+alternatives"></a>
-
-### init.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Init</code>](#Init)  
-<a name="Selector+validateParameters"></a>
-
-### init.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-<a name="Selector+execute"></a>
-
-### init.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### init.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### init.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### init.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### init.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### init.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Init</code>](#Init)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Init.register"></a>
 
 ### Init.register()
-Modifies the record to be made in the SelectorDirectory class.
+Modifies the registry process in SelectorDirectory class.
 
 **Kind**: static method of [<code>Init</code>](#Init)  
 <a name="Iterate"></a>
@@ -2251,10 +2229,13 @@ Modifies the record to be made in the SelectorDirectory class.
 ## Iterate
 Iterate a Collector instance against a set of queries.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
 <a name="Merge"></a>
 
-## Merge ⇐ [<code>Selector</code>](#new_Selector_new)
+## Merge
 Contains the specific Selector that allows concatenating other query Selectors.
 
 The class itself is not open to developer use, but rather is used by a proxy function to
@@ -2262,315 +2243,36 @@ build the instance. See the example for more information.
 
 **Kind**: global class  
 **Summary**: Concatenates query Selectors  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Merge](#Merge) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### merge.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Merge</code>](#Merge)  
-<a name="Selector+validateParameters"></a>
-
-### merge.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### merge.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### merge.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### merge.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### merge.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### merge.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### merge.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Merge</code>](#Merge)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Options"></a>
 
 ## Options
 Creates a collector that will return a generator of a list of option values.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
 <a name="Post"></a>
 
-## Post ⇐ [<code>Selector</code>](#new_Selector_new)
+## Post
 Perform actions after data extraction.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Post](#Post) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### post.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Post</code>](#Post)  
-<a name="Selector+validateParameters"></a>
-
-### post.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### post.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### post.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### post.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### post.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### post.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### post.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Post</code>](#Post)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Pre"></a>
 
-## Pre ⇐ [<code>Selector</code>](#new_Selector_new)
+## Pre
 Perform actions before data extraction.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Pre](#Pre) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### pre.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Pre</code>](#Pre)  
-<a name="Selector+validateParameters"></a>
-
-### pre.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### pre.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### pre.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### pre.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### pre.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### pre.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### pre.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Pre</code>](#Pre)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Property"></a>
 
-## Property ⇐ [<code>Selector</code>](#new_Selector_new)
+## Property
 Contains the specific Selector to obtain properties of DOM elements.
 
 The class itself is not open to developer use, but rather is used by a proxy function to
@@ -2578,212 +2280,27 @@ build the instance. See the example for more information.
 
 **Kind**: global class  
 **Summary**: Obtain properties.  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Property](#Property) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### property.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Property</code>](#Property)  
-<a name="Selector+validateParameters"></a>
-
-### property.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Overrides**: [<code>validateParameters</code>](#Selector+validateParameters)  
-<a name="Selector+execute"></a>
-
-### property.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### property.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### property.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### property.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### property.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### property.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Property</code>](#Property)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Require"></a>
 
-## Require ⇐ [<code>Selector</code>](#new_Selector_new)
+## Require
 Returns an error if the result is not a valid value.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Require](#Require) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### require.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Require</code>](#Require)  
-<a name="Selector+validateParameters"></a>
-
-### require.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-<a name="Selector+execute"></a>
-
-### require.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### require.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### require.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### require.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### require.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### require.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Require</code>](#Require)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Select"></a>
 
 ## Select
 Interprets Select Strings.
 
+The class itself is not open to developer use, but rather is used by a proxy function to
+build the instance. See the example for more information.
+
 **Kind**: global class  
 <a name="Single"></a>
 
-## Single ⇐ [<code>Selector</code>](#new_Selector_new)
+## Single
 Contains the specific Selector to check if a single element is expected
 as it turns out, otherwise throw an error.
 
@@ -2792,101 +2309,6 @@ build the instance. See the example for more information.
 
 **Kind**: global class  
 **Summary**: Check for a single result of the previous Selector.  
-**Extends**: [<code>Selector</code>](#new_Selector_new)  
-
-* [Single](#Single) ⇐ [<code>Selector</code>](#new_Selector_new)
-    * [.alternatives](#Selector+alternatives)
-    * [.validateParameters()](#Selector+validateParameters)
-    * [.execute(context)](#Selector+execute)
-    * [.call(context)](#Selector+call) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-    * [.setGetElement(context)](#Selector+setGetElement) ⇒ <code>this</code>
-    * [.getElement(context)](#Selector+getElement) ⇒ <code>Any</code>
-    * [.alt(definition)](#Selector+alt) ⇒ <code>this</code>
-    * [.executeAlternatives(context)](#Selector+executeAlternatives) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-
-<a name="Selector+alternatives"></a>
-
-### single.alternatives
-Queue of alternative definitions.
-
-**Kind**: instance property of [<code>Single</code>](#Single)  
-<a name="Selector+validateParameters"></a>
-
-### single.validateParameters()
-Validate the instance initialization parameters.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-<a name="Selector+execute"></a>
-
-### single.execute(context)
-Method that contains all the specific Selector of the instance.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-**Overrides**: [<code>execute</code>](#Selector+execute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+call"></a>
-
-### single.call(context) ⇒ <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code>
-Main method. Start the execution processes of the chained instances.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-**Returns**: <code>Promise.&lt;(string\|Array.&lt;\*&gt;\|Object)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+setGetElement"></a>
-
-### single.setGetElement(context) ⇒ <code>this</code>
-Set a new context.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-**Returns**: <code>this</code> - The instance of a Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+getElement"></a>
-
-### single.getElement(context) ⇒ <code>Any</code>
-Get the element from the context.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
-<a name="Selector+alt"></a>
-
-### single.alt(definition) ⇒ <code>this</code>
-Allows the agregation of new alternatives.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-**Returns**: <code>this</code> - Instance of Selector sub-class.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| definition | <code>string</code> \| <code>Array.&lt;(object\|function())&gt;</code> \| <code>object</code> | The value required to make the selection. For example, in "css" it is a Css Selector, in "property" it is a string that represents a property of the previous object as "innerText", and so on. |
-
-<a name="Selector+executeAlternatives"></a>
-
-### single.executeAlternatives(context) ⇒ <code>Promise.&lt;(object\|string\|Array)&gt;</code>
-Execute the next alternative in the FIFO queue.
-
-**Kind**: instance method of [<code>Single</code>](#Single)  
-**Returns**: <code>Promise.&lt;(object\|string\|Array)&gt;</code> - Promise object that represents the result of the chain execution.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
-
 <a name="Xpath"></a>
 
 ## Xpath ⇐ [<code>Selector</code>](#new_Selector_new)
@@ -2992,6 +2414,29 @@ Execute the next alternative in the FIFO queue.
 | Param | Type | Description |
 | --- | --- | --- |
 | context | <code>Context</code> | Object that represents the context or the element that is being passed on nested queries or instances executions. |
+
+<a name="CollectionElementProcessor."></a>
+
+## CollectionElementProcessor.(element) ⇒ <code>boolean</code>
+Check the object is a generator.
+
+**Kind**: global function  
+**Returns**: <code>boolean</code> - True or False.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| element | <code>any</code> | An object. |
+
+<a name="CollectionElementProcessor."></a>
+
+## CollectionElementProcessor.(elements)
+Create a generator from a list of elements.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| elements | <code>Array.&lt;any&gt;</code> | A list of elements. |
 
 <a name="CollectionOptionProcessor."></a>
 

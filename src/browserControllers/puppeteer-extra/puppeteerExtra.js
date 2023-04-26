@@ -14,10 +14,10 @@
  limitations under the License.
  */
 
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
 
 /**
- * Controls access to puppeteer methods and features.
+ * Controls access to puppeteer-extra methods and features.
  */
 class Puppeteer {
 
@@ -115,6 +115,15 @@ class Puppeteer {
      */
     static addEventListener(page, method, event, handler) {
         page[method](event, handler);
+    }
+
+    /**
+     * Use a puppeteer-extra plugin.
+     * @param { object } plugin - Plugin. 
+     * @returns Puppeteer extra.
+     */
+    static use(plugin) {
+        return puppeteer.use(plugin);
     }
 }
 
