@@ -92,7 +92,8 @@ class Process {
         let connectionIdentifier;
         
         try {
-            connectionIdentifier = await Process.initialize(url, options);
+            const { browser, page } = await Process.initialize(options);
+            connectionIdentifier = await Process.openURL(page, url, options);
             await Process.configureConnection(connectionIdentifier);
             return await Process.executeFunction(connectionIdentifier, customFunction);
         } catch (e) {
@@ -108,13 +109,22 @@ class Process {
      * @param { object } [ browserOptions = {} ] - Options to configure the browser controller.
      * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
      */
-    static async initialize(url, options) {
+    static async initialize(options) {
         const envImpressionistOptions = Environment.get('IMPRESSIONIST_OPTIONS');
-
         const browserOptions = { ...envImpressionistOptions?.browserOptions, ...options?.browserOptions };
+        return await Process.browserController.initialize(browserOptions);
+    }
+    
+    /**
+     * Perform actions to initialize a connection to a page using the browser controller.
+     * @param { string } url - URL or browser Endpoint.
+     * @param { object } [ options = {} ] - Options to configure the browser controller.
+     * @returns { Promise<symbol> } Promise which resolves to a connection identifier.
+     */
+    static async openURL(page, url, options) {
+        const envImpressionistOptions = Environment.get('IMPRESSIONIST_OPTIONS');
         const pageOptions = { ...envImpressionistOptions?.pageOptions, ...options?.pageOptions };
-
-        return await Process.browserController.initialize(url, { browserOptions, pageOptions });
+        return await Process.browserController.navigateTo(page, url, pageOptions);
     }
 
     /**
