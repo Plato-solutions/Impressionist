@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import assert, { fail } from "assert";
+import assert from "assert";
 import NanoServer from '../../../testing-server/server.js';
 import PuppeteerController from '../../../../src/browserControllers/puppeteer/puppeteerController.js';
 
@@ -52,7 +52,8 @@ describe('PuppeteerController Class', () => {
         let identifier;
 
         beforeEach(async () => {
-            identifier = await PuppeteerController.initialize('about:blank');
+            const { browser, page } = await PuppeteerController.initialize();
+            identifier = await PuppeteerController.navigateTo(page, 'about:blank');
         });
 
         it('Execute a function in browser context', async () => {
@@ -95,7 +96,8 @@ describe('PuppeteerController Class', () => {
         let identifier;
 
         beforeEach(async () => {
-            identifier = await PuppeteerController.initialize('about:blank');
+            const { page } = await PuppeteerController.initialize();
+            identifier = await PuppeteerController.navigateTo(page, 'about:blank');
         });
 
         it('Execute a function in browser context', async () => {
@@ -145,7 +147,8 @@ describe('PuppeteerController Class', () => {
 
         let identifier;
         beforeEach(async () => {
-            identifier = await PuppeteerController.initialize('about:blank');
+            const { page } = await PuppeteerController.initialize();
+            identifier = await PuppeteerController.navigateTo(page, 'about:blank');
         });
 
         describe('Inject function', () => {
@@ -219,7 +222,8 @@ describe('PuppeteerController Class', () => {
         let identifier;
 
         beforeEach(async () => {
-            identifier = await PuppeteerController.initialize('about:blank');
+            const { page } = await PuppeteerController.initialize();
+            identifier = await PuppeteerController.navigateTo(page, 'about:blank');
         });
 
         describe('Expose function', () => {
