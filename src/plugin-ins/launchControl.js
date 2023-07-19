@@ -1,3 +1,4 @@
+import Environment from "../environment.js";
 import Process from "../process.js";
 
 /**
@@ -41,14 +42,19 @@ class LaunchControl {
             '--disable-gpu'
         ];
 
-        const chromeExecutablePath = LaunchControl.#getGoogleChromePath() || '/usr/bin/google-chrome';
+        const executablePath = LaunchControl.#getGoogleChromePath() || '/usr/bin/google-chrome';
 
-        Impressionist.initialize = async function initialize(url, browserOptions) {
-            return await Impressionist.browserController.initialize(url, {
-                ...browserOptions,
-                executablePath: chromeExecutablePath,
-                args
-            });
+        Impressionist.initialize = async function initialize(options) {
+            const envImpressionistOptions = Environment.get('IMPRESSIONIST_OPTIONS');
+            
+            const browserOptions = {
+                ...envImpressionistOptions?.browserOptions,
+                args,
+                executablePath,
+                ...options?.browserOptions,
+            };
+
+            return await Impressionist.browserController.initialize(browserOptions);
         }
     }
 }
